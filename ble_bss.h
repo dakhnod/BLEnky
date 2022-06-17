@@ -52,12 +52,52 @@ enum openinig_closing_state {
     OPEN
 };
 
+enum report_state_t {
+    OFF,
+    ON
+};
+
 typedef struct {
-    enum parameter_id_t parameter_id;
-    uint8_t parameter_length;
-    uint16_t reserved;
-    uint8_t *data;
+    char parameter_id;
+    char parameter_length;
+    short reserved;
+    char *data;
 } message_parameter_t;
+
+typedef struct {
+    char parameter_id;
+    char parameter_length;
+} message_parameter_without_data_t;
+
+typedef struct {
+    char rfu_1;
+    char message_id;
+    char rfu_2;
+    char parameter_count;
+} message_header_t;
+
+
+
+void parse_full_packet_with_split_header(char *data, short length);
+void parse_packet_decoded(enum message_id_t message_id, message_parameter_t *parameters, char parameter_count);
+void parse_packet(char *data, short length);
+void parse_set_sensor_command(message_parameter_t *parameters, char parameter_count);
+void handle_set_sensor_command(enum sensor_type_t sensor_type, enum report_state_t report_state);
+void parse_get_sensor_command(message_parameter_t *parameters, char parameter_count);
+void handle_get_sensor_command(enum sensor_type_t sensor_type);
+void handle_get_multiple_open_close_sensor_command();
+void handle_get_multiple_human_sensor_command();
+void handle_get_multiple_vibration_sensor_command();
+void handle_get_single_human_sensor_command();
+void handle_get_single_vibration_sensor_command();
+void handle_get_single_open_close_sensor_command();
+void respond_set_sensor_command(enum result_code_t result_code);
+void respond_get_sensor_command(enum result_code_t result_code, enum openinig_closing_state state, short count);
+void respond_get_sensor_event(enum result_code_t result_code, enum openinig_closing_state state, short count);
+short send_message_with_header(enum message_id_t message_id, message_parameter_t *parameters, char parameter_count);
+void respond_set_sensor(enum message_id_t message_id, enum result_code_t result_code);
+void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_code, enum openinig_closing_state state, short count);
+int ble_bss_response_send(char *data, int data_length);
 
 
 uint32_t ble_bss_init();
@@ -93,7 +133,7 @@ void ble_bss_on_ble_evt(ble_evt_t * p_ble_evt);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_bss_heart_rate_measurement_send(uint16_t heart_rate);
+uint32_t ble_bss_response_send(uint16_t heart_rate);
 
 
 #ifdef __cplusplus

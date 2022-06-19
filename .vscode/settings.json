@@ -1,0 +1,8 @@
+{
+    "C_Cpp.autocompleteAddParentheses": true,
+    "C_Cpp.default.compilerPath": "",
+    "files.associations": {
+        "nordic_common.h": "c",
+        "softdevice_handler.h": "c"
+    }
+}

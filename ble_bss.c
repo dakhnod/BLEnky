@@ -3,29 +3,34 @@
 #include <string.h>
 #include "ble_l2cap.h"
 #include "ble_srv_common.h"
+#include "app_error.h"
 
-uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;
+uint16_t connection_handle_ = BLE_CONN_HANDLE_INVALID;
 uint16_t service_handle;
 uint16_t control_handle;
+uint16_t response_handle;
 uint16_t cccd_handle;
 
 bool send_responses = false;
 bool send_updates = false;
 
-static void on_connect(ble_evt_t *p_ble_evt)
+enum opening_closing_state_t current_state_ = OPEN;
+uint16_t event_count_ = 0;
+
+void on_connect(ble_evt_t *p_ble_evt)
 {
-    connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
+    connection_handle_ = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-static void on_disconnect(ble_evt_t *p_ble_evt)
+void on_disconnect(ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
-    connection_handle = BLE_CONN_HANDLE_INVALID;
+    connection_handle_ = BLE_CONN_HANDLE_INVALID;
     send_updates = false;
     send_responses = false;
 }
 
-static void on_bss_cccd_write(ble_gatts_evt_write_t *p_evt_write)
+void on_bss_cccd_write(ble_gatts_evt_write_t *p_evt_write)
 {
     if (p_evt_write->len == 2)
     {
@@ -33,37 +38,37 @@ static void on_bss_cccd_write(ble_gatts_evt_write_t *p_evt_write)
     }
 }
 
-static void on_control_characteristic_write(ble_evt_t *p_ble_evt)
+void on_control_characteristic_write(ble_gatts_evt_write_t *write)
 {
-    uint16_t length = p_ble_evt->evt.gatts_evt.params.write.len;
-    uint8_t *data = p_ble_evt->evt.gatts_evt.params.write.data;
+    uint16_t length = write->len;
+    uint8_t *data = write->data;
 
     parse_full_packet_with_split_header(data, length);
 }
 
-static void parse_full_packet_with_split_header(uint8_t *data, uint16_t length)
+void parse_full_packet_with_split_header(uint8_t *data, uint16_t length)
 {
     if (length < 1)
     {
         return;
     }
-    uint8_t header = data[0];
+    //uint8_t header = data[0];
     // here we could buffer split messages
     parse_packet(data + 1, length - 1);
 }
 
-static void parse_packet(uint8_t *data, uint16_t length)
+void parse_packet(uint8_t *data, uint16_t length)
 {
     if (length < 4)
     {
         return;
     }
-    message_header_t *message_header = data;
+    message_header_t *message_header = (message_header_t*) data;
     message_parameter_t params[message_header->parameter_count];
     uint8_t *payload_ptr = data + 4;
     for (uint8_t i = 0; i < message_header->parameter_count; i++)
     {
-        message_parameter_without_data_t *parameter = payload_ptr;
+        message_parameter_without_data_t *parameter = (message_parameter_without_data_t*) payload_ptr;
 
         params[i].parameter_id = parameter->parameter_id;
         params[i].parameter_length = parameter->parameter_length;
@@ -72,10 +77,11 @@ static void parse_packet(uint8_t *data, uint16_t length)
         payload_ptr += parameter->parameter_length + 4;
     }
 
+    NRF_LOG_DEBUG("message_id: %i, parameter count: %i\n", message_header->message_id, message_header->parameter_count);
     parse_packet_decoded(message_header->message_id, params, message_header->parameter_count);
 }
 
-static void parse_packet_decoded(enum message_id_t message_id, message_parameter_t *parameters, uint8_t parameter_count)
+void parse_packet_decoded(enum message_id_t message_id, message_parameter_t *parameters, uint8_t parameter_count)
 {
     switch (message_id)
     {
@@ -91,28 +97,31 @@ static void parse_packet_decoded(enum message_id_t message_id, message_parameter
     }
 }
 
-static void parse_set_sensor_command(message_parameter_t *parameters, uint8_t parameter_count)
+void parse_set_sensor_command(message_parameter_t *parameters, uint8_t parameter_count)
 {
     if (parameter_count != 2)
     {
         respond_set_sensor_command(FAILURE);
+        return;
     }
     enum sensor_type_t sensor_type = parameters[0].data[0];
     enum report_state_t report_state = parameters[1].data[0];
 
-    handle_get_sensor_command(sensor_type);
+    handle_set_sensor_command(sensor_type, report_state);
 }
 
-static void handle_set_sensor_command(enum sensor_type_t sensor_type, enum report_state_t report_state){
+void handle_set_sensor_command(enum sensor_type_t sensor_type, enum report_state_t report_state){
     if(sensor_type != OPENING_CLOSING){
         respond_set_sensor_command(FAILURE);
+        return;
     }
 
     send_updates = report_state;
+    NRF_LOG_DEBUG("setting updates to %i\n", send_updates);
     respond_set_sensor_command(OK);
 };
 
-static void parse_get_sensor_command(message_parameter_t *parameters, uint8_t parameter_count)
+void parse_get_sensor_command(message_parameter_t *parameters, uint8_t parameter_count)
 {
     if (parameter_count < 1)
     {
@@ -123,7 +132,7 @@ static void parse_get_sensor_command(message_parameter_t *parameters, uint8_t pa
     handle_get_sensor_command(sensor_type);
 }
 
-static void handle_get_sensor_command(enum sensor_type_t sensor_type)
+void handle_get_sensor_command(enum sensor_type_t sensor_type)
 {
     if (sensor_type == OPENING_CLOSING){
         handle_get_single_open_close_sensor_command();
@@ -140,44 +149,40 @@ static void handle_get_sensor_command(enum sensor_type_t sensor_type)
     }
 }
 
-static void handle_get_multiple_open_close_sensor_command(){
+void handle_get_multiple_open_close_sensor_command(){
     respond_get_sensor_command(FAILURE, 0, 0);
 }
 
-static void handle_get_multiple_human_sensor_command(){
+void handle_get_multiple_human_sensor_command(){
     respond_get_sensor_command(FAILURE, 0, 0);
 }
 
-static void handle_get_multiple_vibration_sensor_command(){
+void handle_get_multiple_vibration_sensor_command(){
     respond_get_sensor_command(FAILURE, 0, 0);
 }
 
-static void handle_get_single_human_sensor_command(){
+void handle_get_single_human_sensor_command(){
     respond_get_sensor_command(FAILURE, 0, 0);
 }
 
-static void handle_get_single_vibration_sensor_command(){
+void handle_get_single_vibration_sensor_command(){
     respond_get_sensor_command(FAILURE, 0, 0);
 }
 
-static void handle_get_single_open_close_sensor_command(){
-    // TODO: simulation
-    static bool open = false;
-    static uint16_t count = 0;
-    respond_get_sensor_command(OK, open, count);
-    open ^= 1;
-    count++;
+void handle_get_single_open_close_sensor_command(){
+    NRF_LOG_DEBUG("get single open/close sensor\n");
+    respond_get_sensor_command(OK, current_state_, event_count_);
 }
 
-static void respond_set_sensor_command(enum result_code_t result_code){
+void respond_set_sensor_command(enum result_code_t result_code){
     respond_set_sensor(MESSAGE_ID_SET_SENSOR_STATUS_RESPONSE, result_code);
 }
 
-static void respond_get_sensor_command(enum result_code_t result_code, enum openinig_closing_state state, uint16_t count){
+void respond_get_sensor_command(enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count){
     respond_get_sensor(MESSAGE_ID_GET_SENSOR_STATUS_RESPONSE, result_code, state, count);
 }
 
-static void respond_get_sensor_event(enum result_code_t result_code, enum openinig_closing_state state, uint16_t count){
+void respond_get_sensor_event(enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count){
     respond_get_sensor(MESSAGE_ID_SENSOR_STATUS_EVENT, result_code, state, count);
 }
 
@@ -189,29 +194,36 @@ ret_code_t send_message_with_header(enum message_id_t message_id, message_parame
 
     for (uint8_t i = 0; i < parameter_count; i++)
     {
-        data_length += parameters[i].parameter_length;
+        data_length += parameters[i].parameter_length + 4;
     }
 
-    uint8_t data[data_length] = {
-        0b10000001, // split flags: server->client | execute flag
-        0x00,       // RFU
-        message_id,
-        0x00, // RFU
-        parameter_count};
+    uint8_t data[data_length];
+
+    data[0] = 0b10000001; // split flags: server->client | execute flag
+    data[1] = 0x00; // RFU
+    data[2] = message_id; // RFU
+    data[3] = 0x00; // RFU
+    data[4] = parameter_count;
 
     uint8_t *buffer_ptr = data + 5;
 
     for (int i = 0; i < parameter_count; i++)
     {
-        memcpy(buffer_ptr, parameters + i, 2);                                      // copy header
+        memcpy(buffer_ptr, parameters + i, 4);                                      // copy header
         memcpy(buffer_ptr + 4, parameters[i].data, parameters[i].parameter_length); // copy data
         buffer_ptr += parameters[i].parameter_length + 4;
     }
 
-    return ble_bss_response_send(data, data_length);
+    ret_code_t err_code = ble_bss_response_send(data, data_length);
+    if(err_code == NRF_ERROR_INVALID_STATE){
+        return NRF_SUCCESS;
+    }
+    APP_ERROR_CHECK(err_code);
+
+    return err_code;
 }
 
-static void respond_set_sensor(enum message_id_t message_id, enum result_code_t result_code)
+void respond_set_sensor(enum message_id_t message_id, enum result_code_t result_code)
 {
     message_parameter_t parameters[] = {
         {
@@ -224,7 +236,7 @@ static void respond_set_sensor(enum message_id_t message_id, enum result_code_t 
     send_message_with_header(message_id, parameters, 1);
 }
 
-static void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_code, enum openinig_closing_state state, uint16_t count)
+void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count)
 {
     uint16_t data = (count & 0b11111111111) | (state << 11);
 
@@ -232,19 +244,18 @@ static void respond_get_sensor(enum message_id_t message_id, enum result_code_t 
         {
             .parameter_id = RESULT_CODE,
             .parameter_length = 1,
-            .data = &result_code
+            .data = (uint8_t*) &result_code
         },
         {
             .parameter_id = SENSOR_STATUS,
             .parameter_length = 2,
-            .data = &data
+            .data = (uint8_t*) &data
          }
     };
-
     send_message_with_header(message_id, parameters, 2);
 }
 
-static void on_write(ble_evt_t *p_ble_evt)
+void on_write(ble_evt_t *p_ble_evt)
 {
     ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
@@ -255,6 +266,15 @@ static void on_write(ble_evt_t *p_ble_evt)
     else if (p_evt_write->handle == control_handle)
     {
         on_control_characteristic_write(p_evt_write);
+    }
+}
+
+void ble_bss_set_state(enum opening_closing_state_t state, uint16_t count){
+    current_state_ = state;
+    event_count_ = count;
+
+    if(send_updates){
+        respond_get_sensor_event(OK, state, count);
     }
 }
 
@@ -280,15 +300,16 @@ void ble_bss_on_ble_evt(ble_evt_t *p_ble_evt)
     }
 }
 
-static uint32_t characteristic_control_point_add()
+uint32_t characteristic_control_point_add()
 
 {
     ble_gatts_char_handles_t p_handles;
 
     ble_gatts_attr_md_t cccd_md = {
-        .vloc = BLE_GATTS_VLOC_STACK};
+        .vloc = BLE_GATTS_VLOC_STACK
+        };
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&cccd_md.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
 
     ble_gatts_char_md_t char_md = {
         .char_props.read = 0,
@@ -298,17 +319,20 @@ static uint32_t characteristic_control_point_add()
         .p_char_pf = NULL,
         .p_user_desc_md = NULL,
         .p_cccd_md = &cccd_md,
-        .p_sccd_md = NULL};
+        .p_sccd_md = NULL
+        };
 
     ble_uuid_t ble_uuid = {
         .type = BLE_UUID_TYPE_BLE,
-        .uuid = UUID_BINARY_SENSOR_CONTROL_POINT};
+        .uuid = UUID_BINARY_SENSOR_CONTROL_POINT
+        };
 
     ble_gatts_attr_md_t attr_md = {
         .vloc = BLE_GATTS_VLOC_STACK,
         .rd_auth = 0,
         .wr_auth = 0,
-        .vlen = 0};
+        .vlen = 0
+        };
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
 
@@ -317,7 +341,7 @@ static uint32_t characteristic_control_point_add()
         .p_attr_md = &attr_md,
         .max_len = 19,
     };
-    uint32_t code = sd_ble_gatts_characteristic_add(BLE_GATT_HANDLE_INVALID,
+    uint32_t code = sd_ble_gatts_characteristic_add(service_handle,
                                                     &char_md,
                                                     &attr_char_value,
                                                     &p_handles);
@@ -327,7 +351,7 @@ static uint32_t characteristic_control_point_add()
     return code;
 }
 
-static uint32_t characteristic_response_add()
+uint32_t characteristic_response_add()
 
 {
     ble_gatts_char_handles_t p_handles;
@@ -356,21 +380,21 @@ static uint32_t characteristic_response_add()
         .vloc = BLE_GATTS_VLOC_STACK,
         .rd_auth = 0,
         .wr_auth = 0,
-        .vlen = 0};
+        .vlen = 1};
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_md.write_perm);
 
     ble_gatts_attr_t attr_char_value = {
         .p_uuid = &ble_uuid,
         .p_attr_md = &attr_md,
-        .max_len = 1,
+        .max_len = 19
     };
-    uint32_t code = sd_ble_gatts_characteristic_add(BLE_GATT_HANDLE_INVALID,
+    uint32_t code = sd_ble_gatts_characteristic_add(service_handle,
                                                     &char_md,
                                                     &attr_char_value,
                                                     &p_handles);
 
-    control_handle = p_handles.value_handle;
+    response_handle = p_handles.value_handle;
     cccd_handle = p_handles.cccd_handle;
 
     return code;
@@ -401,33 +425,35 @@ uint32_t ble_bss_init()
     {
         return err_code;
     }
+
+    return NRF_SUCCESS;
 }
 
-ret_code_t send_sensor_status_response(bool is_closed, uint16_t count)
+ret_code_t ble_bss_response_send(uint8_t *data, uint8_t length)
 {
-    return send_sensor_status(MESSAGE_ID_GET_SENSOR_STATUS_RESPONSE, is_closed, count);
-}
-
-ret_code_t send_sensor_status_event(bool is_closed, uint16_t count)
-{
-    return send_sensor_status(MESSAGE_ID_SENSOR_STATUS_EVENT, is_closed, count);
-}
-
-uint32_t ble_bss_response_send(uint8_t *data, uint8_t length)
-{
-    if (connection_handle == BLE_CONN_HANDLE_INVALID)
+    if (connection_handle_ == BLE_CONN_HANDLE_INVALID)
     {
         return NRF_ERROR_INVALID_STATE;
     }
     if(!send_responses){
-        return;
+        return NRF_ERROR_INVALID_STATE;
     }
+
+    uint16_t len_written = length;
+
+    NRF_LOG_DEBUG("hvx %i\n", len_written);
+
     ble_gatts_hvx_params_t hvx_params = {
-        .handle = connection_handle,
+        .handle = response_handle,
         .type = BLE_GATT_HVX_INDICATION,
         .offset = 0,
-        .p_len = length,
-        .p_data = data};
+        .p_len = &len_written,
+        .p_data = data
+        };
 
-    return sd_ble_gatts_hvx(connection_handle, &hvx_params);
+    ret_code_t err_code = sd_ble_gatts_hvx(connection_handle_, &hvx_params);
+
+    NRF_LOG_DEBUG("written: %i\n", len_written);
+
+    return err_code;
 }

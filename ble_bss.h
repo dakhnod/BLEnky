@@ -5,7 +5,8 @@
 #include <stdbool.h>
 #include "ble.h"
 #include "ble_srv_common.h"
-#include "nrf_ble_gatt.h"
+#include "nrf_log.h"
+// #include "nrf_ble_gatt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +48,7 @@ enum parameter_id_t {
     NAME
 };
 
-enum openinig_closing_state {
+enum opening_closing_state_t {
     CLOSED,
     OPEN
 };
@@ -58,32 +59,32 @@ enum report_state_t {
 };
 
 typedef struct {
-    char parameter_id;
-    char parameter_length;
-    short reserved;
-    char *data;
+    uint8_t parameter_id;
+    uint8_t parameter_length;
+    uint16_t reserved;
+    uint8_t *data;
 } message_parameter_t;
 
 typedef struct {
-    char parameter_id;
-    char parameter_length;
+    uint8_t parameter_id;
+    uint8_t parameter_length;
 } message_parameter_without_data_t;
 
 typedef struct {
-    char rfu_1;
-    char message_id;
-    char rfu_2;
-    char parameter_count;
+    uint8_t rfu_1;
+    uint8_t message_id;
+    uint8_t rfu_2;
+    uint8_t parameter_count;
 } message_header_t;
 
 
 
-void parse_full_packet_with_split_header(char *data, short length);
-void parse_packet_decoded(enum message_id_t message_id, message_parameter_t *parameters, char parameter_count);
-void parse_packet(char *data, short length);
-void parse_set_sensor_command(message_parameter_t *parameters, char parameter_count);
+void parse_full_packet_with_split_header(uint8_t *data, uint16_t length);
+void parse_packet_decoded(enum message_id_t message_id, message_parameter_t *parameters, uint8_t parameter_count);
+void parse_packet(uint8_t *data, uint16_t length);
+void parse_set_sensor_command(message_parameter_t *parameters, uint8_t parameter_count);
 void handle_set_sensor_command(enum sensor_type_t sensor_type, enum report_state_t report_state);
-void parse_get_sensor_command(message_parameter_t *parameters, char parameter_count);
+void parse_get_sensor_command(message_parameter_t *parameters, uint8_t parameter_count);
 void handle_get_sensor_command(enum sensor_type_t sensor_type);
 void handle_get_multiple_open_close_sensor_command();
 void handle_get_multiple_human_sensor_command();
@@ -92,12 +93,13 @@ void handle_get_single_human_sensor_command();
 void handle_get_single_vibration_sensor_command();
 void handle_get_single_open_close_sensor_command();
 void respond_set_sensor_command(enum result_code_t result_code);
-void respond_get_sensor_command(enum result_code_t result_code, enum openinig_closing_state state, short count);
-void respond_get_sensor_event(enum result_code_t result_code, enum openinig_closing_state state, short count);
-short send_message_with_header(enum message_id_t message_id, message_parameter_t *parameters, char parameter_count);
+void respond_get_sensor_command(enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count);
+void respond_get_sensor_event(enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count);
+ret_code_t send_message_with_header(enum message_id_t message_id, message_parameter_t *parameters, uint8_t parameter_count);
 void respond_set_sensor(enum message_id_t message_id, enum result_code_t result_code);
-void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_code, enum openinig_closing_state state, short count);
-int ble_bss_response_send(char *data, int data_length);
+void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count);
+ret_code_t ble_bss_response_send(uint8_t *data, uint8_t data_length);
+void ble_bss_set_state(enum opening_closing_state_t, uint16_t);
 
 
 uint32_t ble_bss_init();
@@ -110,7 +112,7 @@ uint32_t ble_bss_init();
  * @param[in]   p_hrs      Heart Rate Service structure.
  * @param[in]   p_gatt_evt  Event received from the GATT module.
  */
-void ble_bss_on_gatt_evt(nrf_ble_gatt_evt_t * p_gatt_evt);
+// void ble_bss_on_gatt_evt(nrf_ble_gatt_evt_t * p_gatt_evt);
 
 
 /**@brief Function for handling the Application's BLE Stack events.
@@ -133,7 +135,7 @@ void ble_bss_on_ble_evt(ble_evt_t * p_ble_evt);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_bss_response_send(uint16_t heart_rate);
+ret_code_t ble_bss_response_send(uint8_t *data, uint8_t data_length);
 
 
 #ifdef __cplusplus

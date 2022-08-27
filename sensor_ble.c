@@ -119,6 +119,8 @@ void ble_evt_dispatch(ble_evt_t * p_ble_evt)
     ble_bss_on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
+    ble_dfu_on_ble_evt(&dfu, p_ble_evt);
+    ble_bas_on_ble_evt(&m_bas, p_ble_evt);
 }
 
 
@@ -166,45 +168,6 @@ void conn_params_init(void)
 
     err_code = ble_conn_params_init(&cp_init);
     APP_ERROR_CHECK(err_code);
-}
-
-void advertising_stack_init (void)
-{
-  uint32_t err_code;
-  
-
-  nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
-
-  // Initialize the SoftDevice handler module.
-  SOFTDEVICE_HANDLER_INIT (&clock_lf_cfg, NULL);
-
-  ble_enable_params_t ble_enable_params;
-  err_code = softdevice_enable_get_default_config (CENTRAL_LINK_COUNT,
-						   PERIPHERAL_LINK_COUNT,
-						   &ble_enable_params);
-  APP_ERROR_CHECK (err_code);
-
-  //Check the ram settings against the used number of links
-  CHECK_RAM_START_ADDR (CENTRAL_LINK_COUNT, PERIPHERAL_LINK_COUNT);
-
-  ble_enable_params.common_enable_params.vs_uuid_count = 1;
-
-  // Enable BLE stack.
-  err_code = softdevice_enable (&ble_enable_params);
-  APP_ERROR_CHECK (err_code);
-
-  ble_gap_conn_sec_mode_t sec_mode;
-  BLE_GAP_CONN_SEC_MODE_SET_OPEN (&sec_mode);
-  uint8_t *name = (uint8_t *) DEVICE_NAME;
-  sd_ble_gap_device_name_set (&sec_mode, name, strlen (DEVICE_NAME));
-
-  err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
-  APP_ERROR_CHECK(err_code);
-  gap_params_init ();
-
-  services_init ();
-  
-  conn_params_init();
 }
 
 void advertising_event_handler(ble_adv_evt_t event){
@@ -294,7 +257,7 @@ void ble_stack_init(void)
     err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
                                                     PERIPHERAL_LINK_COUNT,
                                                     &ble_enable_params);
-    // ble_enable_params.common_enable_params.vs_uuid_count = 2;
+    ble_enable_params.common_enable_params.vs_uuid_count = 2;
     APP_ERROR_CHECK(err_code);
 
     //Check the ram settings against the used number of links
@@ -366,7 +329,6 @@ uint32_t dfu_init(){
     ble_dfu_init_t init = {
         .evt_handler = NULL
     };
-    fs_init();
     return ble_dfu_init(&dfu, &init);
 }
 
@@ -375,7 +337,14 @@ uint32_t dfu_init(){
 void services_init(void)
 {
     ret_code_t err_code; 
+    
+    err_code = bas_init();
+    APP_ERROR_CHECK(err_code);
+
     err_code = ble_bss_init();
+    APP_ERROR_CHECK(err_code);
+
+    err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
 }
 

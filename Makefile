@@ -17,7 +17,7 @@ CUSTOM_INCLUDES_DIR = $(BLE_ROOT)/includes
 ADB_TARGET := pixel
 ADB_DIRECTORY := /sdcard/dfu
 
-BOARD := BLE400
+BOARD := BEACON_SMALL_NC
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := nrf51822.ld
@@ -62,11 +62,11 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings.c \
   $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
-  $(SDK_ROOT)/components/ble/ble_services/ble_dfu/ble_dfu.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
   $(CUSTOM_INCLUDES_DIR)/battery_service/battery.c \
   $(CUSTOM_INCLUDES_DIR)/boards/boards.c \
   $(CUSTOM_INCLUDES_DIR)/gpiote/nrf_drv_gpiote.c \
+  $(CUSTOM_INCLUDES_DIR)/dfu_service/ble_dfu.c \
   $(PROJ_DIR)/ble_bss.c \
   $(PROJ_DIR)/sensor_ble.c \
   $(PROJ_DIR)/sensor_gpio.c \
@@ -179,10 +179,10 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/bootloader \
   $(SDK_ROOT)/components/drivers_nrf/hal \
   $(SDK_ROOT)/components/libraries/crc32 \
-  $(SDK_ROOT)/components/ble/ble_services/ble_dfu \
   $(PROJ_DIR) \
   $(CUSTOM_INCLUDES_DIR)/battery_service \
   $(CUSTOM_INCLUDES_DIR)/boards \
+  $(CUSTOM_INCLUDES_DIR)/dfu_service \
 
 # Libraries common to all targets
 LIB_FILES += \
@@ -207,7 +207,9 @@ CFLAGS += -DNRF_DFU_SETTINGS_VERSION=1
 CFLAGS += -DUSE_DFU
 CFLAGS += -DUSE_SPI
 CFLAGS += -DUSE_UART
+ifeq ($(BOARD), BLE400)
 CFLAGS += -DDEBUG
+endif
 CFLAGS += -DBUTTON_PIN=BUTTON_0
 
 # C++ flags common to all targets

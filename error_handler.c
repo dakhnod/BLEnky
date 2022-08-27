@@ -33,5 +33,7 @@ app_error_fault_handler (uint32_t id, uint32_t pc, uint32_t info)
       NRF_LOG_DEBUG ("Error description: %s\n", (uint32_t)ERR_TO_STR(((error_info_t *) (info))->err_code));
       break;
     }
+#ifdef DEBUG
   for(;;);
+#endif
 }

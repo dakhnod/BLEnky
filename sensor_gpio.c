@@ -6,7 +6,7 @@ void (*sensor_handler)(uint8_t);
 
 bool contact_get(void)
 {
-  return ((nrf_gpio_pin_read(PIN_IN)) ^ INVERT_INPUT);
+  return ((nrf_gpio_pin_read(PIN_IN)) ^ BUTTONS_ACTIVE_STATE);
 }
 
 void set_led(bool on)
@@ -39,7 +39,7 @@ void pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
   }
 
   // contact = contact_get();
-  uint8_t contact = ((action == NRF_GPIOTE_POLARITY_LOTOHI) ^ INVERT_INPUT);
+  uint8_t contact = ((action == NRF_GPIOTE_POLARITY_LOTOHI) ^ BUTTONS_ACTIVE_STATE);
   NRF_LOG_DEBUG("contact: %i   action: %i\n", contact, action);
 
   sensor_handler (contact);

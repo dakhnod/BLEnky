@@ -8,9 +8,12 @@
                 "${workspaceFolder}/../../includes/**",
                 "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/ble/**",
                 "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/drivers_nrf/**",
+                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/drivers_ext/**",
                 "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/libraries/**",
-                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/device/",
-                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/softdevice/**"
+                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/device/**",
+                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/softdevice/s130/**",
+                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/boards/**",
+                "${workspaceFolder}/../../nRF5_SDK_12.3.0_d7731ad/components/toolchain/**"
             ],
             "defines": [
                 "__CC_ARM",
@@ -21,7 +24,7 @@
             "cppStandard": "c++14",
             "intelliSenseMode": "linux-clang-arm",
             "configurationProvider": "nrf-connect",
-            "compilerPath": "/home/daniel/Programs/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-gcc"
+            "compilerPath": "/home/daniel/Programs/gcc-arm-none-eabi-4_9-2015q3/bin/arm-none-eabi-gcc"
         }
     ],
     "version": 4

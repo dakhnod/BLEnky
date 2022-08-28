@@ -5,11 +5,11 @@
 #include "ble_srv_common.h"
 #include "app_error.h"
 
-uint16_t connection_handle_ = BLE_CONN_HANDLE_INVALID;
-uint16_t service_handle;
-uint16_t control_handle;
-uint16_t response_handle;
-uint16_t cccd_handle;
+uint16_t ble_bss_connection_handle = BLE_CONN_HANDLE_INVALID;
+uint16_t ble_bss_service_handle;
+uint16_t ble_bss_control_handle;
+uint16_t ble_bss_response_handle;
+uint16_t ble_bss_cccd_handle;
 
 bool send_responses = false;
 bool send_updates = false;
@@ -17,15 +17,15 @@ bool send_updates = false;
 enum opening_closing_state_t current_state_ = OPEN;
 uint16_t event_count_ = 0;
 
-void on_connect(ble_evt_t *p_ble_evt)
+void ble_bss_on_connect(ble_evt_t *p_ble_evt)
 {
-    connection_handle_ = p_ble_evt->evt.gap_evt.conn_handle;
+    ble_bss_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void on_disconnect(ble_evt_t *p_ble_evt)
+void ble_bss_on_disconnect(ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
-    connection_handle_ = BLE_CONN_HANDLE_INVALID;
+    ble_bss_connection_handle = BLE_CONN_HANDLE_INVALID;
     send_updates = false;
     send_responses = false;
 }
@@ -255,15 +255,15 @@ void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_
     send_message_with_header(message_id, parameters, 2);
 }
 
-void on_write(ble_evt_t *p_ble_evt)
+void ble_bss_on_write(ble_evt_t *p_ble_evt)
 {
     ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-    if (p_evt_write->handle == cccd_handle)
+    if (p_evt_write->handle == ble_bss_cccd_handle)
     {
         on_bss_cccd_write(p_evt_write);
     }
-    else if (p_evt_write->handle == control_handle)
+    else if (p_evt_write->handle == ble_bss_control_handle)
     {
         on_control_characteristic_write(p_evt_write);
     }
@@ -283,15 +283,15 @@ void ble_bss_on_ble_evt(ble_evt_t *p_ble_evt)
     switch (p_ble_evt->header.evt_id)
     {
     case BLE_GAP_EVT_CONNECTED:
-        on_connect(p_ble_evt);
+        ble_bss_on_connect(p_ble_evt);
         break;
 
     case BLE_GAP_EVT_DISCONNECTED:
-        on_disconnect(p_ble_evt);
+        ble_bss_on_disconnect(p_ble_evt);
         break;
 
     case BLE_GATTS_EVT_WRITE:
-        on_write(p_ble_evt);
+        ble_bss_on_write(p_ble_evt);
         break;
 
     default:
@@ -341,12 +341,12 @@ uint32_t characteristic_control_point_add()
         .p_attr_md = &attr_md,
         .max_len = 19,
     };
-    uint32_t code = sd_ble_gatts_characteristic_add(service_handle,
+    uint32_t code = sd_ble_gatts_characteristic_add(ble_bss_service_handle,
                                                     &char_md,
                                                     &attr_char_value,
                                                     &p_handles);
 
-    control_handle = p_handles.value_handle;
+    ble_bss_control_handle = p_handles.value_handle;
 
     return code;
 }
@@ -389,13 +389,13 @@ uint32_t characteristic_response_add()
         .p_attr_md = &attr_md,
         .max_len = 19
     };
-    uint32_t code = sd_ble_gatts_characteristic_add(service_handle,
+    uint32_t code = sd_ble_gatts_characteristic_add(ble_bss_service_handle,
                                                     &char_md,
                                                     &attr_char_value,
                                                     &p_handles);
 
-    response_handle = p_handles.value_handle;
-    cccd_handle = p_handles.cccd_handle;
+    ble_bss_response_handle = p_handles.value_handle;
+    ble_bss_cccd_handle = p_handles.cccd_handle;
 
     return code;
 }
@@ -408,7 +408,7 @@ uint32_t ble_bss_init()
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, UUID_BINARY_SENSOR_SERVICE);
 
-    err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &service_handle);
+    err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &ble_bss_service_handle);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
@@ -431,7 +431,7 @@ uint32_t ble_bss_init()
 
 ret_code_t ble_bss_response_send(uint8_t *data, uint8_t length)
 {
-    if (connection_handle_ == BLE_CONN_HANDLE_INVALID)
+    if (ble_bss_connection_handle == BLE_CONN_HANDLE_INVALID)
     {
         return NRF_ERROR_INVALID_STATE;
     }
@@ -444,14 +444,14 @@ ret_code_t ble_bss_response_send(uint8_t *data, uint8_t length)
     NRF_LOG_DEBUG("hvx %i\n", len_written);
 
     ble_gatts_hvx_params_t hvx_params = {
-        .handle = response_handle,
+        .handle = ble_bss_response_handle,
         .type = BLE_GATT_HVX_INDICATION,
         .offset = 0,
         .p_len = &len_written,
         .p_data = data
         };
 
-    ret_code_t err_code = sd_ble_gatts_hvx(connection_handle_, &hvx_params);
+    ret_code_t err_code = sd_ble_gatts_hvx(ble_bss_connection_handle, &hvx_params);
 
     NRF_LOG_DEBUG("written: %i\n", len_written);
 

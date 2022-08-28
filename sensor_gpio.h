@@ -5,27 +5,17 @@
 #include "nrf_log.h"
 #include "boards.h"
 #include "bsp.h"
+#include "config/pin_configuration.h"
 
 #define BATTERY_VOLTAGE_MAX 3000.0
 #define BATTERY_VOLTAGE_MIN 1700.0
 
-#define INVERT_INPUT 1
-
-// #define PIN_IN 9 // for key sensor
-// #define PIN_OUT 18 // for key sensor
-
-#define PIN_IN BUTTON_0
-#define PIN_OUT LED_0
-
-
-#define USE_LEDS
-
-bool contact_get(void);
-void pin_handler(nrf_drv_gpiote_pin_t, nrf_gpiote_polarity_t);
 void gpio_init(void (*sensor_handler)(uint8_t));
-uint8_t battery_level_get(void);
-void set_led(bool on);
-void enable_input(void);
-void disable_input(void);
+
+void gpio_configure_aio_outputs();
+void gpio_write_output_pin(uint32_t index, uint8_t value);
+uint32_t gpio_get_output_pin_count();
+uint8_t gpio_get_output_state(uint32_t index);
+uint8_t *gpio_get_output_states();
 
 #endif

@@ -17,7 +17,7 @@ CUSTOM_INCLUDES_DIR = $(BLE_ROOT)/includes
 ADB_TARGET := pixel
 ADB_DIRECTORY := /sdcard/dfu
 
-BOARD := BEACON_SMALL_NC
+BOARD := BLE400
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := nrf51822.ld
@@ -68,6 +68,7 @@ SRC_FILES += \
   $(CUSTOM_INCLUDES_DIR)/gpiote/nrf_drv_gpiote.c \
   $(CUSTOM_INCLUDES_DIR)/dfu_service/ble_dfu.c \
   $(PROJ_DIR)/ble_bss.c \
+  $(PROJ_DIR)/ble_aio.c \
   $(PROJ_DIR)/sensor_ble.c \
   $(PROJ_DIR)/sensor_gpio.c \
   $(PROJ_DIR)/sensor_timer.c \

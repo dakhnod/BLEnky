@@ -1,5 +1,5 @@
-#ifndef BLE_HRS_H__
-#define BLE_HRS_H__
+#ifndef BLE_BSS
+#define BLE_BSS
 
 #include <stdint.h>
 #include <stdbool.h>

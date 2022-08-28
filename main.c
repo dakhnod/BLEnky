@@ -18,7 +18,7 @@ uint8_t last_contact = false;
 
 void handle_sensor(uint8_t closed)
 {
-    disable_input();
+    // disable_input();
 
     enum opening_closing_state_t state = closed ? CLOSED : OPEN;
 
@@ -35,6 +35,7 @@ void handle_sensor(uint8_t closed)
 
 void handle_debounce_timeout()
 {
+    /*
     NRF_LOG_DEBUG("debounce timeout\n");
     if (contact_get() == last_contact)
     {
@@ -42,6 +43,7 @@ void handle_debounce_timeout()
         enable_input();
         return;
     }
+    */
     // sensor changed during debounce period
     NRF_LOG_DEBUG("contact changed during debounce\n");
     last_contact = !last_contact;

@@ -4,7 +4,6 @@ ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
 
 ble_dfu_t dfu;
-ble_bas_t m_bas;
 
 bool is_advertising = false;
 
@@ -117,10 +116,11 @@ void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     on_ble_evt(p_ble_evt);
     ble_bss_on_ble_evt(p_ble_evt);
+    ble_aio_on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
-    ble_bas_on_ble_evt(&m_bas, p_ble_evt);
+    ble_bas_on_ble_evt(p_ble_evt);
 }
 
 
@@ -307,21 +307,7 @@ void gap_params_init(void)
 
 
 uint32_t bas_init(){
-    ble_bas_init_t bas_init = {
-        .evt_handler = NULL,
-        .support_notification = false,
-        .p_report_ref = NULL,
-        .initial_batt_level = 255
-    };
-
-    // Here the sec level for the Battery Service can be changed/increased.
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
-
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
-
-    return ble_bas_init(&m_bas, &bas_init);
+    return ble_bas_init(&bas_init);
 }
 
 
@@ -342,6 +328,9 @@ void services_init(void)
     APP_ERROR_CHECK(err_code);
 
     err_code = ble_bss_init();
+    APP_ERROR_CHECK(err_code);
+
+    err_code = ble_aio_init();
     APP_ERROR_CHECK(err_code);
 
     err_code = dfu_init();

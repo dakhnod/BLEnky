@@ -73,6 +73,7 @@ SRC_FILES += \
   $(PROJ_DIR)/sensor_gpio.c \
   $(PROJ_DIR)/sensor_timer.c \
   $(PROJ_DIR)/error_handler.c \
+  $(PROJ_DIR)/sequence.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -301,3 +302,10 @@ bin:
 	mv nrf51822_xxac.bin "$(BIN_OUTPUT_FOLDER)$(BIN_OUTPUT_WITH_CRYSTAL)"
 	rm $(PROJECT_ID).zip
 	make clean
+
+rtt_viewer_start:
+	JLinkRTTViewer --autoconnect &
+
+rtt_viewer_stop:
+	killall JLinkRTTViewer || true
+	sleep 0.5

@@ -59,18 +59,20 @@ int main(void) {
     fs_init();
 
     timer_init(handle_debounce_timeout);
-
-    uint8_t storage_data[32];
-    storage_read_flip(storage_data, 32);
-
     ble_init();
     storage_init();
 
+    uint8_t storage_data[16];
+    storage_read_flip(storage_data, 16);
+
     NRF_LOG_DEBUG("stored data:\n");
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < 16; i++) {
         NRF_LOG_DEBUG("%x\n", storage_data[i]);
     }
     NRF_LOG_DEBUG("\n");
+
+    err_code = ble_aio_pin_configuraion_data_set(storage_data, 16);
+    APP_ERROR_CHECK(err_code);
 
     gpio_init(handle_sensor);
     advertising_start();

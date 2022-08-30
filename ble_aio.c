@@ -112,20 +112,20 @@ void handle_pin_configuration_write(ble_evt_t *p_ble_evt) {
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
-    uint32_t writable_data_length = MIN(32, len);
-    static uint8_t data_to_write[32];
+    uint32_t writable_data_length = MIN(16, len);
+    static uint8_t data_to_write[16];
 
     memcpy(data_to_write, data, writable_data_length);
 
-    for (uint32_t i = writable_data_length; i < 32; i++) {
+    for (uint32_t i = writable_data_length; i < 16; i++) {
         data_to_write[i] = 0;
     }
 
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 16; i++) {
         data_to_write[i] = ~data_to_write[i];
     }
 
-    storage_store(data_to_write, 32);
+    storage_store(data_to_write, 16);
 }
 
 void handle_digital_out_sequence_write(ble_evt_t *p_ble_evt) {
@@ -362,6 +362,20 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt) {
             // No implementation needed.
             break;
     }
+}
+
+ret_code_t ble_aio_pin_configuraion_data_set(uint8_t *data, uint32_t data_length) {
+    ble_gatts_value_t value = {
+        .offset = 0,
+        .len = data_length,
+        .p_value = data
+    };
+
+    return sd_ble_gatts_value_set(
+        BLE_CONN_HANDLE_INVALID,
+        ble_aio_pin_configuration_handle,
+        &value
+    );
 }
 
 ret_code_t ble_aio_characteristic_digital_add(

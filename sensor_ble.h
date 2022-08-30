@@ -16,6 +16,7 @@
 #include "ble_bss.h"
 #include "ble_aio.h"
 #include "config/ble_configuration.h"
+#include "storage.h"
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
 
@@ -26,23 +27,23 @@
 
 #define APP_TIMER_PRESCALER             0                                           /**< Value of the RTC1 PRESCALER register. */
 
-void on_ble_evt(ble_evt_t * p_ble_evt);
-void ble_evt_dispatch(ble_evt_t * p_ble_evt);
+void on_ble_evt(ble_evt_t *p_ble_evt);
+void ble_evt_dispatch(ble_evt_t *p_ble_evt);
 void power_manage(void);
-void on_conn_params_evt(ble_conn_params_evt_t * p_evt);
+void on_conn_params_evt(ble_conn_params_evt_t *p_evt);
 void conn_params_error_handler(uint32_t nrf_error);
 void conn_params_init(void);
-void advertising_stack_init (void);
+void advertising_stack_init(void);
 void advertising_event_handler(ble_adv_evt_t event);
-void advertising_data_init (void);
+void advertising_data_init(void);
 void advertising_init(void);
-void advertising_start (void);
+void advertising_start(void);
 void ble_stack_init(void);
 void gap_params_init(void);
 uint32_t bas_init(void);
 uint32_t dfu_init(void);
 void services_init(void);
-void advertising_stop (void);
+void advertising_stop(void);
 void ble_init(void);
 
 

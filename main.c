@@ -12,6 +12,7 @@
 #include "sensor_timer.h"
 
 #include "ble_bss.h"
+#include "storage.h"
 
 uint16_t event_count = 0;
 uint8_t last_contact = false;
@@ -56,9 +57,22 @@ int main(void) {
     NRF_LOG_INFO("starting\n");
 
     fs_init();
+
     timer_init(handle_debounce_timeout);
+
+    uint8_t storage_data[32];
+    storage_read_flip(storage_data, 32);
+
     ble_init();
-    // gpio_init(handle_sensor);
+    storage_init();
+
+    NRF_LOG_DEBUG("stored data:\n");
+    for (uint32_t i = 0; i < 32; i++) {
+        NRF_LOG_DEBUG("%x\n", storage_data[i]);
+    }
+    NRF_LOG_DEBUG("\n");
+
+    gpio_init(handle_sensor);
     advertising_start();
 
     NRF_LOG_INFO("setup done\n");

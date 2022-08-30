@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 #define UUID_AUTOMATION_IO_SERVICE       0x1815
+#define UUID_PIN_CONFIG_CHARACTERISTIC   0x0001
 #define UUID_DIGITAL_CHARACTERISTIC      0x2A56
 
 
@@ -27,6 +28,7 @@ extern "C" {
     void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt);
 
     ret_code_t ble_aio_characteristic_digital_add(
+        uint16_t uuid,
         char *description_str,
         uint8_t number_of_digitals,
         uint8_t description,

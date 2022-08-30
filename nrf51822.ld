@@ -6,7 +6,8 @@ GROUP(-lgcc -lc -lnosys)
 MEMORY
 {
   /* flash length is calculated using the flash origin of the bootloader_secure */
-  FLASH (rx) : ORIGIN = 0x0001b000, LENGTH = 0x00035C00 - 0x0001b000
+  /* last subtraction is to have some free flash for pin configuration settings */
+  FLASH (rx) : ORIGIN = 0x0001b000, LENGTH = 0x00035C00 - 0x0001b000 - 0x0400
   RAM (rwx) :  ORIGIN = 0x20001ff8, LENGTH = 0x2008
   BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0003FC00, LENGTH = 0x0400
 }

@@ -235,6 +235,10 @@ void advertising_start() {
     APP_ERROR_CHECK(err_code);
 }
 
+void sys_evt_dispatch(uint32_t sys_evt) {
+    storage_on_sys_evt(sys_evt);
+}
+
 void ble_stack_init(void) {
     uint32_t err_code;
 
@@ -262,6 +266,9 @@ void ble_stack_init(void) {
 
     // Subscribe for BLE events.
     err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
+    APP_ERROR_CHECK(err_code);
+
+    softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
 }
 

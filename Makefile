@@ -74,6 +74,7 @@ SRC_FILES += \
   $(PROJ_DIR)/sensor_timer.c \
   $(PROJ_DIR)/error_handler.c \
   $(PROJ_DIR)/sequence.c \
+  $(PROJ_DIR)/storage.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \

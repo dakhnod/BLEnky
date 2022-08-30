@@ -17,103 +17,104 @@ void ble_init() {
     advertising_init();
 }
 
-void on_ble_evt(ble_evt_t* p_ble_evt) {
+void on_ble_evt(ble_evt_t *p_ble_evt) {
     uint32_t err_code;
 
     switch (p_ble_evt->header.evt_id) {
-    case BLE_GAP_EVT_CONNECTED:
-        NRF_LOG_INFO("connected\r\n");
-        connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
-        break; // BLE_GAP_EVT_CONNECTED
+        case BLE_GAP_EVT_CONNECTED:
+            NRF_LOG_INFO("connected\r\n");
+            connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
+            break; // BLE_GAP_EVT_CONNECTED
 
-    case BLE_GAP_EVT_DISCONNECTED:
-        NRF_LOG_INFO("disconnected\r\n");
-        connection_handle = BLE_CONN_HANDLE_INVALID;
-        break; // BLE_GAP_EVT_DISCONNECTED
+        case BLE_GAP_EVT_DISCONNECTED:
+            NRF_LOG_INFO("disconnected\r\n");
+            connection_handle = BLE_CONN_HANDLE_INVALID;
+            break; // BLE_GAP_EVT_DISCONNECTED
 
-    case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-        // Pairing not supported
-        err_code = sd_ble_gap_sec_params_reply(connection_handle,
-            BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
-            NULL,
-            NULL);
-        APP_ERROR_CHECK(err_code);
-        break; // BLE_GAP_EVT_SEC_PARAMS_REQUEST
+        case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
+            // Pairing not supported
+            err_code = sd_ble_gap_sec_params_reply(connection_handle,
+                BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
+                NULL,
+                NULL);
+            APP_ERROR_CHECK(err_code);
+            break; // BLE_GAP_EVT_SEC_PARAMS_REQUEST
 
-    case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-        // No system attributes have been stored.
-        err_code = sd_ble_gatts_sys_attr_set(connection_handle, NULL, 0, 0);
-        APP_ERROR_CHECK(err_code);
-        break; // BLE_GATTS_EVT_SYS_ATTR_MISSING
+        case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+            // No system attributes have been stored.
+            err_code = sd_ble_gatts_sys_attr_set(connection_handle, NULL, 0, 0);
+            APP_ERROR_CHECK(err_code);
+            break; // BLE_GATTS_EVT_SYS_ATTR_MISSING
 
-    case BLE_GATTC_EVT_TIMEOUT:
-        // Disconnect on GATT Client timeout event.
-        NRF_LOG_DEBUG("GATT Client Timeout.\r\n");
-        err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
-            BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-        APP_ERROR_CHECK(err_code);
-        break; // BLE_GATTC_EVT_TIMEOUT
+        case BLE_GATTC_EVT_TIMEOUT:
+            // Disconnect on GATT Client timeout event.
+            NRF_LOG_DEBUG("GATT Client Timeout.\r\n");
+            err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
+                BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            APP_ERROR_CHECK(err_code);
+            break; // BLE_GATTC_EVT_TIMEOUT
 
-    case BLE_GATTS_EVT_TIMEOUT:
-        // Disconnect on GATT Server timeout event.
-        NRF_LOG_DEBUG("GATT Server Timeout.\r\n");
-        err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
-            BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-        APP_ERROR_CHECK(err_code);
-        break; // BLE_GATTS_EVT_TIMEOUT
+        case BLE_GATTS_EVT_TIMEOUT:
+            // Disconnect on GATT Server timeout event.
+            NRF_LOG_DEBUG("GATT Server Timeout.\r\n");
+            err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gatts_evt.conn_handle,
+                BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            APP_ERROR_CHECK(err_code);
+            break; // BLE_GATTS_EVT_TIMEOUT
 
-    case BLE_EVT_USER_MEM_REQUEST:
-        err_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
-        APP_ERROR_CHECK(err_code);
-        break; // BLE_EVT_USER_MEM_REQUEST
+        case BLE_EVT_USER_MEM_REQUEST:
+            err_code = sd_ble_user_mem_reply(p_ble_evt->evt.gattc_evt.conn_handle, NULL);
+            APP_ERROR_CHECK(err_code);
+            break; // BLE_EVT_USER_MEM_REQUEST
 
-    case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-    {
-        ble_gatts_evt_rw_authorize_request_t  req;
-        ble_gatts_rw_authorize_reply_params_t auth_reply;
+        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+        {
+            ble_gatts_evt_rw_authorize_request_t  req;
+            ble_gatts_rw_authorize_reply_params_t auth_reply;
 
-        req = p_ble_evt->evt.gatts_evt.params.authorize_request;
+            req = p_ble_evt->evt.gatts_evt.params.authorize_request;
 
-        if (req.type != BLE_GATTS_AUTHORIZE_TYPE_INVALID) {
-            if ((req.request.write.op == BLE_GATTS_OP_PREP_WRITE_REQ) ||
-                (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_NOW) ||
-                (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)) {
-                if (req.type == BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
-                    auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
+            if (req.type != BLE_GATTS_AUTHORIZE_TYPE_INVALID) {
+                if ((req.request.write.op == BLE_GATTS_OP_PREP_WRITE_REQ) ||
+                    (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_NOW) ||
+                    (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)) {
+                    if (req.type == BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
+                        auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
+                    }
+                    else {
+                        auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_READ;
+                    }
+                    auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
+                    err_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
+                        &auth_reply);
+                    APP_ERROR_CHECK(err_code);
                 }
-                else {
-                    auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_READ;
-                }
-                auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
-                err_code = sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle,
-                    &auth_reply);
-                APP_ERROR_CHECK(err_code);
             }
         }
-    } break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
+        break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
 
 #if (NRF_SD_BLE_API_VERSION == 3)
-    case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
-        err_code = sd_ble_gatts_exchange_mtu_reply(p_ble_evt->evt.gatts_evt.conn_handle,
-            NRF_BLE_MAX_MTU_SIZE);
-        APP_ERROR_CHECK(err_code);
-        break; // BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST
+        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
+            err_code = sd_ble_gatts_exchange_mtu_reply(p_ble_evt->evt.gatts_evt.conn_handle,
+                NRF_BLE_MAX_MTU_SIZE);
+            APP_ERROR_CHECK(err_code);
+            break; // BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST
 #endif
 
-    default:
-        // No implementation needed.
-        break;
+        default:
+            // No implementation needed.
+            break;
     }
 }
 
-void ble_evt_dispatch(ble_evt_t* p_ble_evt) {
+void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     on_ble_evt(p_ble_evt);
     ble_aio_on_ble_evt(p_ble_evt);
-    ble_bss_on_ble_evt(p_ble_evt);
+    // ble_bss_on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
-    ble_dfu_on_ble_evt(&dfu, p_ble_evt);
-    ble_bas_on_ble_evt(p_ble_evt);
+    // ble_dfu_on_ble_evt(&dfu, p_ble_evt);
+    // ble_bas_on_ble_evt(p_ble_evt);
 }
 
 
@@ -124,7 +125,7 @@ void power_manage(void) {
 }
 
 
-void on_conn_params_evt(ble_conn_params_evt_t* p_evt) {
+void on_conn_params_evt(ble_conn_params_evt_t *p_evt) {
     uint32_t err_code;
 
     if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED) {
@@ -161,18 +162,18 @@ void conn_params_init(void) {
 void advertising_event_handler(ble_adv_evt_t event) {
     is_advertising = event != BLE_ADV_EVT_IDLE;
     switch (event) {
-    case BLE_ADV_EVT_FAST:
-        NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_FAST\n");
-        break;
-    case BLE_ADV_EVT_SLOW:
-        NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_SLOW\n");
-        break;
-    case BLE_ADV_EVT_IDLE:
-        NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_IDLE\n");
-        break;
-    default:
-        NRF_LOG_DEBUG("advertising mode UNKNOWN\n");
-        break;
+        case BLE_ADV_EVT_FAST:
+            NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_FAST\n");
+            break;
+        case BLE_ADV_EVT_SLOW:
+            NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_SLOW\n");
+            break;
+        case BLE_ADV_EVT_IDLE:
+            NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_IDLE\n");
+            break;
+        default:
+            NRF_LOG_DEBUG("advertising mode UNKNOWN\n");
+            break;
     }
 }
 
@@ -192,9 +193,14 @@ void advertising_init() {
       .ble_adv_slow_timeout = APP_ADV_TIMEOUT_SLOW_SECS,
     };
 
-    ble_uuid_t uuid_bss = {
-      .uuid = 0x183B,
-      .type = BLE_UUID_TYPE_BLE
+    ble_uuid_t uuid_bss[] = {
+        {
+            .uuid = UUID_BINARY_SENSOR_SERVICE,
+            .type = BLE_UUID_TYPE_BLE
+        }, {
+            .uuid = UUID_AUTOMATION_IO_SERVICE,
+            .type = BLE_UUID_TYPE_BLE
+        }
     };
 
     ble_advdata_t advertisement_data = {
@@ -202,8 +208,8 @@ void advertising_init() {
       .include_appearance = false,
       .flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE,
       .uuids_complete = {
-          .uuid_cnt = 1,
-          .p_uuids = &uuid_bss
+          .uuid_cnt = 2,
+          .p_uuids = uuid_bss
       }
         // clearly something forgotten here
     };
@@ -273,7 +279,7 @@ void gap_params_init(void) {
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode);
 
     err_code = sd_ble_gap_device_name_set(&sec_mode,
-        (const uint8_t*)DEVICE_NAME,
+        (const uint8_t *)DEVICE_NAME,
         strlen(DEVICE_NAME));
     APP_ERROR_CHECK(err_code);
 
@@ -306,17 +312,17 @@ uint32_t dfu_init() {
 void services_init(void) {
     ret_code_t err_code;
 
-    err_code = bas_init();
-    APP_ERROR_CHECK(err_code);
+    // err_code = bas_init();
+    // APP_ERROR_CHECK(err_code);
 
-    err_code = ble_bss_init();
-    APP_ERROR_CHECK(err_code);
+    // err_code = ble_bss_init();
+    // APP_ERROR_CHECK(err_code);
 
     err_code = ble_aio_init();
     APP_ERROR_CHECK(err_code);
 
-    err_code = dfu_init();
-    APP_ERROR_CHECK(err_code);
+    // err_code = dfu_init();
+    // APP_ERROR_CHECK(err_code);
 }
 
 void

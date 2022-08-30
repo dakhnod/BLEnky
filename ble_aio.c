@@ -23,45 +23,40 @@ bool ble_aio_send_updates = false;
 
 uint8_t custom_uuid_type;
 
-void ble_aio_on_connect(ble_evt_t* p_ble_evt)
-{
+void ble_aio_on_connect(ble_evt_t *p_ble_evt) {
     ble_aio_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_aio_on_disconnect(ble_evt_t* p_ble_evt)
-{
+void ble_aio_on_disconnect(ble_evt_t *p_ble_evt) {
     UNUSED_PARAMETER(p_ble_evt);
     ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
     ble_aio_send_updates = false;
     ble_aio_send_responses = false;
 }
 
-void on_aio_cccd_write(ble_gatts_evt_write_t* p_evt_write)
-{
+void on_aio_cccd_write(ble_gatts_evt_write_t *p_evt_write) {
     if (p_evt_write->len == 2) {
         ble_aio_send_responses = ble_srv_is_indication_enabled(p_evt_write->data);
     }
 }
 
 // return bit and following bit at index
-uint8_t read_bits_at_index(uint8_t data, uint8_t index)
-{
+uint8_t read_bits_at_index(uint8_t data, uint8_t index) {
     return (data & (0b11000000 >> index)) >> (6 - index); // & 1 at the end to enforce only last bit set
 }
 
 #if OUTPUTS_NUMBER > 0
-void handle_digital_out_write(ble_evt_t* p_ble_evt)
-{
+void handle_digital_out_write(ble_evt_t *p_ble_evt) {
     NRF_LOG_DEBUG("written to digital output\n");
 
-    ble_gatts_evt_write_t write_evt = p_ble_evt
+    ble_gatts_evt_write_t *write_evt = &p_ble_evt
         ->evt
         .gatts_evt
         .params
         .write;
 
-    uint8_t* data = write_evt.data;
-    uint32_t len = write_evt.len;
+    uint8_t *data = write_evt->data;
+    uint32_t len = write_evt->len;
 
     uint32_t available_output_count = gpio_get_output_pin_count();
     uint32_t sent_output_count = len * 4;
@@ -101,17 +96,16 @@ void handle_digital_out_write(ble_evt_t* p_ble_evt)
     }
 }
 
-void handle_digital_out_sequence_write(ble_evt_t* p_ble_evt)
-{
+void handle_digital_out_sequence_write(ble_evt_t *p_ble_evt) {
     NRF_LOG_DEBUG("written to digital output sequence\n");
 
-    ble_gatts_evt_write_t write_evt = p_ble_evt
+    ble_gatts_evt_write_t *write_evt = &p_ble_evt
         ->evt.gatts_evt
         .params
         .write;
 
-    uint8_t* data = write_evt.data;
-    uint32_t len = write_evt.len;
+    uint8_t *data = write_evt->data;
+    uint32_t len = write_evt->len;
 
     for (int i = 0; i < len; i++) {
         NRF_LOG_DEBUG("%x\n", data[i]);
@@ -137,8 +131,7 @@ void handle_digital_out_sequence_write(ble_evt_t* p_ble_evt)
     }
 }
 
-void ble_aio_authorize_digital_out()
-{
+void ble_aio_authorize_digital_out() {
     uint32_t output_count = gpio_get_output_pin_count();
     uint32_t data_length = ble_aio_get_byte_count_from_pins(output_count);
 
@@ -160,8 +153,7 @@ void ble_aio_authorize_digital_out()
         &authorize_params);
 }
 
-ret_code_t ble_aio_characteristic_digital_output_add()
-{
+ret_code_t ble_aio_characteristic_digital_output_add() {
     return ble_aio_characteristic_digital_add(
         "Digital output",
         gpio_get_output_pin_count(),
@@ -170,12 +162,26 @@ ret_code_t ble_aio_characteristic_digital_output_add()
         true,
         false,
         BLE_UUID_TYPE_BLE,
+        ble_aio_get_byte_count_from_pins(gpio_get_output_pin_count()),
         &ble_aio_digital_out_write_handle,
         &ble_aio_digital_out_cccd_handle);
 }
 
-ret_code_t ble_aio_characteristic_digital_output_sequence_add()
-{
+ret_code_t ble_aio_characteristic_digital_input_add() {
+    return ble_aio_characteristic_digital_add(
+        "Digital input",
+        69,
+        0x02,
+        false,
+        true,
+        true,
+        BLE_UUID_TYPE_BLE,
+        0,
+        &ble_aio_digital_in_write_handle,
+        &ble_aio_digital_in_cccd_handle);
+}
+
+ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
     return ble_aio_characteristic_digital_add(
         "Digital output sequence",
         gpio_get_output_pin_count(),
@@ -184,25 +190,26 @@ ret_code_t ble_aio_characteristic_digital_output_sequence_add()
         false,
         false,
         custom_uuid_type,
+        20,
         &ble_aio_digital_sequence_handle,
         &ble_aio_digital_sequence_cccd_handle);
 }
 #else
-void handle_digital_out_write(ble_evt_t* p_ble_evt) {}
-void handle_digital_out_sequence_write(ble_evt_t* p_ble_evt) {}
+void handle_digital_out_write(ble_evt_t *p_ble_evt) {}
+void handle_digital_out_sequence_write(ble_evt_t *p_ble_evt) {}
 void ble_aio_authorize_digital_out() {}
-ret_code_t ble_aio_characteristic_digital_output_add()
-{
+ret_code_t ble_aio_characteristic_digital_output_add() {
     return NRF_SUCCESS;
 }
-ret_code_t ble_aio_characteristic_digital_output_sequence_add()
-{
+ret_code_t ble_aio_characteristic_digital_INPUT_add() {
+    return NRF_SUCCESS;
+}
+ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
     return NRF_SUCCESS;
 }
 #endif
 
-void ble_aio_on_write(ble_evt_t* p_ble_evt)
-{
+void ble_aio_on_write(ble_evt_t *p_ble_evt) {
     uint16_t handle = p_ble_evt
         ->evt.gatts_evt
         .params
@@ -219,13 +226,11 @@ void ble_aio_on_write(ble_evt_t* p_ble_evt)
     }
 }
 
-uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count)
-{
+uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count) {
     return CEIL_DIV(pin_count, 4);
 }
 
-void write_bit(uint8_t* byte, uint32_t position, uint8_t value)
-{
+void write_bit(uint8_t *byte, uint32_t position, uint8_t value) {
     uint8_t shifted = 0b10000000 >> position;
     if (value) {
         (*byte) |= shifted;
@@ -235,11 +240,10 @@ void write_bit(uint8_t* byte, uint32_t position, uint8_t value)
     }
 }
 
-void encode_states_to_bytes(uint8_t* states, uint32_t state_count, uint8_t* buffer)
-{
+void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer) {
     uint32_t byte_index = 0;
     uint32_t bit_index = 0;
-    uint8_t* current_byte = 0;
+    uint8_t *current_byte = 0;
 
     for (uint32_t i = 0; i < state_count; i++) {
         byte_index = i / 4;
@@ -257,8 +261,7 @@ void encode_states_to_bytes(uint8_t* states, uint32_t state_count, uint8_t* buff
     }
 }
 
-void ble_aio_on_authorize(ble_evt_t* p_ble_evt)
-{
+void ble_aio_on_authorize(ble_evt_t *p_ble_evt) {
     ble_gatts_evt_rw_authorize_request_t req = p_ble_evt
         ->evt.gatts_evt
         .params
@@ -282,56 +285,41 @@ void ble_aio_on_authorize(ble_evt_t* p_ble_evt)
     }
 }
 
-void ble_aio_on_ble_evt(ble_evt_t* p_ble_evt)
-{
+void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt) {
     switch (p_ble_evt->header.evt_id) {
-    case BLE_GAP_EVT_CONNECTED:
-        ble_aio_on_connect(p_ble_evt);
-        break;
+        case BLE_GAP_EVT_CONNECTED:
+            ble_aio_on_connect(p_ble_evt);
+            break;
 
-    case BLE_GAP_EVT_DISCONNECTED:
-        ble_aio_on_disconnect(p_ble_evt);
-        break;
+        case BLE_GAP_EVT_DISCONNECTED:
+            ble_aio_on_disconnect(p_ble_evt);
+            break;
 
-    case BLE_GATTS_EVT_WRITE:
-        ble_aio_on_write(p_ble_evt);
-        break;
+        case BLE_GATTS_EVT_WRITE:
+            ble_aio_on_write(p_ble_evt);
+            break;
 
-    case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-        ble_aio_on_authorize(p_ble_evt);
-        break;
+        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+            ble_aio_on_authorize(p_ble_evt);
+            break;
 
-    default:
-        // No implementation needed.
-        break;
+        default:
+            // No implementation needed.
+            break;
     }
 }
 
-ret_code_t ble_aio_characteristic_digital_input_add()
-{
-    return ble_aio_characteristic_digital_add(
-        "Digital input",
-        69,
-        0x02,
-        false,
-        true,
-        true,
-        BLE_UUID_TYPE_BLE,
-        &ble_aio_digital_in_write_handle,
-        &ble_aio_digital_in_cccd_handle);
-}
-
 ret_code_t ble_aio_characteristic_digital_add(
-    char* description_str,
+    char *description_str,
     uint8_t number_of_digitals,
     uint8_t description,
     uint8_t is_writable,
     uint8_t is_readable,
     uint8_t is_notifiable,
     uint8_t uuid_type,
-    uint16_t* value_handle,
-    uint16_t* cccd_handle)
-{
+    uint16_t max_length,
+    uint16_t *value_handle,
+    uint16_t *cccd_handle) {
     ble_gatts_char_handles_t p_handles;
 
     ble_gatts_attr_md_t cccd_md = {
@@ -359,7 +347,7 @@ ret_code_t ble_aio_characteristic_digital_add(
         .char_props.write = is_writable,
         .char_props.notify = is_notifiable,
         .char_props.indicate = 0,
-        .p_char_user_desc = (uint8_t*)description_str,
+        .p_char_user_desc = (uint8_t *)description_str,
         .char_user_desc_max_size = strlen(description_str),
         .char_user_desc_size = strlen(description_str),
         .p_cccd_md = &cccd_md,
@@ -387,10 +375,8 @@ ret_code_t ble_aio_characteristic_digital_add(
     ble_gatts_attr_t attr_char_value = {
         .p_uuid = &ble_uuid,
         .p_attr_md = &attr_md,
-        // might have to revert to this:
-        // .max_len = ble_aio_get_byte_count_from_pins(number_of_digitals)
-        .max_len = 20,
-        .init_len = 20 };
+        .max_len = max_length
+    };
     ret_code_t err_code = sd_ble_gatts_characteristic_add(ble_aio_service_handle,
         &char_md,
         &attr_char_value,
@@ -435,22 +421,24 @@ ret_code_t ble_aio_characteristic_digital_add(
     return err_code;
 }
 
-ret_code_t ble_aio_init()
-{
+ret_code_t ble_aio_init() {
     ret_code_t err_code;
     ble_uuid_t ble_uuid;
 
+    /*
     uint8_t data[] = { 0b10101100, 0b00000010, 0b11111111 };
-    uint8_t* data_ptr = data;
-    uint8_t** ptr = &data_ptr;
+    uint8_t *data_ptr = data;
+    uint8_t **ptr = &data_ptr;
     uint32_t result = varint_decode_next_varint(ptr);
     NRF_LOG_DEBUG("varint result: %d\n", result);
+    */
 
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, UUID_AUTOMATION_IO_SERVICE);
 
     ble_uuid128_t vs_uuid = {
-        .uuid128 = CUSTOM_UUID_BASE };
+        .uuid128 = CUSTOM_UUID_BASE
+    };
 
     err_code = sd_ble_uuid_vs_add(&vs_uuid, &custom_uuid_type);
     if (err_code != NRF_SUCCESS) {

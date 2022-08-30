@@ -304,8 +304,13 @@ bin:
 	make clean
 
 rtt_viewer_start:
-	JLinkRTTViewer --autoconnect &
+	sed -i -r 's/(Frame[XY]) = .*/\1 = 0/' ~/.config/SEGGERJLinkRTTViewerSettings.ini
+	nohup JLinkRTTViewer --autoconnect &
+	sleep 1
 
 rtt_viewer_stop:
 	killall JLinkRTTViewer || true
 	sleep 0.5
+
+python_script_run:
+	test/venv/bin/python test/send.py

@@ -2,3 +2,4 @@ _build/
 *.zip
 .vscode/
 test/
+nohup.out

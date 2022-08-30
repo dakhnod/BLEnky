@@ -12,7 +12,6 @@
 #include "sensor_timer.h"
 
 #include "ble_bss.h"
-#include "storage.h"
 
 uint16_t event_count = 0;
 uint8_t last_contact = false;
@@ -59,22 +58,16 @@ int main(void) {
     fs_init();
 
     timer_init(handle_debounce_timeout);
+
+    gpio_init(handle_sensor);
+
     ble_init();
-    storage_init();
 
     uint8_t storage_data[16];
-    storage_read_flip(storage_data, 16);
-
-    NRF_LOG_DEBUG("stored data:\n");
-    for (uint32_t i = 0; i < 16; i++) {
-        NRF_LOG_DEBUG("%x\n", storage_data[i]);
-    }
-    NRF_LOG_DEBUG("\n");
-
+    gpio_pin_configuration_data_read(storage_data);
     err_code = ble_aio_pin_configuraion_data_set(storage_data, 16);
     APP_ERROR_CHECK(err_code);
 
-    gpio_init(handle_sensor);
     advertising_start();
 
     NRF_LOG_INFO("setup done\n");

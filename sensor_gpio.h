@@ -5,7 +5,7 @@
 #include "nrf_log.h"
 #include "boards.h"
 #include "bsp.h"
-#include "config/pin_configuration.h"
+#include "pin_configuration.h"
 
 #define BATTERY_VOLTAGE_MAX 3000.0
 #define BATTERY_VOLTAGE_MIN 1700.0
@@ -15,7 +15,9 @@ void gpio_init(void (*sensor_handler)(uint8_t));
 void gpio_configure_aio_outputs();
 void gpio_write_output_pin(uint32_t index, uint8_t value);
 uint32_t gpio_get_output_pin_count();
+uint32_t gpio_get_input_pin_count();
 uint8_t gpio_get_output_state(uint32_t index);
 uint8_t *gpio_get_output_states();
+void gpio_pin_configuration_data_read(uint8_t *data);
 
 #endif

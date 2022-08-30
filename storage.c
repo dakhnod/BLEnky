@@ -46,13 +46,6 @@ void storage_read(uint8_t *buffer, uint32_t length) {
   memcpy(buffer, fs_config.p_start_addr, length);
 }
 
-void storage_read_flip(uint8_t *buffer, uint32_t length) {
-  storage_read(buffer, length);
-  for (int i = 0; i < length; i++) {
-    buffer[i] = ~buffer[i];
-  }
-}
-
 void storage_store(uint8_t *data, uint32_t length) {
   fs_ret_t ret_code;
 

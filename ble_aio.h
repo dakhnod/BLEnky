@@ -35,6 +35,7 @@ extern "C" {
         uint8_t is_writable,
         uint8_t is_readable,
         uint8_t is_notifiable,
+        uint8_t authorize_read,
         uint8_t uuid_type,
         uint16_t max_length,
         uint16_t *value_handle,

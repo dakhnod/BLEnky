@@ -10,35 +10,35 @@
 
 //==========================================================
 // <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
- 
+
 
 #ifndef BLE_ADVERTISING_ENABLED
 #define BLE_ADVERTISING_ENABLED 1
 #endif
 
 // <q> BLE_DTM_ENABLED  - ble_dtm - Module for testing RF/PHY using DTM commands
- 
+
 
 #ifndef BLE_DTM_ENABLED
 #define BLE_DTM_ENABLED 0
 #endif
 
 // <q> BLE_RACP_ENABLED  - ble_racp - Record Access Control Point library
- 
+
 
 #ifndef BLE_RACP_ENABLED
 #define BLE_RACP_ENABLED 0
 #endif
 
 // <q> NRF_BLE_QWR_ENABLED  - nrf_ble_qwr - Queued writes support module (prepare/execute write)
- 
+
 
 #ifndef NRF_BLE_QWR_ENABLED
 #define NRF_BLE_QWR_ENABLED 0
 #endif
 
 // <q> PEER_MANAGER_ENABLED  - peer_manager - Peer Manager
- 
+
 
 #ifndef PEER_MANAGER_ENABLED
 #define PEER_MANAGER_ENABLED 0
@@ -51,63 +51,63 @@
 
 //==========================================================
 // <q> BLE_ANCS_C_ENABLED  - ble_ancs_c - Apple Notification Service Client
- 
+
 
 #ifndef BLE_ANCS_C_ENABLED
 #define BLE_ANCS_C_ENABLED 0
 #endif
 
 // <q> BLE_ANS_C_ENABLED  - ble_ans_c - Alert Notification Service Client
- 
+
 
 #ifndef BLE_ANS_C_ENABLED
 #define BLE_ANS_C_ENABLED 0
 #endif
 
 // <q> BLE_BAS_C_ENABLED  - ble_bas_c - Battery Service Client
- 
+
 
 #ifndef BLE_BAS_C_ENABLED
 #define BLE_BAS_C_ENABLED 0
 #endif
 
 // <q> BLE_BAS_ENABLED  - ble_bas - Battery Service
- 
+
 
 #ifndef BLE_BAS_ENABLED
 #define BLE_BAS_ENABLED 0
 #endif
 
 // <q> BLE_CSCS_ENABLED  - ble_cscs - Cycling Speed and Cadence Service
- 
+
 
 #ifndef BLE_CSCS_ENABLED
 #define BLE_CSCS_ENABLED 0
 #endif
 
 // <q> BLE_CTS_C_ENABLED  - ble_cts_c - Current Time Service Client
- 
+
 
 #ifndef BLE_CTS_C_ENABLED
 #define BLE_CTS_C_ENABLED 0
 #endif
 
 // <q> BLE_DIS_ENABLED  - ble_dis - Device Information Service
- 
+
 
 #ifndef BLE_DIS_ENABLED
 #define BLE_DIS_ENABLED 0
 #endif
 
 // <q> BLE_GLS_ENABLED  - ble_gls - Glucose Service
- 
+
 
 #ifndef BLE_GLS_ENABLED
 #define BLE_GLS_ENABLED 0
 #endif
 
 // <q> BLE_HIDS_ENABLED  - ble_hids - Human Interface Device Service
- 
+
 
 #ifndef BLE_HIDS_ENABLED
 #define BLE_HIDS_ENABLED 0
@@ -128,84 +128,84 @@
 // </e>
 
 // <q> BLE_HRS_ENABLED  - ble_hrs - Heart Rate Service
- 
+
 
 #ifndef BLE_HRS_ENABLED
 #define BLE_HRS_ENABLED 0
 #endif
 
 // <q> BLE_HTS_ENABLED  - ble_hts - Health Thermometer Service
- 
+
 
 #ifndef BLE_HTS_ENABLED
 #define BLE_HTS_ENABLED 0
 #endif
 
 // <q> BLE_IAS_C_ENABLED  - ble_ias_c - Immediate Alert Service Client
- 
+
 
 #ifndef BLE_IAS_C_ENABLED
 #define BLE_IAS_C_ENABLED 0
 #endif
 
 // <q> BLE_IAS_ENABLED  - ble_ias - Immediate Alert Service
- 
+
 
 #ifndef BLE_IAS_ENABLED
 #define BLE_IAS_ENABLED 0
 #endif
 
 // <q> BLE_LBS_C_ENABLED  - ble_lbs_c - Nordic LED Button Service Client
- 
+
 
 #ifndef BLE_LBS_C_ENABLED
 #define BLE_LBS_C_ENABLED 0
 #endif
 
 // <q> BLE_LBS_ENABLED  - ble_lbs - LED Button Service
- 
+
 
 #ifndef BLE_LBS_ENABLED
 #define BLE_LBS_ENABLED 0
 #endif
 
 // <q> BLE_LLS_ENABLED  - ble_lls - Link Loss Service
- 
+
 
 #ifndef BLE_LLS_ENABLED
 #define BLE_LLS_ENABLED 0
 #endif
 
 // <q> BLE_NUS_C_ENABLED  - ble_nus_c - Nordic UART Central Service
- 
+
 
 #ifndef BLE_NUS_C_ENABLED
 #define BLE_NUS_C_ENABLED 0
 #endif
 
 // <q> BLE_NUS_ENABLED  - ble_nus - Nordic UART Service
- 
+
 
 #ifndef BLE_NUS_ENABLED
 #define BLE_NUS_ENABLED 0
 #endif
 
 // <q> BLE_RSCS_C_ENABLED  - ble_rscs_c - Running Speed and Cadence Client
- 
+
 
 #ifndef BLE_RSCS_C_ENABLED
 #define BLE_RSCS_C_ENABLED 0
 #endif
 
 // <q> BLE_RSCS_ENABLED  - ble_rscs - Running Speed and Cadence Service
- 
+
 
 #ifndef BLE_RSCS_ENABLED
 #define BLE_RSCS_ENABLED 0
 #endif
 
 // <q> BLE_TPS_ENABLED  - ble_tps - TX Power Service
- 
+
 
 #ifndef BLE_TPS_ENABLED
 #define BLE_TPS_ENABLED 0
@@ -224,7 +224,7 @@
 #endif
 #if  ADC_ENABLED
 // <o> ADC_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -243,7 +243,7 @@
 #endif
 #if  ADC_CONFIG_LOG_ENABLED
 // <o> ADC_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -255,7 +255,7 @@
 #endif
 
 // <o> ADC_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -271,7 +271,7 @@
 #endif
 
 // <o> ADC_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -344,7 +344,7 @@
 #endif
 #if  CLOCK_ENABLED
 // <o> CLOCK_CONFIG_XTAL_FREQ  - HF XTAL Frequency
- 
+
 // <0=> Default (64 MHz) 
 // <255=> Default (16 MHz) 
 // <0=> 32 MHz 
@@ -354,7 +354,7 @@
 #endif
 
 // <o> CLOCK_CONFIG_LF_SRC  - LF Clock Source
- 
+
 // <0=> RC 
 // <1=> XTAL 
 // <2=> Synth 
@@ -364,7 +364,7 @@
 #endif
 
 // <o> CLOCK_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -383,7 +383,7 @@
 #endif
 #if  CLOCK_CONFIG_LOG_ENABLED
 // <o> CLOCK_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -395,7 +395,7 @@
 #endif
 
 // <o> CLOCK_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -411,7 +411,7 @@
 #endif
 
 // <o> CLOCK_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -439,7 +439,7 @@
 #endif
 #if  COMP_ENABLED
 // <o> COMP_CONFIG_REF  - Reference voltage
- 
+
 // <0=> Internal 1.2V 
 // <1=> Internal 1.8V 
 // <2=> Internal 2.4V 
@@ -451,7 +451,7 @@
 #endif
 
 // <o> COMP_CONFIG_MAIN_MODE  - Main mode
- 
+
 // <0=> Single ended 
 // <1=> Differential 
 
@@ -460,7 +460,7 @@
 #endif
 
 // <o> COMP_CONFIG_SPEED_MODE  - Speed mode
- 
+
 // <0=> Low power 
 // <1=> Normal 
 // <2=> High speed 
@@ -470,7 +470,7 @@
 #endif
 
 // <o> COMP_CONFIG_HYST  - Hystheresis
- 
+
 // <0=> No 
 // <1=> 50mV 
 
@@ -479,7 +479,7 @@
 #endif
 
 // <o> COMP_CONFIG_ISOURCE  - Current Source
- 
+
 // <0=> Off 
 // <1=> 2.5 uA 
 // <2=> 5 uA 
@@ -490,7 +490,7 @@
 #endif
 
 // <o> COMP_CONFIG_INPUT  - Analog input
- 
+
 // <0=> 0 
 // <1=> 1 
 // <2=> 2 
@@ -505,7 +505,7 @@
 #endif
 
 // <o> COMP_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -524,7 +524,7 @@
 #endif
 #if  COMP_CONFIG_LOG_ENABLED
 // <o> COMP_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -536,7 +536,7 @@
 #endif
 
 // <o> COMP_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -552,7 +552,7 @@
 #endif
 
 // <o> COMP_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -586,7 +586,7 @@
 #endif
 #if  SWI_CONFIG_LOG_ENABLED
 // <o> SWI_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -598,7 +598,7 @@
 #endif
 
 // <o> SWI_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -614,7 +614,7 @@
 #endif
 
 // <o> SWI_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -647,7 +647,7 @@
 #endif
 
 // <o> GPIOTE_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -666,7 +666,7 @@
 #endif
 #if  GPIOTE_CONFIG_LOG_ENABLED
 // <o> GPIOTE_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -678,7 +678,7 @@
 #endif
 
 // <o> GPIOTE_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -694,7 +694,7 @@
 #endif
 
 // <o> GPIOTE_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -755,7 +755,7 @@
 #endif
 
 // <o> I2S_CONFIG_MASTER  - Mode
- 
+
 // <0=> Master 
 // <1=> Slave 
 
@@ -764,7 +764,7 @@
 #endif
 
 // <o> I2S_CONFIG_FORMAT  - Format
- 
+
 // <0=> I2S 
 // <1=> Aligned 
 
@@ -773,7 +773,7 @@
 #endif
 
 // <o> I2S_CONFIG_ALIGN  - Alignment
- 
+
 // <0=> Left 
 // <1=> Right 
 
@@ -782,7 +782,7 @@
 #endif
 
 // <o> I2S_CONFIG_SWIDTH  - Sample width (bits)
- 
+
 // <0=> 8 
 // <1=> 16 
 // <2=> 24 
@@ -792,7 +792,7 @@
 #endif
 
 // <o> I2S_CONFIG_CHANNELS  - Channels
- 
+
 // <0=> Stereo 
 // <1=> Left 
 // <2=> Right 
@@ -802,7 +802,7 @@
 #endif
 
 // <o> I2S_CONFIG_MCK_SETUP  - MCK behavior
- 
+
 // <0=> Disabled 
 // <2147483648=> 32MHz/2 
 // <1342177280=> 32MHz/3 
@@ -828,7 +828,7 @@
 #endif
 
 // <o> I2S_CONFIG_RATIO  - MCK/LRCK ratio
- 
+
 // <0=> 32x 
 // <1=> 48x 
 // <2=> 64x 
@@ -844,7 +844,7 @@
 #endif
 
 // <o> I2S_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -863,7 +863,7 @@
 #endif
 #if  I2S_CONFIG_LOG_ENABLED
 // <o> I2S_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -875,7 +875,7 @@
 #endif
 
 // <o> I2S_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -891,7 +891,7 @@
 #endif
 
 // <o> I2S_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -919,7 +919,7 @@
 #endif
 #if  LPCOMP_ENABLED
 // <o> LPCOMP_CONFIG_REFERENCE  - Reference voltage
- 
+
 // <0=> Supply 1/8 
 // <1=> Supply 2/8 
 // <2=> Supply 3/8 
@@ -943,7 +943,7 @@
 #endif
 
 // <o> LPCOMP_CONFIG_DETECTION  - Detection
- 
+
 // <0=> Crossing 
 // <1=> Up 
 // <2=> Down 
@@ -953,7 +953,7 @@
 #endif
 
 // <o> LPCOMP_CONFIG_INPUT  - Analog input
- 
+
 // <0=> 0 
 // <1=> 1 
 // <2=> 2 
@@ -968,14 +968,14 @@
 #endif
 
 // <q> LPCOMP_CONFIG_HYST  - Hysteresis
- 
+
 
 #ifndef LPCOMP_CONFIG_HYST
 #define LPCOMP_CONFIG_HYST 0
 #endif
 
 // <o> LPCOMP_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -994,7 +994,7 @@
 #endif
 #if  LPCOMP_CONFIG_LOG_ENABLED
 // <o> LPCOMP_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1006,7 +1006,7 @@
 #endif
 
 // <o> LPCOMP_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1022,7 +1022,7 @@
 #endif
 
 // <o> LPCOMP_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1050,7 +1050,7 @@
 #endif
 #if  PDM_ENABLED
 // <o> PDM_CONFIG_MODE  - Mode
- 
+
 // <0=> Stereo 
 // <1=> Mono 
 
@@ -1059,7 +1059,7 @@
 #endif
 
 // <o> PDM_CONFIG_EDGE  - Edge
- 
+
 // <0=> Left falling 
 // <1=> Left rising 
 
@@ -1068,7 +1068,7 @@
 #endif
 
 // <o> PDM_CONFIG_CLOCK_FREQ  - Clock frequency
- 
+
 // <134217728=> 1000k 
 // <138412032=> 1032k (default) 
 // <142606336=> 1067k 
@@ -1078,7 +1078,7 @@
 #endif
 
 // <o> PDM_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1097,7 +1097,7 @@
 #endif
 #if  PDM_CONFIG_LOG_ENABLED
 // <o> PDM_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1109,7 +1109,7 @@
 #endif
 
 // <o> PDM_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1125,7 +1125,7 @@
 #endif
 
 // <o> PDM_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1159,7 +1159,7 @@
 #endif
 #if  COMMON_CONFIG_LOG_ENABLED
 // <o> COMMON_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1171,7 +1171,7 @@
 #endif
 
 // <o> COMMON_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1187,7 +1187,7 @@
 #endif
 
 // <o> COMMON_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1215,7 +1215,7 @@
 #endif
 #if  POWER_ENABLED
 // <o> POWER_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1228,7 +1228,7 @@
 #endif
 
 // <q> POWER_CONFIG_DEFAULT_DCDCEN  - The default configuration of main DCDC regulator
- 
+
 
 // <i> This settings means only that components for DCDC regulator are installed and it can be enabled.
 
@@ -1237,7 +1237,7 @@
 #endif
 
 // <q> POWER_CONFIG_DEFAULT_DCDCENHV  - The default configuration of High Voltage DCDC regulator
- 
+
 
 // <i> This settings means only that components for DCDC regulator are installed and it can be enabled.
 
@@ -1261,7 +1261,7 @@
 #endif
 #if  PPI_CONFIG_LOG_ENABLED
 // <o> PPI_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1273,7 +1273,7 @@
 #endif
 
 // <o> PPI_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1289,7 +1289,7 @@
 #endif
 
 // <o> PPI_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1345,7 +1345,7 @@
 #endif
 
 // <o> PWM_DEFAULT_CONFIG_BASE_CLOCK  - Base clock
- 
+
 // <0=> 16 MHz 
 // <1=> 8 MHz 
 // <2=> 4 MHz 
@@ -1360,7 +1360,7 @@
 #endif
 
 // <o> PWM_DEFAULT_CONFIG_COUNT_MODE  - Count mode
- 
+
 // <0=> Up 
 // <1=> Up and Down 
 
@@ -1374,7 +1374,7 @@
 #endif
 
 // <o> PWM_DEFAULT_CONFIG_LOAD_MODE  - Load mode
- 
+
 // <0=> Common 
 // <1=> Grouped 
 // <2=> Individual 
@@ -1385,7 +1385,7 @@
 #endif
 
 // <o> PWM_DEFAULT_CONFIG_STEP_MODE  - Step mode
- 
+
 // <0=> Auto 
 // <1=> Triggered 
 
@@ -1394,7 +1394,7 @@
 #endif
 
 // <o> PWM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1411,21 +1411,21 @@
 #endif
 
 // <q> PWM0_ENABLED  - Enable PWM0 instance
- 
+
 
 #ifndef PWM0_ENABLED
 #define PWM0_ENABLED 0
 #endif
 
 // <q> PWM1_ENABLED  - Enable PWM1 instance
- 
+
 
 #ifndef PWM1_ENABLED
 #define PWM1_ENABLED 0
 #endif
 
 // <q> PWM2_ENABLED  - Enable PWM2 instance
- 
+
 
 #ifndef PWM2_ENABLED
 #define PWM2_ENABLED 0
@@ -1438,7 +1438,7 @@
 #endif
 #if  PWM_CONFIG_LOG_ENABLED
 // <o> PWM_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1450,7 +1450,7 @@
 #endif
 
 // <o> PWM_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1466,7 +1466,7 @@
 #endif
 
 // <o> PWM_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1494,7 +1494,7 @@
 #endif
 #if  QDEC_ENABLED
 // <o> QDEC_CONFIG_REPORTPER  - Report period
- 
+
 // <0=> 10 Samples 
 // <1=> 40 Samples 
 // <2=> 80 Samples 
@@ -1509,7 +1509,7 @@
 #endif
 
 // <o> QDEC_CONFIG_SAMPLEPER  - Sample period
- 
+
 // <0=> 128 us 
 // <1=> 256 us 
 // <2=> 512 us 
@@ -1550,7 +1550,7 @@
 #endif
 
 // <o> QDEC_CONFIG_LEDPOL  - LED polarity
- 
+
 // <0=> Active low 
 // <1=> Active high 
 
@@ -1559,21 +1559,21 @@
 #endif
 
 // <q> QDEC_CONFIG_DBFEN  - Debouncing enable
- 
+
 
 #ifndef QDEC_CONFIG_DBFEN
 #define QDEC_CONFIG_DBFEN 0
 #endif
 
 // <q> QDEC_CONFIG_SAMPLE_INTEN  - Sample ready interrupt enable
- 
+
 
 #ifndef QDEC_CONFIG_SAMPLE_INTEN
 #define QDEC_CONFIG_SAMPLE_INTEN 0
 #endif
 
 // <o> QDEC_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1592,7 +1592,7 @@
 #endif
 #if  QDEC_CONFIG_LOG_ENABLED
 // <o> QDEC_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1604,7 +1604,7 @@
 #endif
 
 // <o> QDEC_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1620,7 +1620,7 @@
 #endif
 
 // <o> QDEC_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1648,7 +1648,7 @@
 #endif
 #if  RNG_ENABLED
 // <q> RNG_CONFIG_ERROR_CORRECTION  - Error correction
- 
+
 
 #ifndef RNG_CONFIG_ERROR_CORRECTION
 #define RNG_CONFIG_ERROR_CORRECTION 0
@@ -1660,7 +1660,7 @@
 #endif
 
 // <o> RNG_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1679,7 +1679,7 @@
 #endif
 #if  RNG_CONFIG_LOG_ENABLED
 // <o> RNG_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1691,7 +1691,7 @@
 #endif
 
 // <o> RNG_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1707,7 +1707,7 @@
 #endif
 
 // <o> RNG_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1742,14 +1742,14 @@
 #endif
 
 // <q> RTC_DEFAULT_CONFIG_RELIABLE  - Ensures safe compare event triggering
- 
+
 
 #ifndef RTC_DEFAULT_CONFIG_RELIABLE
 #define RTC_DEFAULT_CONFIG_RELIABLE 0
 #endif
 
 // <o> RTC_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1762,21 +1762,21 @@
 #endif
 
 // <q> RTC0_ENABLED  - Enable RTC0 instance
- 
+
 
 #ifndef RTC0_ENABLED
 #define RTC0_ENABLED 0
 #endif
 
 // <q> RTC1_ENABLED  - Enable RTC1 instance
- 
+
 
 #ifndef RTC1_ENABLED
 #define RTC1_ENABLED 0
 #endif
 
 // <q> RTC2_ENABLED  - Enable RTC2 instance
- 
+
 
 #ifndef RTC2_ENABLED
 #define RTC2_ENABLED 0
@@ -1794,7 +1794,7 @@
 #endif
 #if  RTC_CONFIG_LOG_ENABLED
 // <o> RTC_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1806,7 +1806,7 @@
 #endif
 
 // <o> RTC_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1822,7 +1822,7 @@
 #endif
 
 // <o> RTC_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1850,7 +1850,7 @@
 #endif
 #if  SAADC_ENABLED
 // <o> SAADC_CONFIG_RESOLUTION  - Resolution
- 
+
 // <0=> 8 bit 
 // <1=> 10 bit 
 // <2=> 12 bit 
@@ -1861,7 +1861,7 @@
 #endif
 
 // <o> SAADC_CONFIG_OVERSAMPLE  - Sample period
- 
+
 // <0=> Disabled 
 // <1=> 2x 
 // <2=> 4x 
@@ -1877,14 +1877,14 @@
 #endif
 
 // <q> SAADC_CONFIG_LP_MODE  - Enabling low power mode
- 
+
 
 #ifndef SAADC_CONFIG_LP_MODE
 #define SAADC_CONFIG_LP_MODE 0
 #endif
 
 // <o> SAADC_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1903,7 +1903,7 @@
 #endif
 #if  SAADC_CONFIG_LOG_ENABLED
 // <o> SAADC_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -1915,7 +1915,7 @@
 #endif
 
 // <o> SAADC_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1931,7 +1931,7 @@
 #endif
 
 // <o> SAADC_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -1959,7 +1959,7 @@
 #endif
 #if  SPIS_ENABLED
 // <o> SPIS_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -1972,7 +1972,7 @@
 #endif
 
 // <o> SPIS_DEFAULT_MODE  - Mode
- 
+
 // <0=> MODE_0 
 // <1=> MODE_1 
 // <2=> MODE_2 
@@ -1983,7 +1983,7 @@
 #endif
 
 // <o> SPIS_DEFAULT_BIT_ORDER  - SPIS default bit order
- 
+
 // <0=> MSB first 
 // <1=> LSB first 
 
@@ -2006,21 +2006,21 @@
 #endif
 
 // <q> SPIS0_ENABLED  - Enable SPIS0 instance
- 
+
 
 #ifndef SPIS0_ENABLED
 #define SPIS0_ENABLED 0
 #endif
 
 // <q> SPIS1_ENABLED  - Enable SPIS1 instance
- 
+
 
 #ifndef SPIS1_ENABLED
 #define SPIS1_ENABLED 0
 #endif
 
 // <q> SPIS2_ENABLED  - Enable SPIS2 instance
- 
+
 
 #ifndef SPIS2_ENABLED
 #define SPIS2_ENABLED 0
@@ -2033,7 +2033,7 @@
 #endif
 #if  SPIS_CONFIG_LOG_ENABLED
 // <o> SPIS_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2045,7 +2045,7 @@
 #endif
 
 // <o> SPIS_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2061,7 +2061,7 @@
 #endif
 
 // <o> SPIS_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2089,7 +2089,7 @@
 #endif
 #if  SPI_ENABLED
 // <o> SPI_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -2108,14 +2108,14 @@
 #endif
 #if  SPI0_ENABLED
 // <q> SPI0_USE_EASY_DMA  - Use EasyDMA
- 
+
 
 #ifndef SPI0_USE_EASY_DMA
 #define SPI0_USE_EASY_DMA 0
 #endif
 
 // <o> SPI0_DEFAULT_FREQUENCY  - SPI frequency
- 
+
 // <33554432=> 125 kHz 
 // <67108864=> 250 kHz 
 // <134217728=> 500 kHz 
@@ -2138,14 +2138,14 @@
 #endif
 #if  SPI1_ENABLED
 // <q> SPI1_USE_EASY_DMA  - Use EasyDMA
- 
+
 
 #ifndef SPI1_USE_EASY_DMA
 #define SPI1_USE_EASY_DMA 0
 #endif
 
 // <o> SPI1_DEFAULT_FREQUENCY  - SPI frequency
- 
+
 // <33554432=> 125 kHz 
 // <67108864=> 250 kHz 
 // <134217728=> 500 kHz 
@@ -2168,14 +2168,14 @@
 #endif
 #if  SPI2_ENABLED
 // <q> SPI2_USE_EASY_DMA  - Use EasyDMA
- 
+
 
 #ifndef SPI2_USE_EASY_DMA
 #define SPI2_USE_EASY_DMA 0
 #endif
 
 // <q> SPI2_DEFAULT_FREQUENCY  - Use EasyDMA
- 
+
 
 #ifndef SPI2_DEFAULT_FREQUENCY
 #define SPI2_DEFAULT_FREQUENCY 0
@@ -2191,7 +2191,7 @@
 #endif
 #if  SPI_CONFIG_LOG_ENABLED
 // <o> SPI_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2203,7 +2203,7 @@
 #endif
 
 // <o> SPI_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2219,7 +2219,7 @@
 #endif
 
 // <o> SPI_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2247,7 +2247,7 @@
 #endif
 #if  TIMER_ENABLED
 // <o> TIMER_DEFAULT_CONFIG_FREQUENCY  - Timer frequency if in Timer mode
- 
+
 // <0=> 16 MHz 
 // <1=> 8 MHz 
 // <2=> 4 MHz 
@@ -2264,7 +2264,7 @@
 #endif
 
 // <o> TIMER_DEFAULT_CONFIG_MODE  - Timer mode or operation
- 
+
 // <0=> Timer 
 // <1=> Counter 
 
@@ -2273,7 +2273,7 @@
 #endif
 
 // <o> TIMER_DEFAULT_CONFIG_BIT_WIDTH  - Timer counter bit width
- 
+
 // <0=> 16 bit 
 // <1=> 8 bit 
 // <2=> 24 bit 
@@ -2284,7 +2284,7 @@
 #endif
 
 // <o> TIMER_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -2297,35 +2297,35 @@
 #endif
 
 // <q> TIMER0_ENABLED  - Enable TIMER0 instance
- 
+
 
 #ifndef TIMER0_ENABLED
 #define TIMER0_ENABLED 0
 #endif
 
 // <q> TIMER1_ENABLED  - Enable TIMER1 instance
- 
+
 
 #ifndef TIMER1_ENABLED
 #define TIMER1_ENABLED 0
 #endif
 
 // <q> TIMER2_ENABLED  - Enable TIMER2 instance
- 
+
 
 #ifndef TIMER2_ENABLED
 #define TIMER2_ENABLED 0
 #endif
 
 // <q> TIMER3_ENABLED  - Enable TIMER3 instance
- 
+
 
 #ifndef TIMER3_ENABLED
 #define TIMER3_ENABLED 0
 #endif
 
 // <q> TIMER4_ENABLED  - Enable TIMER4 instance
- 
+
 
 #ifndef TIMER4_ENABLED
 #define TIMER4_ENABLED 0
@@ -2338,7 +2338,7 @@
 #endif
 #if  TIMER_CONFIG_LOG_ENABLED
 // <o> TIMER_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2350,7 +2350,7 @@
 #endif
 
 // <o> TIMER_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2366,7 +2366,7 @@
 #endif
 
 // <o> TIMER_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2404,7 +2404,7 @@
 #endif
 
 // <o> TWIS_DEFAULT_CONFIG_SCL_PULL  - SCL pin pull configuration
- 
+
 // <0=> Disabled 
 // <1=> Pull down 
 // <3=> Pull up 
@@ -2414,7 +2414,7 @@
 #endif
 
 // <o> TWIS_DEFAULT_CONFIG_SDA_PULL  - SDA pin pull configuration
- 
+
 // <0=> Disabled 
 // <1=> Pull down 
 // <3=> Pull up 
@@ -2424,7 +2424,7 @@
 #endif
 
 // <o> TWIS_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -2437,21 +2437,21 @@
 #endif
 
 // <q> TWIS0_ENABLED  - Enable TWIS0 instance
- 
+
 
 #ifndef TWIS0_ENABLED
 #define TWIS0_ENABLED 0
 #endif
 
 // <q> TWIS1_ENABLED  - Enable TWIS1 instance
- 
+
 
 #ifndef TWIS1_ENABLED
 #define TWIS1_ENABLED 0
 #endif
 
 // <q> TWIS_ASSUME_INIT_AFTER_RESET_ONLY  - Assume that any instance would be initialized only once
- 
+
 
 // <i> Optimization flag. Registers used by TWIS are shared by other peripherals. Normally, during initialization driver tries to clear all registers to known state before doing the initialization itself. This gives initialization safe procedure, no matter when it would be called. If you activate TWIS only once and do never uninitialize it - set this flag to 1 what gives more optimal code.
 
@@ -2460,7 +2460,7 @@
 #endif
 
 // <q> TWIS_NO_SYNC_MODE  - Remove support for synchronous mode
- 
+
 
 // <i> Synchronous mode would be used in specific situations. And it uses some additional code and data memory to safely process state machine by polling it in status functions. If this functionality is not required it may be disabled to free some resources.
 
@@ -2475,7 +2475,7 @@
 #endif
 #if  TWIS_CONFIG_LOG_ENABLED
 // <o> TWIS_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2487,7 +2487,7 @@
 #endif
 
 // <o> TWIS_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2503,7 +2503,7 @@
 #endif
 
 // <o> TWIS_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2531,7 +2531,7 @@
 #endif
 #if  TWI_ENABLED
 // <o> TWI_DEFAULT_CONFIG_FREQUENCY  - Frequency
- 
+
 // <26738688=> 100k 
 // <67108864=> 250k 
 // <104857600=> 400k 
@@ -2541,21 +2541,21 @@
 #endif
 
 // <q> TWI_DEFAULT_CONFIG_CLR_BUS_INIT  - Enables bus clearing procedure during init
- 
+
 
 #ifndef TWI_DEFAULT_CONFIG_CLR_BUS_INIT
 #define TWI_DEFAULT_CONFIG_CLR_BUS_INIT 0
 #endif
 
 // <q> TWI_DEFAULT_CONFIG_HOLD_BUS_UNINIT  - Enables bus holding after uninit
- 
+
 
 #ifndef TWI_DEFAULT_CONFIG_HOLD_BUS_UNINIT
 #define TWI_DEFAULT_CONFIG_HOLD_BUS_UNINIT 0
 #endif
 
 // <o> TWI_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -2574,7 +2574,7 @@
 #endif
 #if  TWI0_ENABLED
 // <q> TWI0_USE_EASY_DMA  - Use EasyDMA (if present)
- 
+
 
 #ifndef TWI0_USE_EASY_DMA
 #define TWI0_USE_EASY_DMA 0
@@ -2590,7 +2590,7 @@
 #endif
 #if  TWI1_ENABLED
 // <q> TWI1_USE_EASY_DMA  - Use EasyDMA (if present)
- 
+
 
 #ifndef TWI1_USE_EASY_DMA
 #define TWI1_USE_EASY_DMA 0
@@ -2606,7 +2606,7 @@
 #endif
 #if  TWI_CONFIG_LOG_ENABLED
 // <o> TWI_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2618,7 +2618,7 @@
 #endif
 
 // <o> TWI_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2634,7 +2634,7 @@
 #endif
 
 // <o> TWI_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2662,7 +2662,7 @@
 #endif
 #if  UART_ENABLED
 // <o> UART_DEFAULT_CONFIG_HWFC  - Hardware Flow Control
- 
+
 // <0=> Disabled 
 // <1=> Enabled 
 
@@ -2671,7 +2671,7 @@
 #endif
 
 // <o> UART_DEFAULT_CONFIG_PARITY  - Parity
- 
+
 // <0=> Excluded 
 // <14=> Included 
 
@@ -2680,7 +2680,7 @@
 #endif
 
 // <o> UART_DEFAULT_CONFIG_BAUDRATE  - Default Baudrate
- 
+
 // <323584=> 1200 baud 
 // <643072=> 2400 baud 
 // <1290240=> 4800 baud 
@@ -2703,7 +2703,7 @@
 #endif
 
 // <o> UART_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -2716,14 +2716,14 @@
 #endif
 
 // <q> UART_EASY_DMA_SUPPORT  - Driver supporting EasyDMA
- 
+
 
 #ifndef UART_EASY_DMA_SUPPORT
 #define UART_EASY_DMA_SUPPORT 1
 #endif
 
 // <q> UART_LEGACY_SUPPORT  - Driver supporting Legacy mode
- 
+
 
 #ifndef UART_LEGACY_SUPPORT
 #define UART_LEGACY_SUPPORT 1
@@ -2736,7 +2736,7 @@
 #endif
 #if  UART0_ENABLED
 // <q> UART0_CONFIG_USE_EASY_DMA  - Default setting for using EasyDMA
- 
+
 
 #ifndef UART0_CONFIG_USE_EASY_DMA
 #define UART0_CONFIG_USE_EASY_DMA 1
@@ -2752,7 +2752,7 @@
 #endif
 #if  UART_CONFIG_LOG_ENABLED
 // <o> UART_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2764,7 +2764,7 @@
 #endif
 
 // <o> UART_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2780,7 +2780,7 @@
 #endif
 
 // <o> UART_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2808,7 +2808,7 @@
 #endif
 #if  USBD_ENABLED
 // <o> NRF_DRV_USBD_DMASCHEDULER_MODE  - USBD SMA scheduler working scheme
- 
+
 // <0=> Prioritized access 
 // <1=> Round Robin 
 
@@ -2817,7 +2817,7 @@
 #endif
 
 // <q> NRF_USBD_DRV_LOG_ENABLED  - Enable logging.
- 
+
 
 #ifndef NRF_USBD_DRV_LOG_ENABLED
 #define NRF_USBD_DRV_LOG_ENABLED 0
@@ -2833,7 +2833,7 @@
 #endif
 #if  WDT_ENABLED
 // <o> WDT_CONFIG_BEHAVIOUR  - WDT behavior in CPU SLEEP or HALT mode
- 
+
 // <1=> Run in SLEEP, Pause in HALT 
 // <8=> Pause in SLEEP, Run in HALT 
 // <9=> Run in SLEEP and HALT 
@@ -2851,7 +2851,7 @@
 #endif
 
 // <o> WDT_CONFIG_IRQ_PRIORITY  - Interrupt priority
- 
+
 
 // <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
 // <0=> 0 (highest) 
@@ -2870,7 +2870,7 @@
 #endif
 #if  WDT_CONFIG_LOG_ENABLED
 // <o> WDT_CONFIG_LOG_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -2882,7 +2882,7 @@
 #endif
 
 // <o> WDT_CONFIG_INFO_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2898,7 +2898,7 @@
 #endif
 
 // <o> WDT_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -2926,14 +2926,14 @@
 
 //==========================================================
 // <q> APP_GPIOTE_ENABLED  - app_gpiote - GPIOTE events dispatcher
- 
+
 
 #ifndef APP_GPIOTE_ENABLED
 #define APP_GPIOTE_ENABLED 0
 #endif
 
 // <q> APP_PWM_ENABLED  - app_pwm - PWM functionality
- 
+
 
 #ifndef APP_PWM_ENABLED
 #define APP_PWM_ENABLED 0
@@ -2946,14 +2946,14 @@
 #endif
 #if  APP_SCHEDULER_ENABLED
 // <q> APP_SCHEDULER_WITH_PAUSE  - Enabling pause feature
- 
+
 
 #ifndef APP_SCHEDULER_WITH_PAUSE
 #define APP_SCHEDULER_WITH_PAUSE 0
 #endif
 
 // <q> APP_SCHEDULER_WITH_PROFILER  - Enabling scheduler profiling
- 
+
 
 #ifndef APP_SCHEDULER_WITH_PROFILER
 #define APP_SCHEDULER_WITH_PROFILER 0
@@ -2969,14 +2969,14 @@
 #endif
 #if  APP_TIMER_ENABLED
 // <q> APP_TIMER_WITH_PROFILER  - Enable app_timer profiling
- 
+
 
 #ifndef APP_TIMER_WITH_PROFILER
 #define APP_TIMER_WITH_PROFILER 0
 #endif
 
 // <q> APP_TIMER_KEEPS_RTC_ACTIVE  - Enable RTC always on
- 
+
 
 // <i> If option is enabled RTC is kept running even if there is no active timers.
 // <i> This option can be used when app_timer is used for timestamping.
@@ -2989,7 +2989,7 @@
 // </e>
 
 // <q> APP_TWI_ENABLED  - app_twi - TWI transaction manager
- 
+
 
 #ifndef APP_TWI_ENABLED
 #define APP_TWI_ENABLED 0
@@ -3002,7 +3002,7 @@
 #endif
 #if  APP_UART_ENABLED
 // <o> APP_UART_DRIVER_INSTANCE  - UART instance used
- 
+
 // <0=> 0 
 
 #ifndef APP_UART_DRIVER_INSTANCE
@@ -3013,63 +3013,63 @@
 // </e>
 
 // <q> APP_USBD_CLASS_AUDIO_ENABLED  - app_usbd_audio - USB AUDIO class
- 
+
 
 #ifndef APP_USBD_CLASS_AUDIO_ENABLED
 #define APP_USBD_CLASS_AUDIO_ENABLED 0
 #endif
 
 // <q> APP_USBD_CLASS_HID_ENABLED  - app_usbd_hid - USB HID class
- 
+
 
 #ifndef APP_USBD_CLASS_HID_ENABLED
 #define APP_USBD_CLASS_HID_ENABLED 0
 #endif
 
 // <q> APP_USBD_HID_GENERIC_ENABLED  - app_usbd_hid_generic - USB HID generic
- 
+
 
 #ifndef APP_USBD_HID_GENERIC_ENABLED
 #define APP_USBD_HID_GENERIC_ENABLED 1
 #endif
 
 // <q> APP_USBD_HID_KBD_ENABLED  - app_usbd_hid_kbd - USB HID keyboard
- 
+
 
 #ifndef APP_USBD_HID_KBD_ENABLED
 #define APP_USBD_HID_KBD_ENABLED 0
 #endif
 
 // <q> APP_USBD_HID_MOUSE_ENABLED  - app_usbd_hid_mouse - USB HID mouse
- 
+
 
 #ifndef APP_USBD_HID_MOUSE_ENABLED
 #define APP_USBD_HID_MOUSE_ENABLED 0
 #endif
 
 // <q> BUTTON_ENABLED  - app_button - buttons handling module
- 
+
 
 #ifndef BUTTON_ENABLED
 #define BUTTON_ENABLED 0
 #endif
 
 // <q> CRC16_ENABLED  - crc16 - CRC16 calculation routines
- 
+
 
 #ifndef CRC16_ENABLED
 #define CRC16_ENABLED 0
 #endif
 
 // <q> CRC32_ENABLED  - crc32 - CRC32 calculation routines
- 
+
 
 #ifndef CRC32_ENABLED
 #define CRC32_ENABLED 1
 #endif
 
 // <q> ECC_ENABLED  - ecc - Elliptic Curve Cryptography Library
- 
+
 
 #ifndef ECC_ENABLED
 #define ECC_ENABLED 0
@@ -3108,7 +3108,7 @@
 #endif
 
 // <o> FDS_VIRTUAL_PAGE_SIZE  - The size of a virtual page of flash memory, expressed in number of 4-byte words.
- 
+
 
 // <i> By default, a virtual page is the same size as a physical page.
 // <i> The size of a virtual page must be a multiple of the size of a physical page.
@@ -3161,7 +3161,7 @@
 // </e>
 
 // <q> HARDFAULT_HANDLER_ENABLED  - hardfault_default - HardFault default handler for debugging and release
- 
+
 
 #ifndef HARDFAULT_HANDLER_ENABLED
 #define HARDFAULT_HANDLER_ENABLED 0
@@ -3198,7 +3198,7 @@
 #endif
 #if  HCI_SLIP_ENABLED
 // <o> HCI_UART_BAUDRATE  - Default Baudrate
- 
+
 // <323584=> 1200 baud 
 // <643072=> 2400 baud 
 // <1290240=> 4800 baud 
@@ -3221,7 +3221,7 @@
 #endif
 
 // <o> HCI_UART_FLOW_CONTROL  - Hardware Flow Control
- 
+
 // <0=> Disabled 
 // <1=> Enabled 
 
@@ -3267,14 +3267,14 @@
 // </e>
 
 // <q> LED_SOFTBLINK_ENABLED  - led_softblink - led_softblink module
- 
+
 
 #ifndef LED_SOFTBLINK_ENABLED
 #define LED_SOFTBLINK_ENABLED 0
 #endif
 
 // <q> LOW_POWER_PWM_ENABLED  - low_power_pwm - low_power_pwm module
- 
+
 
 #ifndef LOW_POWER_PWM_ENABLED
 #define LOW_POWER_PWM_ENABLED 0
@@ -3283,14 +3283,14 @@
 // <e> MEM_MANAGER_ENABLED - mem_manager - Dynamic memory allocator
 //==========================================================
 #ifndef MEM_MANAGER_ENABLED
-#define MEM_MANAGER_ENABLED 0
+#define MEM_MANAGER_ENABLED 1
 #endif
 #if  MEM_MANAGER_ENABLED
 // <o> MEMORY_MANAGER_SMALL_BLOCK_COUNT - Size of each memory blocks identified as 'small' block.  <0-255> 
 
 
 #ifndef MEMORY_MANAGER_SMALL_BLOCK_COUNT
-#define MEMORY_MANAGER_SMALL_BLOCK_COUNT 1
+#define MEMORY_MANAGER_SMALL_BLOCK_COUNT 10
 #endif
 
 // <o> MEMORY_MANAGER_SMALL_BLOCK_SIZE -  Size of each memory blocks identified as 'small' block. 
@@ -3304,7 +3304,7 @@
 
 
 #ifndef MEMORY_MANAGER_MEDIUM_BLOCK_COUNT
-#define MEMORY_MANAGER_MEDIUM_BLOCK_COUNT 0
+#define MEMORY_MANAGER_MEDIUM_BLOCK_COUNT 1
 #endif
 
 // <o> MEMORY_MANAGER_MEDIUM_BLOCK_SIZE -  Size of each memory blocks identified as 'medium' block. 
@@ -3329,14 +3329,14 @@
 #endif
 
 // <q> MEM_MANAGER_ENABLE_LOGS  - Enable debug trace in the module.
- 
+
 
 #ifndef MEM_MANAGER_ENABLE_LOGS
 #define MEM_MANAGER_ENABLE_LOGS 0
 #endif
 
 // <q> MEM_MANAGER_DISABLE_API_PARAM_CHECK  - Disable API parameter checks in the module.
- 
+
 
 #ifndef MEM_MANAGER_DISABLE_API_PARAM_CHECK
 #define MEM_MANAGER_DISABLE_API_PARAM_CHECK 0
@@ -3413,14 +3413,14 @@
 // </e>
 
 // <q> NRF_QUEUE_ENABLED  - nrf_queue - Queue module
- 
+
 
 #ifndef NRF_QUEUE_ENABLED
 #define NRF_QUEUE_ENABLED 0
 #endif
 
 // <q> SLIP_ENABLED  - slip - SLIP encoding decoding
- 
+
 
 #ifndef SLIP_ENABLED
 #define SLIP_ENABLED 0
@@ -3430,14 +3430,14 @@
 
 //==========================================================
 // <q> APP_USBD_CLASS_CDC_ACM_ENABLED  - Enabling USBD CDC ACM Class library
- 
+
 
 #ifndef APP_USBD_CLASS_CDC_ACM_ENABLED
 #define APP_USBD_CLASS_CDC_ACM_ENABLED 0
 #endif
 
 // <q> APP_USBD_CDC_ACM_LOG_ENABLED  - Enables logging in the module.
- 
+
 
 #ifndef APP_USBD_CDC_ACM_LOG_ENABLED
 #define APP_USBD_CDC_ACM_LOG_ENABLED 0
@@ -3450,14 +3450,14 @@
 
 //==========================================================
 // <q> APP_USBD_CLASS_MSC_ENABLED  - Enabling USBD MSC Class library
- 
+
 
 #ifndef APP_USBD_CLASS_MSC_ENABLED
 #define APP_USBD_CLASS_MSC_ENABLED 0
 #endif
 
 // <q> APP_USBD_MSC_CLASS_LOG_ENABLED  - Enables logging in the module.
- 
+
 
 #ifndef APP_USBD_MSC_CLASS_LOG_ENABLED
 #define APP_USBD_MSC_CLASS_LOG_ENABLED 0
@@ -3485,7 +3485,7 @@
 #endif
 #if  NRF_LOG_USES_COLORS
 // <o> NRF_LOG_COLOR_DEFAULT  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -3501,7 +3501,7 @@
 #endif
 
 // <o> NRF_LOG_ERROR_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -3517,7 +3517,7 @@
 #endif
 
 // <o> NRF_LOG_WARNING_COLOR  - ANSI escape code prefix.
- 
+
 // <0=> Default 
 // <1=> Black 
 // <2=> Red 
@@ -3536,7 +3536,7 @@
 // </e>
 
 // <o> NRF_LOG_DEFAULT_LEVEL  - Default Severity level
- 
+
 // <0=> Off 
 // <1=> Error 
 // <2=> Warning 
@@ -3544,7 +3544,7 @@
 // <4=> Debug 
 
 #ifndef NRF_LOG_DEFAULT_LEVEL
-#define NRF_LOG_DEFAULT_LEVEL 4
+#define NRF_LOG_DEFAULT_LEVEL 3
 #endif
 
 // <e> NRF_LOG_DEFERRED - Enable deffered logger.
@@ -3566,7 +3566,7 @@
 // </e>
 
 // <q> NRF_LOG_USES_TIMESTAMP  - Enable timestamping
- 
+
 
 // <i> Function for getting the timestamp is provided by the user
 
@@ -3601,7 +3601,7 @@
 #endif
 #if  NRF_LOG_BACKEND_SERIAL_USES_UART
 // <o> NRF_LOG_BACKEND_SERIAL_UART_BAUDRATE  - Default Baudrate
- 
+
 // <323584=> 1200 baud 
 // <643072=> 2400 baud 
 // <1290240=> 4800 baud 
@@ -3644,7 +3644,7 @@
 #endif
 
 // <o> NRF_LOG_BACKEND_SERIAL_UART_FLOW_CONTROL  - Hardware Flow Control
- 
+
 // <0=> Disabled 
 // <1=> Enabled 
 
@@ -3653,7 +3653,7 @@
 #endif
 
 // <o> NRF_LOG_BACKEND_UART_INSTANCE  - UART instance used
- 
+
 // <0=> 0 
 
 #ifndef NRF_LOG_BACKEND_UART_INSTANCE
@@ -3695,7 +3695,7 @@
 //==========================================================
 // <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_UP - Size of upstream buffer. 
 #ifndef SEGGER_RTT_CONFIG_BUFFER_SIZE_UP
-#define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 96
+#define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 100
 #endif
 
 // <o> SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS - Size of upstream buffer. 

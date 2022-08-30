@@ -63,6 +63,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
+  $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
   $(CUSTOM_INCLUDES_DIR)/battery_service/battery.c \
   $(CUSTOM_INCLUDES_DIR)/boards/boards.c \
   $(CUSTOM_INCLUDES_DIR)/gpiote/nrf_drv_gpiote.c \
@@ -75,6 +76,7 @@ SRC_FILES += \
   $(PROJ_DIR)/error_handler.c \
   $(PROJ_DIR)/sequence.c \
   $(PROJ_DIR)/storage.c \
+  $(PROJ_DIR)/pin_configuration.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \

@@ -342,8 +342,6 @@ void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buff
 }
 
 void ble_aio_on_authorize(ble_evt_t *p_ble_evt) {
-    NRF_LOG_DEBUG("read authorize request\n");
-
     ble_gatts_evt_rw_authorize_request_t req = p_ble_evt
         ->evt.gatts_evt
         .params
@@ -352,6 +350,8 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt) {
         .request
         .read
         .handle;
+
+    NRF_LOG_DEBUG("read authorize request, handle % d\n", handle);
 
     if (req.type == BLE_GATTS_AUTHORIZE_TYPE_READ) {
         if (handle == ble_aio_digital_out_write_handle) {
@@ -389,8 +389,6 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt) {
             // No implementation needed.
             break;
     }
-
-    ble_bss_on_ble_evt(p_ble_evt);
 }
 
 void ble_aio_handle_input_change(uint32_t index, gpio_config_input_t *config) {
@@ -572,6 +570,8 @@ ret_code_t ble_aio_init() {
 
     err_code = ble_aio_characteristic_pin_configuration_add();
     VERIFY_SUCCESS(err_code);
+
+    NRF_LOG_DEBUG("pin configuration handle: %d\n", ble_aio_pin_configuration_handle);
 
     gpio_set_input_change_handler(ble_aio_handle_input_change);
 

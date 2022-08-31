@@ -110,11 +110,11 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     on_ble_evt(p_ble_evt);
     ble_aio_on_ble_evt(p_ble_evt);
-    // ble_bss_on_ble_evt(p_ble_evt);
+    ble_bss_on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
-    // ble_dfu_on_ble_evt(&dfu, p_ble_evt);
-    // ble_bas_on_ble_evt(p_ble_evt);
+    ble_dfu_on_ble_evt(&dfu, p_ble_evt);
+    ble_bas_on_ble_evt(p_ble_evt);
 }
 
 

@@ -207,9 +207,6 @@ void gpio_init() {
     APP_ERROR_CHECK(result);
   }
 
-  // remove this
-  nrf_delay_ms(1000);
-
   pin_configuration_parse(
     gpio_handle_parse_output,
     gpio_handle_parse_input

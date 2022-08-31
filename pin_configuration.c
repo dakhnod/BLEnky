@@ -41,7 +41,7 @@ void parse_pin_byte(uint32_t pin_index, uint8_t pin_data) {
 
   if (is_output_pin_enabled(pin_data)) {
     pin_configuration_output_handler(
-      current_input_pin_index,
+      current_output_pin_index,
       pin_index,
       get_pin_default_state(pin_data),
       get_pin_invert(pin_data)

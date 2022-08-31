@@ -24,8 +24,7 @@
 #define PERIPHERAL_LINK_COUNT           1                                 /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
 
 
-
-#define APP_TIMER_PRESCALER             0                                           /**< Value of the RTC1 PRESCALER register. */
+/**< Value of the RTC1 PRESCALER register. */
 
 void on_ble_evt(ble_evt_t *p_ble_evt);
 void ble_evt_dispatch(ble_evt_t *p_ble_evt);

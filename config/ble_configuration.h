@@ -1,3 +1,5 @@
+#include "sensor_timer.h"
+
 #define APP_ADV_INTERVAL_FAST           MSEC_TO_UNITS(250, UNIT_0_625_MS)
 #define APP_ADV_INTERVAL_SLOW           MSEC_TO_UNITS(1000, UNIT_0_625_MS)
 

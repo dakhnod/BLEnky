@@ -10,7 +10,7 @@
 #define BATTERY_VOLTAGE_MAX 3000.0
 #define BATTERY_VOLTAGE_MIN 1700.0
 
-void gpio_init(void (*sensor_handler)(uint8_t));
+void gpio_init();
 
 void gpio_configure_aio_outputs();
 void gpio_write_output_pin(uint32_t index, uint8_t value);

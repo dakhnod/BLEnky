@@ -4,7 +4,6 @@
 #include "app_timer.h"
 #include "app_timer_appsh.h"
 #include "app_scheduler.h"
-#include "nrf_log.h"
 
 #define APP_TIMER_PRESCALER             0                                 /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_OP_QUEUE_SIZE         6                                 /**< Size of timer operation queues. */
@@ -12,7 +11,8 @@
 
 #define DEBOUNCE_TIMER_TIMEOUT 2000
 
-void timer_init(void (*)());
+void timer_init(void);
 void debounce_timer_start(void);
+void sensor_timer_initialize_debounce_timers(uint32_t input_count);
 
 #endif

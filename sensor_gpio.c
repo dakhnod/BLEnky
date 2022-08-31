@@ -1,6 +1,9 @@
 #include "sensor_gpio.h"
 #include "pin_configuration.h"
 #include "mem_manager.h"
+#include "app_timer.h"
+#include "config/ble_configuration.h"
+#include "nrf_delay.h"
 
 uint32_t *gpio_output_pins;
 uint32_t gpio_output_pin_count = 0;
@@ -48,6 +51,42 @@ void gpio_configure_aio_outputs() {
   };
 }
 
+void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+  uint32_t pin_index = 0;
+  for (uint32_t i = 1; i < gpio_input_pin_count; i++) {
+    if (gpio_input_pins[i] == pin) {
+      pin_index = i;
+      break;
+    }
+  }
+
+  NRF_LOG_DEBUG("pin %d (%d) action %d\n", pin_index, pin, action);
+}
+
+void gpio_configure_aio_inputs() {
+  ret_code_t err_code;
+
+  for (int i = 0; i < gpio_input_pin_count; i++) {
+    uint32_t pin = gpio_input_pins[i];
+    uint8_t pull = gpio_input_pulls[i];
+
+    nrf_drv_gpiote_in_config_t config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
+
+    if (pull == 0x01) {
+      config.pull = NRF_GPIO_PIN_PULLDOWN;
+    }
+    else if (pull == 0x02) {
+      config.pull = NRF_GPIO_PIN_PULLUP;
+    }
+
+    NRF_LOG_INFO("in init %d\n", pin);
+    err_code = nrf_drv_gpiote_in_init(pin, &config, gpio_pin_toggle_handler);
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_gpiote_in_event_enable(pin, true);
+  }
+}
+
 void gpio_pin_configuration_data_read(uint8_t *data) {
   pin_configuration_data_read(data);
 }
@@ -57,10 +96,12 @@ void parse_configuration_data() {
   gpio_pin_configuration_data_read(configuration_data);
 }
 
-void gpio_init(void (*sensor_handler_)(uint8_t)) {
+void gpio_init() {
   // ret_code_t err_code;
 
   ret_code_t err_code;
+  err_code = nrf_drv_gpiote_init();
+  APP_ERROR_CHECK(err_code);
 
   err_code = nrf_mem_init();
   APP_ERROR_CHECK(err_code);
@@ -69,6 +110,8 @@ void gpio_init(void (*sensor_handler_)(uint8_t)) {
 
   gpio_output_pin_count = get_pin_count_output();
   gpio_input_pin_count = get_pin_count_input();
+
+  sensor_timer_initialize_debounce_timers(gpio_input_pin_count);
 
   NRF_LOG_DEBUG("output pin count: %d\n", gpio_output_pin_count);
 
@@ -103,8 +146,6 @@ void gpio_init(void (*sensor_handler_)(uint8_t)) {
       &size
     );
     APP_ERROR_CHECK(result);
-
-    gpio_configure_aio_outputs();
   }
 
   if (gpio_input_pin_count > 0) {
@@ -139,6 +180,9 @@ void gpio_init(void (*sensor_handler_)(uint8_t)) {
 
 
 
+  // remove this
+  nrf_delay_ms(1000);
+
   pin_configuration_parse(
     gpio_output_pins,
     gpio_output_default_states,
@@ -147,6 +191,19 @@ void gpio_init(void (*sensor_handler_)(uint8_t)) {
     gpio_input_pulls,
     gpio_input_invert
   );
+
+  if (gpio_output_pin_count > 0) {
+    gpio_configure_aio_outputs();
+  }
+  else {
+    NRF_LOG_INFO("no output pins configured\n");
+  }
+  if (gpio_input_pin_count > 0) {
+    gpio_configure_aio_inputs();
+  }
+  else {
+    NRF_LOG_INFO("no input pins configured\n");
+  }
 
   for (int i = 0; i < gpio_output_pin_count; i++) {
     NRF_LOG_INFO("pin output: %d\n", gpio_output_pins[i]);

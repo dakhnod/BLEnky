@@ -2,7 +2,7 @@
 #include "mem_manager.h"
 #include "nrf_log.h"
 
-#define DEBOUNCE_TIMEOUT APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
+#define DEBOUNCE_TIMEOUT APP_TIMER_TICKS(200, APP_TIMER_PRESCALER)
 
 app_timer_t *debounce_timers;
 

@@ -10,6 +10,26 @@
 #define BATTERY_VOLTAGE_MAX 3000.0
 #define BATTERY_VOLTAGE_MIN 1700.0
 
+typedef struct
+{
+  uint32_t pin;
+  uint8_t default_state;
+  uint8_t invert;
+  uint8_t state;
+} gpio_config_output_t;
+
+typedef struct
+{
+  uint32_t pin;
+  uint8_t pull;
+  uint8_t invert;
+  uint8_t state;
+  uint8_t ignored_state;
+  uint8_t ignore_input;
+} gpio_config_input_t;
+
+typedef void (*gpio_input_change_handler_t)(uint32_t pin_index, gpio_config_input_t *config);
+
 void gpio_init();
 
 void gpio_configure_aio_outputs();
@@ -18,6 +38,8 @@ uint32_t gpio_get_output_pin_count();
 uint32_t gpio_get_input_pin_count();
 uint8_t gpio_get_output_state(uint32_t index);
 void gpio_encode_output_states(uint8_t *buffer);
+void gpio_encode_input_states(uint8_t *buffer);
 void gpio_pin_configuration_data_read(uint8_t *data);
+void gpio_set_input_change_handler(gpio_input_change_handler_t handler);
 
 #endif

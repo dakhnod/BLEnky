@@ -8,26 +8,10 @@
 uint32_t gpio_output_pin_count = 0;
 uint32_t gpio_input_pin_count = 0;
 
-typedef struct
-{
-  uint32_t pin;
-  uint8_t default_state;
-  uint8_t invert;
-  uint8_t state;
-} gpio_config_output_t;
-
-typedef struct
-{
-  uint32_t pin;
-  uint8_t pull;
-  uint8_t invert;
-  uint8_t state;
-  uint8_t ignored_state;
-  uint8_t ignore_input;
-} gpio_config_input_t;
-
 gpio_config_output_t *gpio_output_configs;
 gpio_config_input_t *gpio_input_configs;
+
+gpio_input_change_handler_t input_change_handler = NULL;
 
 void gpio_write_output_pin(uint32_t index, uint8_t value) {
   gpio_config_output_t *config = gpio_output_configs + index;
@@ -39,6 +23,10 @@ void gpio_write_output_pin(uint32_t index, uint8_t value) {
     nrf_gpio_pin_clear(pin);
   }
   config->state = value;
+}
+
+void gpio_set_input_change_handler(gpio_input_change_handler_t handler) {
+  input_change_handler = handler;
 }
 
 uint32_t gpio_get_output_pin_count() {
@@ -59,6 +47,12 @@ void gpio_encode_output_states(uint8_t *buffer) {
   }
 }
 
+void gpio_encode_input_states(uint8_t *buffer) {
+  for (int i = 0; i < gpio_input_pin_count; i++) {
+    buffer[i] = gpio_input_configs[i].state;
+  }
+}
+
 void gpio_configure_aio_outputs() {
   for (int i = 0; i < gpio_output_pin_count; i++) {
     gpio_config_output_t *config = gpio_output_configs + i;
@@ -71,6 +65,10 @@ void on_pin_changed(uint32_t index) {
   gpio_config_input_t *config = gpio_input_configs + index;
   NRF_LOG_DEBUG("pin %d (%d) changed to %d\n", index, config->pin, config->state);
 
+  if (input_change_handler != NULL) {
+    input_change_handler(index, gpio_input_configs + index);
+  }
+
   config->ignore_input = true;
 
   sensor_timer_debounce_timer_start(index);
@@ -81,12 +79,10 @@ void gpio_debounce_timeout_handler(uint32_t timer_index) {
   gpio_config_input_t *config = gpio_input_configs + timer_index;
 
   if (config->ignored_state == config->state) {
-    NRF_LOG_DEBUG("enabling %d\n", timer_index);
     config->ignore_input = false;
     return;
   }
 
-  NRF_LOG_DEBUG("debounce detection %d\n", timer_index);
   config->state = config->ignored_state;
   on_pin_changed(timer_index);
 }
@@ -135,6 +131,9 @@ void gpio_configure_aio_inputs() {
     err_code = nrf_drv_gpiote_in_init(pin, &config, gpio_pin_toggle_handler);
     APP_ERROR_CHECK(err_code);
 
+    pin_config->state = nrf_gpio_pin_read(pin) ^ pin_config->invert;
+    pin_config->ignored_state = pin_config->state;
+
     nrf_drv_gpiote_in_event_enable(pin, true);
   }
 }
@@ -161,8 +160,6 @@ void gpio_handle_parse_input(uint32_t index, uint32_t pin, uint8_t pull, uint8_t
   config->pull = pull;
   config->invert = invert;
   config->ignore_input = false;
-  config->state = nrf_gpio_pin_read(pin) ^ config->invert;
-  config->ignored_state = config->state;
 }
 
 void gpio_init() {

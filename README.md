@@ -38,8 +38,8 @@ Here are a few examples:
 Bit 2 and 3 define the input pullup/down.
 ```
 100x: no pullup/pulldown
-101x: pulldown enabled
-110x: pullup enabled
+101x: pullup enabled
+110x: pulldown enabled
 ```
 
 Here the inversion bit also applies and inverts the reading.
@@ -47,11 +47,11 @@ Here the inversion bit also applies and inverts the reading.
 Here a few examples:
 ```
 1000: input, no pull, not inverted
-1010: input, pulldown, not inverted
-1100: input, pullup, not inverted
+1010: input, pullup, not inverted
+1100: input, pulldown, not inverted
 1001: input, no pull, inverted
-1011: input, pulldown, inverted
-1101: input, pullup, inverted
+1011: input, pullup, inverted
+1101: input, pulldown, inverted
 ```
 
 ### Disabled pins

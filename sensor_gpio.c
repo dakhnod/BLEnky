@@ -125,10 +125,10 @@ void gpio_configure_aio_inputs() {
     nrf_drv_gpiote_in_config_t config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
 
     if (pull == 0x01) {
-      config.pull = NRF_GPIO_PIN_PULLDOWN;
+      config.pull = NRF_GPIO_PIN_PULLUP;
     }
     else if (pull == 0x02) {
-      config.pull = NRF_GPIO_PIN_PULLUP;
+      config.pull = NRF_GPIO_PIN_PULLDOWN;
     }
 
     NRF_LOG_INFO("in init %d\n", pin);

@@ -11,8 +11,6 @@
 #include "sensor_gpio.h"
 #include "sensor_timer.h"
 
-#include "ble_bss.h"
-
 int main(void) {
     ret_code_t err_code;
 

@@ -65,6 +65,10 @@ void on_pin_changed(uint32_t index) {
   gpio_config_input_t *config = gpio_input_configs + index;
   NRF_LOG_DEBUG("pin %d (%d) changed to %d\n", index, config->pin, config->state);
 
+  if (config->state == 0x00) {
+    config->trigger_count++;
+  }
+
   if (input_change_handler != NULL) {
     input_change_handler(index, gpio_input_configs + index);
   }
@@ -133,6 +137,7 @@ void gpio_configure_aio_inputs() {
 
     pin_config->state = nrf_gpio_pin_read(pin) ^ pin_config->invert;
     pin_config->ignored_state = pin_config->state;
+    pin_config->trigger_count = 0;
 
     nrf_drv_gpiote_in_event_enable(pin, true);
   }

@@ -319,17 +319,14 @@ uint32_t dfu_init() {
 void services_init(void) {
     ret_code_t err_code;
 
-    // err_code = bas_init();
-    // APP_ERROR_CHECK(err_code);
-
-    // err_code = ble_bss_init();
-    // APP_ERROR_CHECK(err_code);
+    err_code = bas_init();
+    APP_ERROR_CHECK(err_code);
 
     err_code = ble_aio_init();
     APP_ERROR_CHECK(err_code);
 
-    // err_code = dfu_init();
-    // APP_ERROR_CHECK(err_code);
+    err_code = dfu_init();
+    APP_ERROR_CHECK(err_code);
 }
 
 void

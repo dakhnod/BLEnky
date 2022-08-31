@@ -26,6 +26,7 @@ typedef struct
   uint8_t state;
   uint8_t ignored_state;
   uint8_t ignore_input;
+  uint32_t trigger_count;
 } gpio_config_input_t;
 
 typedef void (*gpio_input_change_handler_t)(uint32_t pin_index, gpio_config_input_t *config);

@@ -5,6 +5,7 @@
 #include "ble_srv_common.h"
 #include "app_error.h"
 #include "storage.h"
+#include "ble_bss.h"
 
 uint16_t ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -388,13 +389,17 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt) {
             // No implementation needed.
             break;
     }
+
+    ble_bss_on_ble_evt(p_ble_evt);
 }
-
-
 
 void ble_aio_handle_input_change(uint32_t index, gpio_config_input_t *config) {
     NRF_LOG_DEBUG("ble pin %d changed to %d\n", index, config->state);
     ble_aio_update_digital_in_states();
+
+    if (index == 0) {
+        ble_bss_set_state(config->state, (uint16_t)config->state);
+    }
 }
 
 ret_code_t ble_aio_pin_configuraion_data_set(uint8_t *data, uint32_t data_length) {
@@ -569,6 +574,11 @@ ret_code_t ble_aio_init() {
     VERIFY_SUCCESS(err_code);
 
     gpio_set_input_change_handler(ble_aio_handle_input_change);
+
+    if (input_pin_count > 0) {
+        err_code = ble_bss_init();
+        VERIFY_SUCCESS(err_code);
+    }
 
     return NRF_SUCCESS;
 }

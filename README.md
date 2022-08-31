@@ -59,7 +59,7 @@ Here a few examples:
 Setting the bits to `1111` disables that pin.
 
 ## Packet structure
-The pin bits are read and applied to pins starting from 0.
+The pin bits are read and applied to pins starting from pin 0.
 Sending just `0000` would enable pin 0 as output.
 Since only bytes can be sent, That affect can be achieved by sending `11110000`.
 

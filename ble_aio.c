@@ -398,7 +398,7 @@ void ble_aio_handle_input_change(uint32_t index, gpio_config_input_t *config) {
     ble_aio_update_digital_in_states();
 
     if (index == 0) {
-        ble_bss_set_state(config->state, (uint16_t)config->state);
+        ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
     }
 }
 

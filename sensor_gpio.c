@@ -65,7 +65,7 @@ void on_pin_changed(uint32_t index) {
   gpio_config_input_t *config = gpio_input_configs + index;
   NRF_LOG_DEBUG("pin %d (%d) changed to %d\n", index, config->pin, config->state);
 
-  if (config->state == 0x00) {
+  if (config->state == 0x01) {
     config->trigger_count++;
   }
 

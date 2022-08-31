@@ -6,15 +6,23 @@
 
 app_timer_t *debounce_timers;
 
+debounce_timer_timeout_handler_t debounce_timer_timeout_handler;
+
 
 void debounce_timeout_handler(void *context) {
-    // uint32_t pin = *((uint32_t *)context);
-
-    NRF_LOG_INFO("debounce timer for pin %x\n", (uint32_t)context);
+    debounce_timer_timeout_handler((uint32_t)context);
 }
 
+void sensor_timer_debounce_timer_start(uint32_t timer_index) {
+    ret_code_t err_code = app_timer_start(
+        debounce_timers + timer_index,
+        DEBOUNCE_TIMEOUT,
+        (void *)timer_index
+    );
+    APP_ERROR_CHECK(err_code);
+}
 
-void sensor_timer_initialize_debounce_timers(uint32_t input_count) {
+void sensor_timer_initialize_debounce_timers(uint32_t input_count, debounce_timer_timeout_handler_t timeout_handler) {
     ret_code_t err_code;
     uint32_t size;
 
@@ -34,14 +42,9 @@ void sensor_timer_initialize_debounce_timers(uint32_t input_count) {
             debounce_timeout_handler
         );
         APP_ERROR_CHECK(err_code);
-
-        err_code = app_timer_start(
-            timer_id,
-            DEBOUNCE_TIMEOUT,
-            (void *)i
-        );
-        APP_ERROR_CHECK(err_code);
     }
+
+    debounce_timer_timeout_handler = timeout_handler;
 }
 
 void timer_init() {

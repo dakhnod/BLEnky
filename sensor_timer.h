@@ -11,8 +11,9 @@
 
 #define DEBOUNCE_TIMER_TIMEOUT 2000
 
-void timer_init(void);
-void debounce_timer_start(void);
-void sensor_timer_initialize_debounce_timers(uint32_t input_count);
+typedef void (*debounce_timer_timeout_handler_t)(uint32_t timer_index);
 
+void timer_init(void);
+void sensor_timer_debounce_timer_start(uint32_t timer_index);
+void sensor_timer_initialize_debounce_timers(uint32_t input_count, debounce_timer_timeout_handler_t timeout_handler);
 #endif

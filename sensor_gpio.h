@@ -17,7 +17,7 @@ void gpio_write_output_pin(uint32_t index, uint8_t value);
 uint32_t gpio_get_output_pin_count();
 uint32_t gpio_get_input_pin_count();
 uint8_t gpio_get_output_state(uint32_t index);
-uint8_t *gpio_get_output_states();
+void gpio_encode_output_states(uint8_t *buffer);
 void gpio_pin_configuration_data_read(uint8_t *data);
 
 #endif

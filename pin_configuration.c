@@ -4,17 +4,11 @@
 uint32_t pin_count_output;
 uint32_t pin_count_input;
 
-// these need to be here for the forEach callback to work
-uint32_t *pin_configuration_gpio_output_pins;
-uint8_t *pin_configuration_gpio_output_default_states;
-uint8_t *pin_configuration_gpio_output_pin_invert;
 uint32_t current_output_pin_index;
-
-uint32_t *pin_configuration_gpio_input_pins;
-uint8_t *pin_configuration_gpio_input_pulls;
-uint8_t *pin_configuration_gpio_input_invert;
-uint8_t *pin_configuration_gpio_input_states;
 uint32_t current_input_pin_index;
+
+pin_output_handler_t pin_configuration_output_handler;
+pin_input_handler_t pin_configuration_input_handler;
 
 uint8_t is_pin_enabled(uint8_t pin_byte) {
   return (pin_byte & 0b1111) != 0b1111;
@@ -46,16 +40,22 @@ void parse_pin_byte(uint32_t pin_index, uint8_t pin_data) {
   }
 
   if (is_output_pin_enabled(pin_data)) {
-    pin_configuration_gpio_output_pins[current_output_pin_index] = pin_index;
-    pin_configuration_gpio_output_default_states[current_output_pin_index] = get_pin_default_state(pin_data);
-    pin_configuration_gpio_output_pin_invert[current_output_pin_index] = get_pin_invert(pin_data);
+    pin_configuration_output_handler(
+      current_input_pin_index,
+      pin_index,
+      get_pin_default_state(pin_data),
+      get_pin_invert(pin_data)
+    );
 
     current_output_pin_index++;
   }
   else if (is_input_pin_enabled(pin_data)) {
-    pin_configuration_gpio_input_pins[current_input_pin_index] = pin_index;
-    pin_configuration_gpio_input_invert[current_input_pin_index] = get_pin_invert(pin_data);
-    pin_configuration_gpio_input_pulls[current_input_pin_index] = get_pin_pull(pin_data);
+    pin_configuration_input_handler(
+      current_input_pin_index,
+      pin_index,
+      get_pin_pull(pin_data),
+      get_pin_invert(pin_data)
+    );
 
     current_input_pin_index++;
   }
@@ -99,12 +99,8 @@ void pin_configuration_init() {
 }
 
 void pin_configuration_parse(
-  uint32_t *output_pins,
-  uint8_t *output_pin_default_states,
-  uint8_t *output_pin_invert,
-  uint32_t *input_pins,
-  uint8_t *input_pin_pulls,
-  uint8_t *input_pin_invert
+  pin_output_handler_t output_handler,
+  pin_input_handler_t input_handler
 ) {
   uint8_t pin_configuration_data[16];
   pin_configuration_data_read(pin_configuration_data);
@@ -112,13 +108,8 @@ void pin_configuration_parse(
   current_output_pin_index = 0;
   current_input_pin_index = 0;
 
-  pin_configuration_gpio_output_pins = output_pins;
-  pin_configuration_gpio_output_default_states = output_pin_default_states;
-  pin_configuration_gpio_output_pin_invert = output_pin_invert;
-
-  pin_configuration_gpio_input_pins = input_pins;
-  pin_configuration_gpio_input_pulls = input_pin_pulls;
-  pin_configuration_gpio_input_invert = input_pin_invert;
+  pin_configuration_output_handler = output_handler;
+  pin_configuration_input_handler = input_handler;
 
   pin_data_for_each_pin(pin_configuration_data, 16, parse_pin_byte);
 }

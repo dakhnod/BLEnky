@@ -5,27 +5,40 @@
 #include "config/ble_configuration.h"
 #include "nrf_delay.h"
 
-uint32_t *gpio_output_pins;
 uint32_t gpio_output_pin_count = 0;
-uint8_t *gpio_output_default_states;
-uint8_t *gpio_output_pin_invert;
-uint8_t *gpio_output_pin_states;
-
-uint32_t *gpio_input_pins;
 uint32_t gpio_input_pin_count = 0;
-uint8_t *gpio_input_pulls;
-uint8_t *gpio_input_states;
-uint8_t *gpio_input_invert;
+
+typedef struct
+{
+  uint32_t pin;
+  uint8_t default_state;
+  uint8_t invert;
+  uint8_t state;
+} gpio_config_output_t;
+
+typedef struct
+{
+  uint32_t pin;
+  uint8_t pull;
+  uint8_t invert;
+  uint8_t state;
+  uint8_t ignored_state;
+  uint8_t ignore_input;
+} gpio_config_input_t;
+
+gpio_config_output_t *gpio_output_configs;
+gpio_config_input_t *gpio_input_configs;
 
 void gpio_write_output_pin(uint32_t index, uint8_t value) {
-  uint32_t pin = gpio_output_pins[index];
-  if (value ^ gpio_output_pin_invert[index]) {
+  gpio_config_output_t *config = gpio_output_configs + index;
+  uint32_t pin = config->pin;
+  if (value ^ config->invert) {
     nrf_gpio_pin_set(pin);
   }
   else {
     nrf_gpio_pin_clear(pin);
   }
-  gpio_output_pin_states[index] = value;
+  config->state = value;
 }
 
 uint32_t gpio_get_output_pin_count() {
@@ -37,38 +50,77 @@ uint32_t gpio_get_input_pin_count() {
 }
 
 uint8_t gpio_get_output_state(uint32_t index) {
-  return gpio_output_pin_states[index];
+  return gpio_output_configs[index].state;
 }
 
-uint8_t *gpio_get_output_states() {
-  return gpio_output_pin_states;
+void gpio_encode_output_states(uint8_t *buffer) {
+  for (int i = 0; i < gpio_output_pin_count; i++) {
+    buffer[i] = gpio_output_configs[i].state;
+  }
 }
 
 void gpio_configure_aio_outputs() {
   for (int i = 0; i < gpio_output_pin_count; i++) {
-    nrf_gpio_cfg_output(gpio_output_pins[i]);
-    gpio_write_output_pin(i, gpio_output_default_states[i]);
+    gpio_config_output_t *config = gpio_output_configs + i;
+    nrf_gpio_cfg_output(config->pin);
+    gpio_write_output_pin(i, config->default_state);
   };
+}
+
+void on_pin_changed(uint32_t index) {
+  gpio_config_input_t *config = gpio_input_configs + index;
+  NRF_LOG_DEBUG("pin %d (%d) changed to %d\n", index, config->pin, config->state);
+
+  config->ignore_input = true;
+
+  sensor_timer_debounce_timer_start(index);
+}
+
+void gpio_debounce_timeout_handler(uint32_t timer_index) {
+
+  gpio_config_input_t *config = gpio_input_configs + timer_index;
+
+  if (config->ignored_state == config->state) {
+    NRF_LOG_DEBUG("enabling %d\n", timer_index);
+    config->ignore_input = false;
+    return;
+  }
+
+  NRF_LOG_DEBUG("debounce detection %d\n", timer_index);
+  config->state = config->ignored_state;
+  on_pin_changed(timer_index);
 }
 
 void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   uint32_t pin_index = 0;
   for (uint32_t i = 1; i < gpio_input_pin_count; i++) {
-    if (gpio_input_pins[i] == pin) {
+    gpio_config_input_t *config = gpio_input_configs + i;
+    if (config->pin == pin) {
       pin_index = i;
       break;
     }
   }
 
-  NRF_LOG_DEBUG("pin %d (%d) action %d\n", pin_index, pin, action);
+  gpio_config_input_t *config = gpio_input_configs + pin_index;
+  uint8_t is_high = (action == NRF_GPIOTE_POLARITY_LOTOHI);
+  is_high ^= config->invert;
+  config->ignored_state = is_high;
+
+  if (config->ignore_input) {
+    return;
+  }
+
+  config->state = is_high;
+  on_pin_changed(pin_index);
 }
 
 void gpio_configure_aio_inputs() {
   ret_code_t err_code;
 
   for (int i = 0; i < gpio_input_pin_count; i++) {
-    uint32_t pin = gpio_input_pins[i];
-    uint8_t pull = gpio_input_pulls[i];
+    gpio_config_input_t *pin_config = gpio_input_configs + i;
+    uint32_t pin = pin_config->pin;
+    uint8_t pull = pin_config->pull;
 
     nrf_drv_gpiote_in_config_t config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
 
@@ -96,6 +148,23 @@ void parse_configuration_data() {
   gpio_pin_configuration_data_read(configuration_data);
 }
 
+void gpio_handle_parse_output(uint32_t index, uint32_t pin, uint8_t default_state, uint8_t invert) {
+  gpio_config_output_t *config = gpio_output_configs + index;
+  config->pin = pin;
+  config->default_state = default_state;
+  config->invert = invert;
+}
+
+void gpio_handle_parse_input(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert) {
+  gpio_config_input_t *config = gpio_input_configs + index;
+  config->pin = pin;
+  config->pull = pull;
+  config->invert = invert;
+  config->ignore_input = false;
+  config->state = nrf_gpio_pin_read(pin) ^ config->invert;
+  config->ignored_state = config->state;
+}
+
 void gpio_init() {
   // ret_code_t err_code;
 
@@ -111,7 +180,7 @@ void gpio_init() {
   gpio_output_pin_count = get_pin_count_output();
   gpio_input_pin_count = get_pin_count_input();
 
-  sensor_timer_initialize_debounce_timers(gpio_input_pin_count);
+  sensor_timer_initialize_debounce_timers(gpio_input_pin_count, gpio_debounce_timeout_handler);
 
   NRF_LOG_DEBUG("output pin count: %d\n", gpio_output_pin_count);
 
@@ -119,77 +188,29 @@ void gpio_init() {
   ret_code_t result;
 
   if (gpio_output_pin_count > 0) {
-    size = gpio_output_pin_count * 4;
+    size = sizeof(gpio_config_output_t) * gpio_output_pin_count;
     result = nrf_mem_reserve(
-      (uint8_t **)&gpio_output_pins,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-
-    size = gpio_output_pin_count;
-    result = nrf_mem_reserve(
-      &gpio_output_default_states,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-
-    size = gpio_output_pin_count;
-    result = nrf_mem_reserve(
-      &gpio_output_pin_invert,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-
-    size = gpio_output_pin_count;
-    result = nrf_mem_reserve(
-      &gpio_output_pin_states,
+      (uint8_t **)&gpio_output_configs,
       &size
     );
     APP_ERROR_CHECK(result);
   }
 
   if (gpio_input_pin_count > 0) {
-    size = gpio_input_pin_count * 4;
+    size = sizeof(gpio_config_input_t) * gpio_input_pin_count;
     result = nrf_mem_reserve(
-      (uint8_t **)&gpio_input_pins,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-
-    size = gpio_input_pin_count;
-    result = nrf_mem_reserve(
-      (uint8_t **)&gpio_input_pulls,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-
-    size = gpio_input_pin_count;
-    result = nrf_mem_reserve(
-      (uint8_t **)&gpio_input_states,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-
-    size = gpio_input_pin_count;
-    result = nrf_mem_reserve(
-      (uint8_t **)&gpio_input_invert,
+      (uint8_t **)&gpio_input_configs,
       &size
     );
     APP_ERROR_CHECK(result);
   }
 
-
-
   // remove this
   nrf_delay_ms(1000);
 
   pin_configuration_parse(
-    gpio_output_pins,
-    gpio_output_default_states,
-    gpio_output_pin_invert,
-    gpio_input_pins,
-    gpio_input_pulls,
-    gpio_input_invert
+    gpio_handle_parse_output,
+    gpio_handle_parse_input
   );
 
   if (gpio_output_pin_count > 0) {
@@ -206,15 +227,17 @@ void gpio_init() {
   }
 
   for (int i = 0; i < gpio_output_pin_count; i++) {
-    NRF_LOG_INFO("pin output: %d\n", gpio_output_pins[i]);
-    NRF_LOG_INFO("pin default state: %d\n", gpio_output_default_states[i]);
-    NRF_LOG_INFO("pin invert: %d\n\n", gpio_output_pin_invert[i]);
+    gpio_config_output_t *config = gpio_output_configs + i;
+    NRF_LOG_INFO("pin output: %d\n", config->pin);
+    NRF_LOG_INFO("pin default state: %d\n", config->default_state);
+    NRF_LOG_INFO("pin invert: %d\n\n", config->invert);
   }
 
   for (int i = 0; i < gpio_input_pin_count; i++) {
-    NRF_LOG_INFO("pin input: %d\n", gpio_input_pins[i]);
-    NRF_LOG_INFO("pin pull: %d\n", gpio_input_pulls[i]);
-    NRF_LOG_INFO("pin invert: %d\n", gpio_input_invert[i]);
+    gpio_config_input_t *config = gpio_input_configs + i;
+    NRF_LOG_INFO("pin input: %d\n", config->pin);
+    NRF_LOG_INFO("pin pull: %d\n", config->pull);
+    NRF_LOG_INFO("pin invert: %d\n", config->invert);
   }
 
 }

@@ -164,8 +164,11 @@ void ble_aio_authorize_digital_out() {
     uint32_t data_length = ble_aio_get_byte_count_from_pins(output_count);
 
     uint8_t data[data_length];
+    uint8_t output_states[output_count];
 
-    encode_states_to_bytes(gpio_get_output_states(), output_count, data);
+    gpio_encode_output_states(output_states);
+
+    encode_states_to_bytes(output_states, output_count, data);
 
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,

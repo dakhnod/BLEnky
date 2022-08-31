@@ -2,7 +2,7 @@
 
 ## Configuration protocol
 
-Input and output pins can be configured without reprogramming the device by sending a configuration packet to `9c100001-5cf1-8fa7-1549-01fdc1d171dc`.
+Input and output pins can be configured without reprogramming the device by sending a configuration packet to the characteristic with the UUID  `9c100001-5cf1-8fa7-1549-01fdc1d171dc`.
 This packet is constructed of four bits per pin, aka two pins per byte.
 
 The leftmost bit per pin decides whether the pin is an output or an input:
@@ -35,14 +35,15 @@ Here are a few examples:
 ```
 
 ### Input pins
+
+Here the inversion bit also applies and inverts the reading.
+
 Bit 2 and 3 define the input pullup/down.
 ```
 100x: no pullup/pulldown
 101x: pullup enabled
 110x: pulldown enabled
 ```
-
-Here the inversion bit also applies and inverts the reading.
 
 Here a few examples:
 ```
@@ -75,12 +76,15 @@ Lets say we want to use pin 2 as an inverted output and pin 6 as input. Our pack
 1111 # disabling pin 7, need bits for padding
 ```
 or
-`0b11111111000111111111111110001111`
+```
+ pin 7                               pin 0
+0b1111 1000 1111 1111 1111 0001 1111 1111
+```
 or
-`0x4280287119`.
+`0xF8FFF1FF`.
 
 After sending the payload the packet will be padded with `0xff` to reach 16 bytes and stored in the flash.
 The microcontroller will then reboot and apply the new configuration.
 The configuration persists reboots, needs to be done only once.
 
-Also, the configuration characteristic can be read to disconver the configuration already present on the device.
+Also, the configuration characteristic can be read to discover the configuration already present on the device.

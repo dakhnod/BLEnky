@@ -177,8 +177,6 @@ void gpio_init() {
   gpio_output_pin_count = get_pin_count_output();
   gpio_input_pin_count = get_pin_count_input();
 
-  sensor_timer_initialize_debounce_timers(gpio_input_pin_count, gpio_debounce_timeout_handler);
-
   NRF_LOG_DEBUG("output pin count: %d\n", gpio_output_pin_count);
 
   uint32_t size;
@@ -194,6 +192,8 @@ void gpio_init() {
   }
 
   if (gpio_input_pin_count > 0) {
+    sensor_timer_initialize_debounce_timers(gpio_input_pin_count, gpio_debounce_timeout_handler);
+
     size = sizeof(gpio_config_input_t) * gpio_input_pin_count;
     result = nrf_mem_reserve(
       (uint8_t **)&gpio_input_configs,

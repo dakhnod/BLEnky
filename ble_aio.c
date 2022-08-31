@@ -36,13 +36,7 @@ void ble_aio_on_disconnect(ble_evt_t *p_ble_evt) {
     ble_aio_send_digital_input_updates = false;
 }
 
-void handle_pin_digital_in_cccd_write(ble_evt_t *p_ble_evt) {
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
-        ->evt
-        .gatts_evt
-        .params
-        .write;
-
+void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt) {
     if (write_evt->len == 2) {
         ble_aio_send_digital_input_updates = ble_srv_is_notification_enabled(write_evt->data);
         NRF_LOG_DEBUG("digital input notifications: %d\n", ble_aio_send_digital_input_updates);
@@ -54,14 +48,8 @@ uint8_t read_bits_at_index(uint8_t data, uint8_t index) {
     return (data & (0b11000000 >> index)) >> (6 - index); // & 1 at the end to enforce only last bit set
 }
 
-void handle_digital_out_write(ble_evt_t *p_ble_evt) {
+void handle_digital_out_write(ble_gatts_evt_write_t *write_evt) {
     NRF_LOG_DEBUG("written to digital output\n");
-
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
-        ->evt
-        .gatts_evt
-        .params
-        .write;
 
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
@@ -104,14 +92,8 @@ void handle_digital_out_write(ble_evt_t *p_ble_evt) {
     }
 }
 
-void handle_pin_configuration_write(ble_evt_t *p_ble_evt) {
+void handle_pin_configuration_write(ble_gatts_evt_write_t *write_evt) {
     NRF_LOG_DEBUG("written to pin configuration\n");
-
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
-        ->evt
-        .gatts_evt
-        .params
-        .write;
 
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
@@ -129,13 +111,8 @@ void handle_pin_configuration_write(ble_evt_t *p_ble_evt) {
     storage_store(data_to_write, 16);
 }
 
-void handle_digital_out_sequence_write(ble_evt_t *p_ble_evt) {
+void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt) {
     NRF_LOG_DEBUG("written to digital output sequence\n");
-
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
-        ->evt.gatts_evt
-        .params
-        .write;
 
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
@@ -255,26 +232,28 @@ ret_code_t ble_aio_characteristic_pin_configuration_add() {
 }
 
 void ble_aio_on_write(ble_evt_t *p_ble_evt) {
-    uint16_t handle = p_ble_evt
-        ->evt.gatts_evt
+    ble_gatts_evt_write_t *write_evt = &p_ble_evt
+        ->evt
+        .gatts_evt
         .params
-        .write
-        .handle;
+        .write;
+
+    uint16_t handle = write_evt->handle;
 
     if (handle == ble_aio_digital_out_write_handle) {
-        handle_digital_out_write(p_ble_evt);
+        handle_digital_out_write(write_evt);
         return;
     }
     if (handle == ble_aio_digital_sequence_handle) {
-        handle_digital_out_sequence_write(p_ble_evt);
+        handle_digital_out_sequence_write(write_evt);
         return;
     }
     if (handle == ble_aio_pin_configuration_handle) {
-        handle_pin_configuration_write(p_ble_evt);
+        handle_pin_configuration_write(write_evt);
         return;
     }
     if (handle == ble_aio_digital_in_cccd_handle) {
-        handle_pin_digital_in_cccd_write(p_ble_evt);
+        handle_pin_digital_in_cccd_write(write_evt);
         return;
     }
 }

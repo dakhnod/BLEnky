@@ -23,7 +23,8 @@ uint16_t ble_aio_digital_sequence_cccd_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_aio_pin_configuration_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_aio_pin_configuration_cccd_handle = BLE_GATT_HANDLE_INVALID;
 
-bool ble_aio_send_digital_input_updates = false;
+uint8_t ble_aio_send_digital_input_updates = false;
+uint8_t ble_aio_send_digital_output_sequence_updates = false;
 
 uint8_t custom_uuid_type;
 
@@ -35,11 +36,19 @@ void ble_aio_on_disconnect(ble_evt_t *p_ble_evt) {
     UNUSED_PARAMETER(p_ble_evt);
     ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
     ble_aio_send_digital_input_updates = false;
+    ble_aio_send_digital_output_sequence_updates = false;
 }
 
 void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt) {
     if (write_evt->len == 2) {
         ble_aio_send_digital_input_updates = ble_srv_is_notification_enabled(write_evt->data);
+    }
+}
+
+void handle_digital_out_sequence_cccd_write(ble_gatts_evt_write_t *write_evt) {
+    if (write_evt->len == 2) {
+        ble_aio_send_digital_output_sequence_updates = ble_srv_is_notification_enabled(write_evt->data);
+        NRF_LOG_DEBUG("sequence cccd: %d\n", ble_aio_send_digital_output_sequence_updates);
     }
 }
 
@@ -259,6 +268,10 @@ void ble_aio_on_write(ble_evt_t *p_ble_evt) {
     }
     if (handle == ble_aio_digital_sequence_handle) {
         handle_digital_out_sequence_write(write_evt);
+        return;
+    }
+    if (handle == ble_aio_digital_sequence_cccd_handle) {
+        handle_digital_out_sequence_cccd_write(write_evt);
         return;
     }
     if (handle == ble_aio_pin_configuration_handle) {
@@ -553,6 +566,28 @@ ret_code_t ble_aio_characteristic_digital_add(
 
 void ble_aio_handle_sequence_progress_update(uint8_t is_running, uint32_t packet_index, uint32_t repetitions_remaining) {
     NRF_LOG_DEBUG("sequence update: is running: %d, packet index. %d, repetitions: %d\n", is_running, packet_index, repetitions_remaining);
+
+    uint16_t length = 9;
+    uint8_t data[length];
+
+    data[0] = is_running;
+    *((uint32_t *)(data + 1)) = packet_index;
+    *((uint32_t *)(data + 5)) = repetitions_remaining;
+
+    if (ble_aio_connection_handle != BLE_CONN_HANDLE_INVALID && ble_aio_send_digital_output_sequence_updates) {
+        ble_gatts_hvx_params_t params = {
+            .handle = ble_aio_digital_sequence_handle,
+            .type = BLE_GATT_HVX_NOTIFICATION,
+            .offset = 0,
+            .p_len = &length,
+            .p_data = data
+        };
+
+        sd_ble_gatts_hvx(
+            ble_aio_connection_handle,
+            &params
+        );
+    }
 }
 
 ret_code_t ble_aio_init() {

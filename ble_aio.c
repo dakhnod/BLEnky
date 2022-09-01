@@ -565,8 +565,6 @@ ret_code_t ble_aio_characteristic_digital_add(
 }
 
 void ble_aio_handle_sequence_progress_update(uint8_t is_running, uint32_t packet_index, uint32_t repetitions_remaining) {
-    NRF_LOG_DEBUG("sequence update: is running: %d, packet index. %d, repetitions: %d\n", is_running, packet_index, repetitions_remaining);
-
     uint16_t length = 9;
     uint8_t data[length];
 

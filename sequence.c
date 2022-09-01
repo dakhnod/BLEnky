@@ -53,9 +53,9 @@ void sequence_start() {
     NRF_LOG_DEBUG("done decoding\n");
 }
 
-uint32_t varint_decode_next_varint(uint8_t **data) {
-    uint32_t current = 0;
-    for (uint32_t i = 0; i < 4; i++) {
+uint64_t varint_decode_next_varint(uint8_t **data) {
+    uint64_t current = 0;
+    for (uint32_t i = 0; i < 8; i++) {
         uint8_t byte = **data;
         (*data)++;
         current |= ((byte & 0b01111111) << (i * 7));

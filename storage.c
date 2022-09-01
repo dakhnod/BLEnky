@@ -1,4 +1,9 @@
 #include "storage.h"
+#include "app_timer.h"
+#include "config/ble_configuration.h"
+
+APP_TIMER_DEF(reboot_timer);
+#define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
 
 FS_REGISTER_CFG(fs_config_t fs_config) =
 {
@@ -22,7 +27,8 @@ void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
     NRF_LOG_DEBUG("fstorage store successfull\n");
     if (((uint8_t *)evt->p_context)[0] == 0x01) {
       NRF_LOG_DEBUG("reboot requested, rebooting...\n");
-      NVIC_SystemReset();
+      ret_code_t err_code = app_timer_start(reboot_timer, REBOOT_TIMEOUT, NULL);
+      APP_ERROR_CHECK(err_code);
       return;
     }
   }
@@ -36,6 +42,13 @@ void storage_init() {
     return;
   }
   NRF_LOG_DEBUG("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
+
+  ret_code_t err_code = app_timer_create(
+    &reboot_timer,
+    APP_TIMER_MODE_SINGLE_SHOT,
+    (app_timer_timeout_handler_t)NVIC_SystemReset
+  );
+  APP_ERROR_CHECK(err_code);
 }
 
 void storage_on_sys_evt(uint32_t sys_evt) {

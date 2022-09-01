@@ -14,6 +14,6 @@ typedef enum {
     DECODE_OVERFLOW
 } SEQUENCE_DECODE_RESULT;
 
-uint32_t varint_decode_next_varint(uint8_t **data);
+uint64_t varint_decode_next_varint(uint8_t **data);
 SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length);
 void sequence_start();

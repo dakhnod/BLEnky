@@ -200,6 +200,9 @@ void advertising_init() {
         }, {
             .uuid = UUID_AUTOMATION_IO_SERVICE,
             .type = BLE_UUID_TYPE_BLE
+        } {
+            .uuid = UUID_BINARY_SENSOR_SERVICE,
+            .type = BLE_UUID_TYPE_BLE
         }
     };
 
@@ -208,7 +211,7 @@ void advertising_init() {
       .include_appearance = false,
       .flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE,
       .uuids_complete = {
-          .uuid_cnt = 2,
+          .uuid_cnt = 3,
           .p_uuids = uuid_bss
       }
         // clearly something forgotten here

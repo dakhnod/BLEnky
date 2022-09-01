@@ -131,7 +131,6 @@ void gpio_configure_aio_inputs() {
       config.pull = NRF_GPIO_PIN_PULLDOWN;
     }
 
-    NRF_LOG_INFO("in init %d\n", pin);
     err_code = nrf_drv_gpiote_in_init(pin, &config, gpio_pin_toggle_handler);
     APP_ERROR_CHECK(err_code);
 

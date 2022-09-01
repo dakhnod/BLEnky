@@ -214,7 +214,7 @@ ret_code_t ble_aio_characteristic_digital_input_add() {
         false,
         true,
         true,
-        false,
+        true,
         BLE_UUID_TYPE_BLE,
         ble_aio_get_byte_count_from_pins(gpio_get_input_pin_count()),
         &ble_aio_digital_in_write_handle,
@@ -284,7 +284,38 @@ void ble_aio_on_write(ble_evt_t *p_ble_evt) {
     }
 }
 
+void ble_aio_authorize_digital_in() {
+    uint32_t input_count = gpio_get_input_pin_count();
+    uint32_t data_length = ble_aio_get_byte_count_from_pins(input_count);
+
+    uint8_t data[data_length];
+    uint8_t input_states[input_count];
+
+    gpio_encode_input_states(input_states);
+
+    encode_states_to_bytes(input_states, input_count, data);
+
+    ble_gatts_rw_authorize_reply_params_t authorize_params = {
+        .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
+        .params.read = {
+            .gatt_status = BLE_GATT_STATUS_SUCCESS,
+            .update = 1,
+            .offset = 0,
+            .len = data_length,
+            .p_data = data
+        }
+    };
+
+    sd_ble_gatts_rw_authorize_reply(
+        ble_aio_connection_handle,
+        &authorize_params);
+}
+
 void ble_aio_update_digital_in_states() {
+    if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates)) {
+        return;
+    }
+
     uint32_t input_count = gpio_get_input_pin_count();
     uint32_t data_length = ble_aio_get_byte_count_from_pins(input_count);
 
@@ -296,23 +327,6 @@ void ble_aio_update_digital_in_states() {
     encode_states_to_bytes(input_states, input_count, data);
 
     ret_code_t err_code;
-
-    if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates)) {
-        ble_gatts_value_t value = {
-            .offset = 0,
-            .len = data_length,
-            .p_value = data
-        };
-
-        err_code = sd_ble_gatts_value_set(
-            BLE_CONN_HANDLE_INVALID,
-            ble_aio_digital_in_write_handle,
-            &value
-        );
-        APP_ERROR_CHECK(err_code);
-
-        return;
-    }
 
     uint16_t len = data_length;
 
@@ -386,6 +400,7 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt) {
         }
         if (handle == ble_aio_digital_in_write_handle) {
             NRF_LOG_DEBUG("requesting digital in read\n");
+            ble_aio_authorize_digital_in();
             return;
         }
         if (handle == ble_aio_digital_sequence_handle) {

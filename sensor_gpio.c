@@ -182,8 +182,6 @@ void gpio_init() {
   gpio_output_pin_count = get_pin_count_output();
   gpio_input_pin_count = get_pin_count_input();
 
-  NRF_LOG_DEBUG("output pin count: %d\n", gpio_output_pin_count);
-
   uint32_t size;
   ret_code_t result;
 

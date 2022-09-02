@@ -3,7 +3,7 @@
 ## Pin interface protocol
 
 The firmware exposes endpoints for reading from input pins and writing to output pins,
-if any are configured. To configure pins, read about the configuration protocol.
+if any are configured. To configure pins, read about the [configuration protocol](https://github.com/dakhnod/NRF51-binary-sensor-firmware/tree/automation-io-service#configuration-protocol).
 
 When controlling pins, each bit is represented by two bits.
 This part of the protocol mostly adheres to the [Bluetooth Automation IO Service](https://www.bluetooth.com/de/specifications/specs/automation-io-service-1-0/).
@@ -97,12 +97,13 @@ When uploading a sequence, the data can be sent with multiple packets, allowing 
 The first byte in each packet sent to the output characteristic is the sequence number.
 The sequence number starts with 0 and is counted up by one with every write.
 When one number is skipped, the whole sequence is rejected.
+
 Also, the leftmost bits in the sequence byte indicates that packets will follow.
 The last write has to have the leftmost sequence-bit set to 0.
 Here are the sequence numbers for 4 writes:
 `0b10000000, 0b10000001, 0b10000010, 0b00000011`.
 
-The whole sequence data is split up into packets, the sequence byte is inserted and the packets are sent to the sequence characteristic.  Examples will follow.
+The whole sequence data is split up into packets, the sequence byte is inserted and the packets are sent to the sequence characteristic. Examples will follow.
 
 Let's now take a look at the data:
 
@@ -115,7 +116,7 @@ n: sequence is repeated n times, until interrupted
 
 After that follow packets of pin states and delays.
 
-The pin states are encoded just like when written directly. Here's a quick refresher:
+The pin states are encoded just like when written [directly](https://github.com/dakhnod/NRF51-binary-sensor-firmware/tree/automation-io-service#configuration-protocol). Here's a quick refresher:
 ```
 0b1101000000110101
 states: [don't change, HIGH, LOW, LOW, LOW, don't change, HIGH, HIGH]

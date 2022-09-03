@@ -6,7 +6,7 @@ An IO module can have inputs and outputs that can be read from and written to.
 With this firmware you can basically use every available pin on the chip as an input or an output.
 Well, until a buffer overruns or the RAM runs out or something...
 
-This firmware allows for flashing an nRF51 once and control and configuration via a [website](ble.nullco.de),
+This firmware allows for flashing an nRF51 once and control and configuration via a [website](https://ble.nullco.de),
 without needing to reflash the chip.
 
 Furthermore, it gives you the oppurtunity to not only write bits to output pins, but upload whole sequences (also known as animations)

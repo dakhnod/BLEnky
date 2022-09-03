@@ -1,7 +1,7 @@
 ## Pin interface protocol
 
 The firmware exposes endpoints for reading from input pins and writing to output pins,
-if any are configured. To configure pins, read about the [configuration protocol](https://github.com/dakhnod/NRF51-binary-sensor-firmware/tree/automation-io-service#configuration-protocol).
+if any are configured. To configure pins, read about the [configuration protocol](CONFIGURATION.md).
 
 When controlling pins, each bit is represented by two bits.
 This part of the protocol mostly adheres to the [Bluetooth Automation IO Service](https://www.bluetooth.com/de/specifications/specs/automation-io-service-1-0/).

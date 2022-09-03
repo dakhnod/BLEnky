@@ -2,7 +2,7 @@
 #include "pin_configuration.h"
 #include "mem_manager.h"
 #include "app_timer.h"
-#include "config/ble_configuration.h"
+#include "ble_configuration.h"
 #include "nrf_delay.h"
 
 uint32_t gpio_output_pin_count = 0;

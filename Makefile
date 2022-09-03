@@ -20,7 +20,7 @@ ADB_DIRECTORY := /sdcard/dfu
 BOARD := BLE400
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := nrf51822.ld
+  LINKER_SCRIPT  := src/linker/nrf51822.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -47,7 +47,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c \
-  $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -68,15 +67,16 @@ SRC_FILES += \
   $(CUSTOM_INCLUDES_DIR)/boards/boards.c \
   $(CUSTOM_INCLUDES_DIR)/gpiote/nrf_drv_gpiote.c \
   $(CUSTOM_INCLUDES_DIR)/dfu_service/ble_dfu.c \
-  $(PROJ_DIR)/ble_bss.c \
-  $(PROJ_DIR)/ble_aio.c \
-  $(PROJ_DIR)/sensor_ble.c \
-  $(PROJ_DIR)/sensor_gpio.c \
-  $(PROJ_DIR)/sensor_timer.c \
-  $(PROJ_DIR)/error_handler.c \
-  $(PROJ_DIR)/sequence.c \
-  $(PROJ_DIR)/storage.c \
-  $(PROJ_DIR)/pin_configuration.c \
+  $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \
+  $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
+  $(PROJ_DIR)/src/ble/sensor_ble.c \
+  $(PROJ_DIR)/src/gpio/sensor_gpio.c \
+  $(PROJ_DIR)/src/timer/sensor_timer.c \
+  $(PROJ_DIR)/src/error_handler/error_handler.c \
+  $(PROJ_DIR)/src/sequence/sequence.c \
+  $(PROJ_DIR)/src/storage/storage.c \
+  $(PROJ_DIR)/src/persistence/pin_configuration.c \
+  $(PROJ_DIR)/src/main.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -184,7 +184,15 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/bootloader \
   $(SDK_ROOT)/components/drivers_nrf/hal \
   $(SDK_ROOT)/components/libraries/crc32 \
-  $(PROJ_DIR) \
+  $(PROJ_DIR)/src/ble/services/automation_io/ \
+  $(PROJ_DIR)/src/ble/services/binary_sensor/ \
+  $(PROJ_DIR)/src/ble/ \
+  $(PROJ_DIR)/src/config/ \
+  $(PROJ_DIR)/src/gpio/ \
+  $(PROJ_DIR)/src/storage/ \
+  $(PROJ_DIR)/src/sequence/ \
+  $(PROJ_DIR)/src/timer/ \
+  $(PROJ_DIR)/src/persistence/ \
   $(CUSTOM_INCLUDES_DIR)/battery_service \
   $(CUSTOM_INCLUDES_DIR)/boards \
   $(CUSTOM_INCLUDES_DIR)/dfu_service \

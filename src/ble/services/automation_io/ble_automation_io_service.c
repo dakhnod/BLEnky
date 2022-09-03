@@ -1,11 +1,11 @@
 #include "sdk_common.h"
-#include "ble_aio.h"
+#include "ble_automation_io_service.h"
 #include <string.h>
 #include "ble_l2cap.h"
 #include "ble_srv_common.h"
 #include "app_error.h"
 #include "storage.h"
-#include "ble_bss.h"
+#include "ble_binary_sensor_service.h"
 
 uint16_t ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
 

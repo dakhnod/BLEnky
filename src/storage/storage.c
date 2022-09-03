@@ -1,6 +1,6 @@
 #include "storage.h"
 #include "app_timer.h"
-#include "config/ble_configuration.h"
+#include "ble_configuration.h"
 
 APP_TIMER_DEF(reboot_timer);
 #define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)

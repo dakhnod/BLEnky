@@ -12,7 +12,7 @@ without needing to reflash the chip.
 Furthermore, it gives you the oppurtunity to not only write bits to output pins, but upload whole sequences (also known as animations)
 that can repeat and will be played by the chip, even when nothing is connected to it, as seen in the following gif.
 
-![](https://user-images.githubusercontent.com/26143255/188250995-35686f41-e14b-4790-976d-508945753b45.gif)
+![Running sequence](https://user-images.githubusercontent.com/26143255/188250995-35686f41-e14b-4790-976d-508945753b45.gif)
 
 ## Table of contents
 

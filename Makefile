@@ -69,6 +69,8 @@ SRC_FILES += \
   $(CUSTOM_INCLUDES_DIR)/dfu_service/ble_dfu.c \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \
   $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
+  $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
+  $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
   $(PROJ_DIR)/src/timer/sensor_timer.c \
@@ -186,6 +188,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/crc32 \
   $(PROJ_DIR)/src/ble/services/automation_io/ \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ \
+  $(PROJ_DIR)/src/ble/services/configuration/ \
+  $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/config/ \
   $(PROJ_DIR)/src/gpio/ \

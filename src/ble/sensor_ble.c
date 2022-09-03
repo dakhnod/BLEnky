@@ -1,5 +1,7 @@
 #include "sensor_ble.h"
 
+#include "ble_configuration_service.h"
+
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
 
@@ -323,6 +325,9 @@ void services_init(void) {
     ret_code_t err_code;
 
     err_code = bas_init();
+    APP_ERROR_CHECK(err_code);
+
+    err_code = ble_configuration_service_init();
     APP_ERROR_CHECK(err_code);
 
     err_code = ble_aio_init();

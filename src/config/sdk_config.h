@@ -3544,7 +3544,7 @@
 // <4=> Debug 
 
 #ifndef NRF_LOG_DEFAULT_LEVEL
-#define NRF_LOG_DEFAULT_LEVEL 4
+#define NRF_LOG_DEFAULT_LEVEL 3
 #endif
 
 // <e> NRF_LOG_DEFERRED - Enable deffered logger.
@@ -3675,7 +3675,7 @@
 // <i> if it is bigger than default RTT buffer size.
 
 #ifndef NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE
-#define NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE 256
+#define NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE 400
 #endif
 
 #endif //NRF_LOG_BACKEND_SERIAL_USES_RTT

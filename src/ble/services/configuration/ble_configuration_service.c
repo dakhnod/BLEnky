@@ -10,7 +10,7 @@ ret_code_t ble_configuration_service_init() {
   ret_code_t err_code;
 
   ble_uuid128_t vs_uuid = {
-      .uuid128 = UUID_SERVICE_CONFIGURATION
+      .uuid128 = CUSTOM_UUID_BASE_CONFIGURATION_SERVICE
   };
 
   err_code = sd_ble_uuid_vs_add(&vs_uuid, &configuration_custom_uuid_type);

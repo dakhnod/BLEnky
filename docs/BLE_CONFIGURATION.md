@@ -94,7 +94,7 @@ Also, the configuration characteristic can be read to discover the configuration
 
 The modules preferred connection parameters can be configured by sending data to the Characteristic with UUID `9c100002-5cf1-8fa7-1549-01fdc1d171dc`.
 
-The packet has to include the following fields (all in milliseconds, little endian):
+The packet has to include the following fields (all in milliseconds except for slave_latency, little endian):
 
 ```
 typedef struct {
@@ -103,9 +103,19 @@ typedef struct {
   uint16_t slave_latency;
   uint16_t conn_sup_timeout;
   uint16_t advertising_interval;
-
 } ble_configuration_connection_params_packet_t;
 ```
+
+So, here's how an example packet looks like:
+Min conn interval: 100ms (0x0064)
+Max conn interval: 300ms (0x012C)
+Slave latency: 3 (0x0003)
+Supervision timeout: 2500ms (0x09C4)
+Advertising interval: 1000ms (0x03E8)
+
+And here's the assembled packet:
+
+0x6400 2C01 0300 C409 E803
 
 All of the Bluetooth constraints apply:
 
@@ -113,5 +123,5 @@ All of the Bluetooth constraints apply:
 - max_conn_interval range: 7.5ms - 4000ms
 - min_conn_interval needs to be smaller than max_conn_interval
 - Max conn_sup_timeout: 3200ms
-- conn_sup_timeout needs to be greater than `max_conn_interval * (slave_latency + 1)`
+- conn_sup_timeout needs to be greater than `(max_conn_interval * 2) * (slave_latency + 1)`
 - Advertisement interval range: 20ms - 1024ms

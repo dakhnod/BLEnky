@@ -192,7 +192,10 @@ void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *
       NRF_LOG_ERROR("sup timeout too big\n");
     }
     else if (packet->advertising_interval < BLE_GAP_ADV_INTERVAL_MIN) {
-      NRF_LOG_ERROR("sup timeout too small\n");
+      NRF_LOG_ERROR("adv interval too small\n");
+    }
+    else if (packet->advertising_interval > BLE_GAP_ADV_INTERVAL_MAX) {
+      NRF_LOG_ERROR("adv interval too big\n");
     }
     else if (packet->conn_sup_timeout <= (packet->max_conn_interval * (packet->slave_latency + 1))) {
       NRF_LOG_ERROR("sup timeout smaller than effective connection interval\n");

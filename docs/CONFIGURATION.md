@@ -1,5 +1,7 @@
 # Configuration protocol
 
+## Pin configuration
+
 Input and output pins can be configured without reprogramming the device by sending a configuration packet to the characteristic with the UUID  `9c100001-5cf1-8fa7-1549-01fdc1d171dc`.
 This packet is constructed of four bits per pin, aka two pins per byte.
 
@@ -86,3 +88,30 @@ The microcontroller will then reboot and apply the new configuration.
 The configuration persists reboots, needs to be done only once.
 
 Also, the configuration characteristic can be read to discover the configuration already present on the device.
+
+
+## Connection parameters configuration
+
+The modules preferred connection parameters can be configured by sending data to the Characteristic with UUID `9c100002-5cf1-8fa7-1549-01fdc1d171dc`.
+
+The packet has to include the following fields (all in milliseconds, little endian):
+
+```
+typedef struct {
+  uint16_t min_conn_interval;
+  uint16_t max_conn_interval;
+  uint16_t slave_latency;
+  uint16_t conn_sup_timeout;
+  uint16_t advertising_interval;
+
+} ble_configuration_connection_params_packet_t;
+```
+
+All of the Bluetooth constraints apply:
+
+- min_conn_interval range: 7.5ms - 4000ms
+- max_conn_interval range: 7.5ms - 4000ms
+- min_conn_interval needs to be smaller than max_conn_interval
+- Max conn_sup_timeout: 3200ms
+- conn_sup_timeout needs to be greater than `max_conn_interval * (slave_latency + 1)`
+- Advertisement interval range: 20ms - 1024ms

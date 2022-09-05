@@ -1,6 +1,7 @@
 #include "sensor_ble.h"
 
 #include "ble_configuration_service.h"
+#include "app_error.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -311,15 +312,22 @@ void gap_params_init(void) {
         gap_conn_params.conn_sup_timeout = MSEC_TO_UNITS(params->conn_sup_timeout, UNIT_10_MS);
 
         advertising_interval = MSEC_TO_UNITS(params->advertising_interval, UNIT_0_625_MS);
+
+        err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
+
+        if (err_code == NRF_SUCCESS) {
+            return;
+        }
+        NRF_LOG_ERROR("failed setting stored connection parameters: %s\n", (uint32_t)ERR_TO_STR(err_code));
     }
     else {
         NRF_LOG_INFO("Connection params not configured\n");
-        gap_conn_params.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
-        gap_conn_params.max_conn_interval = BLE_DEFAULT_MAX_CONN_INTERVAL;
-        gap_conn_params.slave_latency = BLE_DEFAULT_SLAVE_LATENCY;
-        gap_conn_params.conn_sup_timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT;
     }
 
+    gap_conn_params.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
+    gap_conn_params.max_conn_interval = BLE_DEFAULT_MAX_CONN_INTERVAL;
+    gap_conn_params.slave_latency = BLE_DEFAULT_SLAVE_LATENCY;
+    gap_conn_params.conn_sup_timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT;
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     APP_ERROR_CHECK(err_code);
 }
@@ -347,23 +355,26 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
         .conn_sup_timeout = MSEC_TO_UNITS(packet->conn_sup_timeout, UNIT_10_MS),
     };
 
-    ret_code_t err_code;
+    NRF_LOG_DEBUG("min interval: %d\n", packet->min_conn_interval);
+    NRF_LOG_DEBUG("max interval: %d\n", packet->max_conn_interval);
+    NRF_LOG_DEBUG("slave latency: %d\n", packet->slave_latency);
+    NRF_LOG_DEBUG("sup timeout: %d\n", packet->conn_sup_timeout);
+    NRF_LOG_DEBUG("adv interval: %d\n", packet->advertising_interval);
 
+    ret_code_t err_code;
 
     err_code = ble_conn_params_change_conn_params(
         &real_params
     );
 
-    APP_ERROR_CHECK(err_code);
-    return;
-
-    if (connection_handle != BLE_CONN_HANDLE_INVALID) {
-        err_code = ble_conn_params_change_conn_params(
-            &real_params
-        );
-
-        APP_ERROR_CHECK(err_code);
+    if (err_code != NRF_SUCCESS) {
+        NRF_LOG_ERROR("update failed: %s\n", (uint32_t)ERR_TO_STR(err_code));
     }
+    else {
+        NRF_LOG_INFO("udpate success\n");
+    }
+    // seems to lock up the chip
+    // APP_ERROR_CHECK(err_code);
 }
 
 /**@brief Function for initializing services that will be used by the application.

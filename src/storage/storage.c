@@ -113,5 +113,5 @@ void storage_store_pin_configuration(uint8_t *data) {
 }
 
 void storage_store_connection_params_configuration(uint8_t *data) {
-  storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, false);
+  storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, true);
 }

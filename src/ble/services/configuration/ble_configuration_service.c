@@ -3,6 +3,7 @@
 #include "ble_helpers.h"
 #include "sensor_timer.h"
 #include "storage.h"
+#include "ble_hci.h"
 
 uint8_t configuration_custom_uuid_type;
 
@@ -134,11 +135,17 @@ void ble_configuration_on_disconnect(ble_evt_t *p_ble_evt) {
 }
 
 void ble_configuration_handle_connection_params_configuration_data(uint8_t *data) {
-  ble_configuration_connection_params_packet_t *packet = (ble_configuration_connection_params_packet_t *)data;
+  // ble_configuration_connection_params_packet_t *packet = (ble_configuration_connection_params_packet_t *)data;
 
   storage_store_connection_params_configuration(data);
 
-  ble_configuration_connection_params_update_handler(packet);
+  sd_ble_gap_disconnect(
+    ble_configuration_connection_handle,
+    BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION
+  );
+
+  // doesn't work for some reason hence we just reboot
+  // ble_configuration_connection_params_update_handler(packet);
 }
 
 void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *write_req) {
@@ -197,7 +204,7 @@ void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *
     else if (packet->advertising_interval > BLE_GAP_ADV_INTERVAL_MAX) {
       NRF_LOG_ERROR("adv interval too big\n");
     }
-    else if (packet->conn_sup_timeout <= (packet->max_conn_interval * (packet->slave_latency + 1))) {
+    else if (packet->conn_sup_timeout <= ((packet->max_conn_interval * 2) * (packet->slave_latency + 1))) {
       NRF_LOG_ERROR("sup timeout smaller than effective connection interval\n");
     }
     else {
@@ -250,6 +257,12 @@ void ble_configuration_handle_pin_configuration_write(ble_gatts_evt_write_t *wri
   }
 
   storage_store_pin_configuration(data_to_write);
+
+  // disconnect from host for reboot
+  sd_ble_gap_disconnect(
+    ble_configuration_connection_handle,
+    BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION
+  );
 }
 
 void ble_configuration_handle_connection_params_configuration_write(ble_gatts_evt_write_t *write_evt) {

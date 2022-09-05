@@ -18,10 +18,13 @@ that can repeat and will be played by the chip, even when nothing is connected t
 
 ## Table of contents
 
-1. [Configuration](docs/BLE_CONFIGURATION.md)
+1. [Configuration](docs/CONFIGURATION.md)
 2. [Pin inputs/outputs (Automation IO)](docs/AUTOMATION_IO_SERVICE.md)
 3. [Pin inputs (Binary Sensor Service)](docs/BINARY_SENSOR_SERVICE.md)
 4. [Sequences/Animations](docs/SEQUENCES.md)
+5. [Compilation](docs/COMPILATION.md)
+6. [Programming the chip](docs/FLASHING.md)
+7. [First steps](docs/FIRST_STEPS.md)
 
 ## Roadmap
 

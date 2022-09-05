@@ -1,3 +1,9 @@
+## TOC
+
+1. [Interfacing with output pins](#output-pins)
+1. [Interfacing with input pins](#input-pins)
+
+
 ## Pin interface protocol
 
 The firmware exposes endpoints for reading from input pins and writing to output pins,

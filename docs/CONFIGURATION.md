@@ -1,5 +1,11 @@
 # Configuration protocol
 
+## TOC
+
+1. [Configuring output pins](#output-pins)
+2. [Configuring input pins](#input-pins)
+3. [Configuring connection parameters](#connection-parameters-configuration)
+
 ## Pin configuration
 
 Input and output pins can be configured without reprogramming the device by sending a configuration packet to the characteristic with the UUID  `9c100001-5cf1-8fa7-1549-01fdc1d171dc`.

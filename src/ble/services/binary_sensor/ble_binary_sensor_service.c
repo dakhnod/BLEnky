@@ -103,7 +103,6 @@ void handle_set_sensor_command(enum sensor_type_t sensor_type, enum report_state
     }
 
     send_updates = report_state;
-    NRF_LOG_DEBUG("setting updates to %i\n", send_updates);
     respond_set_sensor_command(OK);
 };
 
@@ -158,7 +157,6 @@ void handle_get_single_vibration_sensor_command() {
 }
 
 void handle_get_single_open_close_sensor_command() {
-    NRF_LOG_DEBUG("get single open/close sensor\n");
     respond_get_sensor_command(OK, current_state_, event_count_);
 }
 
@@ -416,8 +414,6 @@ ret_code_t ble_bss_response_send(uint8_t *data, uint8_t length) {
 
     uint16_t len_written = length;
 
-    NRF_LOG_DEBUG("hvx %i\n", len_written);
-
     ble_gatts_hvx_params_t hvx_params = {
         .handle = ble_bss_response_handle,
         .type = BLE_GATT_HVX_INDICATION,
@@ -427,8 +423,6 @@ ret_code_t ble_bss_response_send(uint8_t *data, uint8_t length) {
     };
 
     ret_code_t err_code = sd_ble_gatts_hvx(ble_bss_connection_handle, &hvx_params);
-
-    NRF_LOG_DEBUG("written: %i\n", len_written);
 
     return err_code;
 }

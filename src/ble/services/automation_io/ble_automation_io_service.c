@@ -22,9 +22,6 @@ uint16_t ble_aio_digital_in_cccd_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_aio_digital_sequence_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_aio_digital_sequence_cccd_handle = BLE_GATT_HANDLE_INVALID;
 
-uint16_t ble_aio_pin_configuration_handle = BLE_GATT_HANDLE_INVALID;
-uint16_t ble_aio_pin_configuration_cccd_handle = BLE_GATT_HANDLE_INVALID;
-
 uint8_t ble_aio_send_digital_input_updates = false;
 uint8_t ble_aio_send_digital_output_sequence_updates = false;
 
@@ -48,7 +45,6 @@ void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt) {
 void handle_digital_out_sequence_cccd_write(ble_gatts_evt_write_t *write_evt) {
     if (write_evt->len == 2) {
         ble_aio_send_digital_output_sequence_updates = ble_srv_is_notification_enabled(write_evt->data);
-        NRF_LOG_DEBUG("sequence cccd: %d\n", ble_aio_send_digital_output_sequence_updates);
     }
 }
 
@@ -95,23 +91,6 @@ void handle_digital_out_write(ble_gatts_evt_write_t *write_evt) {
     uint32_t len = write_evt->len;
 
     ble_aio_handle_pin_data(data, len);
-}
-
-void handle_pin_configuration_write(ble_gatts_evt_write_t *write_evt) {
-    uint8_t *data = write_evt->data;
-    uint32_t len = write_evt->len;
-
-    uint32_t writable_data_length = MIN(16, len);
-    static uint8_t data_to_write[16];
-    uint32_t start_index = 16 - writable_data_length;
-
-    memcpy(data_to_write + start_index, data, writable_data_length);
-
-    for (uint32_t i = 0; i < start_index; i++) {
-        data_to_write[i] = 0xFF;
-    }
-
-    storage_store(data_to_write, 16);
 }
 
 void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt) {
@@ -186,11 +165,12 @@ void ble_aio_authorize_digital_out() {
 
     sd_ble_gatts_rw_authorize_reply(
         ble_aio_connection_handle,
-        &authorize_params);
+        &authorize_params
+    );
 }
 
 ret_code_t ble_aio_characteristic_digital_output_add() {
-    return ble_characteristic_digital_add(
+    return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_DIGITAL_CHARACTERISTIC,
         BLE_UUID_TYPE_BLE,
@@ -201,13 +181,14 @@ ret_code_t ble_aio_characteristic_digital_output_add() {
         true,
         false,
         true,
+        false,
         ble_aio_get_byte_count_from_pins(gpio_get_output_pin_count()),
         &ble_aio_digital_out_write_handle,
         &ble_aio_digital_out_cccd_handle);
 }
 
 ret_code_t ble_aio_characteristic_digital_input_add() {
-    return ble_characteristic_digital_add(
+    return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_DIGITAL_CHARACTERISTIC,
         BLE_UUID_TYPE_BLE,
@@ -218,13 +199,14 @@ ret_code_t ble_aio_characteristic_digital_input_add() {
         true,
         true,
         true,
+        false,
         ble_aio_get_byte_count_from_pins(gpio_get_input_pin_count()),
         &ble_aio_digital_in_write_handle,
         &ble_aio_digital_in_cccd_handle);
 }
 
 ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
-    return ble_characteristic_digital_add(
+    return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_DIGITAL_CHARACTERISTIC,
         ble_configuration_service_get_custom_uuid_type(),
@@ -235,26 +217,10 @@ ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
         true,
         true,
         true,
+        false,
         20,
         &ble_aio_digital_sequence_handle,
         &ble_aio_digital_sequence_cccd_handle);
-}
-
-ret_code_t ble_aio_characteristic_pin_configuration_add() {
-    return ble_characteristic_digital_add(
-        ble_aio_service_handle,
-        UUID_PIN_CONFIG_CHARACTERISTIC,
-        ble_configuration_service_get_custom_uuid_type(),
-        "Pin configuration",
-        0,
-        0x00,
-        true,
-        true,
-        false,
-        false,
-        16,
-        &ble_aio_pin_configuration_handle,
-        &ble_aio_pin_configuration_cccd_handle);
 }
 
 void ble_aio_on_write(ble_evt_t *p_ble_evt) {
@@ -276,10 +242,6 @@ void ble_aio_on_write(ble_evt_t *p_ble_evt) {
     }
     if (handle == ble_aio_digital_sequence_cccd_handle) {
         handle_digital_out_sequence_cccd_write(write_evt);
-        return;
-    }
-    if (handle == ble_aio_pin_configuration_handle) {
-        handle_pin_configuration_write(write_evt);
         return;
     }
     if (handle == ble_aio_digital_in_cccd_handle) {
@@ -394,21 +356,16 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt) {
         .read
         .handle;
 
-    NRF_LOG_DEBUG("read authorize request, handle % d\n", handle);
-
     if (req.type == BLE_GATTS_AUTHORIZE_TYPE_READ) {
         if (handle == ble_aio_digital_out_write_handle) {
-            NRF_LOG_DEBUG("requesting digital out read\n");
             ble_aio_authorize_digital_out();
             return;
         }
         if (handle == ble_aio_digital_in_write_handle) {
-            NRF_LOG_DEBUG("requesting digital in read\n");
             ble_aio_authorize_digital_in();
             return;
         }
         if (handle == ble_aio_digital_sequence_handle) {
-            NRF_LOG_DEBUG("requesting digital sequence read\n");
             ble_aio_authorize_digital_out_sequence();
             return;
         }
@@ -447,20 +404,6 @@ void ble_aio_handle_input_change(uint32_t index, gpio_config_input_t *config) {
     if (index == 0) {
         ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
     }
-}
-
-ret_code_t ble_aio_pin_configuraion_data_set(uint8_t *data, uint32_t data_length) {
-    ble_gatts_value_t value = {
-        .offset = 0,
-        .len = data_length,
-        .p_value = data
-    };
-
-    return sd_ble_gatts_value_set(
-        BLE_CONN_HANDLE_INVALID,
-        ble_aio_pin_configuration_handle,
-        &value
-    );
 }
 
 void ble_aio_handle_sequence_progress_update(uint8_t is_running, uint32_t packet_index, uint32_t repetitions_remaining) {
@@ -519,9 +462,6 @@ ret_code_t ble_aio_init() {
 
         ble_aio_update_digital_in_states();
     }
-
-    err_code = ble_aio_characteristic_pin_configuration_add();
-    APP_ERROR_CHECK(err_code);
 
     gpio_set_input_change_handler(ble_aio_handle_input_change);
 

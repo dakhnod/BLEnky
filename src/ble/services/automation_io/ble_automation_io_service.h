@@ -27,7 +27,6 @@ extern "C" {
     void ble_aio_on_authorize(ble_evt_t *p_ble_evt);
     void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer);
     uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count);
-    ret_code_t ble_aio_pin_configuraion_data_set(uint8_t *data, uint32_t data_length);
 
 #ifdef __cplusplus
 }

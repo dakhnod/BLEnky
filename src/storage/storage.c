@@ -55,12 +55,32 @@ void storage_on_sys_evt(uint32_t sys_evt) {
   fs_sys_event_handler(sys_evt);
 }
 
-void storage_read(uint8_t *buffer, uint32_t length) {
-  memcpy(buffer, fs_config.p_start_addr, length);
+void storage_read(uint32_t offset, uint8_t *buffer, uint32_t length) {
+  // casting p_start_addr, so that offset calculation does not add offset * sizeof(uint32_t)
+  memcpy(buffer, ((uint8_t *)fs_config.p_start_addr) + offset, length);
 }
 
-void storage_store(uint8_t *data, uint32_t length) {
+void storage_read_pin_configuration(uint8_t *buffer) {
+  storage_read(OFFSET_PIN_CONFIGURATION, buffer, 16);
+}
+
+void storage_read_connection_params_configuration(uint8_t *buffer) {
+  storage_read(OFFSET_CONNECTION_PARAMS_CONFIGURATION, buffer, 10);
+}
+
+void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t reboot) {
   fs_ret_t ret_code;
+
+  uint32_t data_size_32 = CEIL_DIV(26, 4);
+
+  // this is prefered, but initializing storage_data with unknown length is illegal
+  // uint32_t data_size = data_size_32 * 4;;
+
+  // needs to be static for fs_store
+  static uint8_t storage_data[28]; // 16 pins for pin configuration + 10 pins for connection param configuration + 2 bytes for alignment
+  storage_read(0, storage_data, 26); // read whole storage
+
+  memcpy(storage_data + offset, data, length);
 
   ret_code = fs_erase(
     &fs_config,
@@ -74,18 +94,24 @@ void storage_store(uint8_t *data, uint32_t length) {
     return;
   }
 
-  static uint8_t context = 0x01;
+  static uint8_t context = false;
+  context = reboot;
 
   ret_code = fs_store(
     &fs_config,
     fs_config.p_start_addr,
-    (uint32_t *)data,
-    length / 4,
+    (uint32_t *)storage_data,
+    data_size_32,
     &context
   );
 
-  if (ret_code != FS_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage store failure: %d\n", ret_code);
-    return;
-  }
+  APP_ERROR_CHECK(ret_code);
+}
+
+void storage_store_pin_configuration(uint8_t *data) {
+  storage_store(OFFSET_PIN_CONFIGURATION, data, 16, true);
+}
+
+void storage_store_connection_params_configuration(uint8_t *data) {
+  storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, false);
 }

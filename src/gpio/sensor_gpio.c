@@ -142,15 +142,6 @@ void gpio_configure_aio_inputs() {
   }
 }
 
-void gpio_pin_configuration_data_read(uint8_t *data) {
-  pin_configuration_data_read(data);
-}
-
-void parse_configuration_data() {
-  uint8_t configuration_data[16];
-  gpio_pin_configuration_data_read(configuration_data);
-}
-
 void gpio_handle_parse_output(uint32_t index, uint32_t pin, uint8_t default_state, uint8_t invert) {
   gpio_config_output_t *config = gpio_output_configs + index;
   config->pin = pin;

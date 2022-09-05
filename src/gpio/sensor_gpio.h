@@ -40,7 +40,6 @@ uint32_t gpio_get_input_pin_count();
 uint8_t gpio_get_output_state(uint32_t index);
 void gpio_encode_output_states(uint8_t *buffer);
 void gpio_encode_input_states(uint8_t *buffer);
-void gpio_pin_configuration_data_read(uint8_t *data);
 void gpio_set_input_change_handler(gpio_input_change_handler_t handler);
 
 #endif

@@ -10,6 +10,7 @@
 #include "sensor_ble.h"
 #include "sensor_gpio.h"
 #include "sensor_timer.h"
+#include "ble_configuration_service.h"
 
 int main(void) {
     ret_code_t err_code;
@@ -26,11 +27,6 @@ int main(void) {
     gpio_init();
 
     ble_init();
-
-    uint8_t storage_data[16];
-    gpio_pin_configuration_data_read(storage_data);
-    err_code = ble_aio_pin_configuraion_data_set(storage_data, 16);
-    APP_ERROR_CHECK(err_code);
 
     advertising_start();
 

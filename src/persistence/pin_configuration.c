@@ -115,5 +115,5 @@ void pin_configuration_parse(
 }
 
 void pin_configuration_data_read(uint8_t *data) {
-  storage_read(data, 16);
+  storage_read_pin_configuration(data);
 }

@@ -11,6 +11,8 @@ bool is_advertising = false;
 
 uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 
+uint16_t advertising_interval = APP_ADV_INTERVAL_FAST;
+
 void ble_init() {
     ble_stack_init();
     gap_params_init();
@@ -117,6 +119,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_advertising_on_ble_evt(p_ble_evt);
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
     ble_bas_on_ble_evt(p_ble_evt);
+    ble_configuration_on_ble_event(p_ble_evt);
 }
 
 
@@ -191,7 +194,7 @@ void advertising_init() {
 
       .ble_adv_fast_interval = APP_ADV_INTERVAL_FAST,
       .ble_adv_fast_timeout = APP_ADV_TIMEOUT_FAST_SECS,
-      .ble_adv_slow_interval = APP_ADV_INTERVAL_SLOW,
+      .ble_adv_slow_interval = advertising_interval,
       .ble_adv_slow_timeout = APP_ADV_TIMEOUT_SLOW_SECS,
     };
 
@@ -277,7 +280,6 @@ void ble_stack_init(void) {
     APP_ERROR_CHECK(err_code);
 }
 
-
 /**@brief Function for the GAP initialization.
  *
  * @details This function sets up all the necessary GAP (Generic Access Profile) parameters of the
@@ -285,22 +287,38 @@ void ble_stack_init(void) {
  */
 void gap_params_init(void) {
     uint32_t                err_code;
-    ble_gap_conn_params_t   gap_conn_params;
     ble_gap_conn_sec_mode_t sec_mode;
 
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
     err_code = sd_ble_gap_device_name_set(&sec_mode,
         (const uint8_t *)DEVICE_NAME,
         strlen(DEVICE_NAME));
     APP_ERROR_CHECK(err_code);
 
-    memset(&gap_conn_params, 0, sizeof(gap_conn_params));
+    ble_gap_conn_params_t gap_conn_params;
 
-    gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
-    gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency = SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout = CONN_SUP_TIMEOUT;
+    uint8_t params_data[10];
+    storage_read_connection_params_configuration(params_data);
+
+    if (params_data[0] != 0xff) {
+        ble_configuration_connection_params_packet_t *params =
+            (ble_configuration_connection_params_packet_t *)params_data;
+
+        gap_conn_params.min_conn_interval = MSEC_TO_UNITS(params->min_conn_interval, UNIT_1_25_MS);
+        gap_conn_params.max_conn_interval = MSEC_TO_UNITS(params->max_conn_interval, UNIT_1_25_MS);
+        gap_conn_params.slave_latency = params->slave_latency;
+        gap_conn_params.conn_sup_timeout = MSEC_TO_UNITS(params->conn_sup_timeout, UNIT_10_MS);
+
+        advertising_interval = MSEC_TO_UNITS(params->advertising_interval, UNIT_0_625_MS);
+    }
+    else {
+        NRF_LOG_INFO("Connection params not configured\n");
+        gap_conn_params.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
+        gap_conn_params.max_conn_interval = BLE_DEFAULT_MAX_CONN_INTERVAL;
+        gap_conn_params.slave_latency = BLE_DEFAULT_SLAVE_LATENCY;
+        gap_conn_params.conn_sup_timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT;
+    }
 
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     APP_ERROR_CHECK(err_code);
@@ -319,6 +337,35 @@ uint32_t dfu_init() {
     return ble_dfu_init(&dfu, &init);
 }
 
+void ble_handle_connection_parameters_configuration_update(ble_configuration_connection_params_packet_t *packet) {
+    // should to some validation here
+
+    ble_gap_conn_params_t real_params = {
+        .min_conn_interval = MSEC_TO_UNITS(packet->min_conn_interval, UNIT_1_25_MS),
+        .max_conn_interval = MSEC_TO_UNITS(packet->max_conn_interval, UNIT_1_25_MS),
+        .slave_latency = packet->slave_latency,
+        .conn_sup_timeout = MSEC_TO_UNITS(packet->conn_sup_timeout, UNIT_10_MS),
+    };
+
+    ret_code_t err_code;
+
+
+    err_code = ble_conn_params_change_conn_params(
+        &real_params
+    );
+
+    APP_ERROR_CHECK(err_code);
+    return;
+
+    if (connection_handle != BLE_CONN_HANDLE_INVALID) {
+        err_code = ble_conn_params_change_conn_params(
+            &real_params
+        );
+
+        APP_ERROR_CHECK(err_code);
+    }
+}
+
 /**@brief Function for initializing services that will be used by the application.
  */
 void services_init(void) {
@@ -327,7 +374,7 @@ void services_init(void) {
     err_code = bas_init();
     APP_ERROR_CHECK(err_code);
 
-    err_code = ble_configuration_service_init();
+    err_code = ble_configuration_service_init(ble_handle_connection_parameters_configuration_update);
     APP_ERROR_CHECK(err_code);
 
     err_code = ble_aio_init();

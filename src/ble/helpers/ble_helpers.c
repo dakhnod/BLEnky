@@ -3,7 +3,7 @@
 #include "app_error.h"
 #include "nrf_log.h"
 
-ret_code_t ble_aio_characteristic_add(
+ret_code_t ble_helper_characteristic_add(
   uint16_t service_handle,
   uint16_t uuid,
   uint8_t uuid_type,
@@ -12,11 +12,12 @@ ret_code_t ble_aio_characteristic_add(
   uint8_t is_readable,
   uint8_t is_notifiable,
   uint8_t authorize_read,
+  uint8_t authorize_write,
   uint16_t max_length,
   uint16_t *value_handle,
   uint16_t *cccd_handle
 ) {
-  return ble_characteristic_digital_add(
+  return ble_helper_characteristic_digital_add(
     service_handle,
     uuid,
     uuid_type,
@@ -27,13 +28,14 @@ ret_code_t ble_aio_characteristic_add(
     is_readable,
     is_notifiable,
     authorize_read,
+    authorize_write,
     max_length,
     value_handle,
     cccd_handle
   );
 }
 
-ret_code_t ble_characteristic_digital_add(
+ret_code_t ble_helper_characteristic_digital_add(
   uint16_t service_handle,
   uint16_t uuid,
   uint8_t uuid_type,
@@ -44,6 +46,7 @@ ret_code_t ble_characteristic_digital_add(
   uint8_t is_readable,
   uint8_t is_notifiable,
   uint8_t authorize_read,
+  uint8_t authorize_write,
   uint16_t max_length,
   uint16_t *value_handle,
   uint16_t *cccd_handle
@@ -99,7 +102,7 @@ ret_code_t ble_characteristic_digital_add(
   ble_gatts_attr_md_t attr_md = {
       .vloc = BLE_GATTS_VLOC_STACK,
       .rd_auth = authorize_read,
-      .wr_auth = 0,
+      .wr_auth = authorize_write,
       .vlen = 1,
   };
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);

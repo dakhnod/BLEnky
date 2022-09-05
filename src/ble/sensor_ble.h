@@ -12,7 +12,6 @@
 #include "ble_hci.h"
 #include "fstorage.h"
 #include "ble_advertising.h"
-#include "boards.h"
 #include "ble_binary_sensor_service.h"
 #include "ble_automation_io_service.h"
 #include "ble_configuration.h"

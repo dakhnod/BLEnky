@@ -13,7 +13,7 @@ SHELL := /bin/bash
 
 SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 PROJ_DIR := .
-CUSTOM_INCLUDES_DIR = $(BLE_ROOT)/includes
+CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET := pixel
 ADB_DIRECTORY := /sdcard/dfu
 
@@ -44,9 +44,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(SDK_ROOT)/components/drivers_nrf/spi_master/nrf_drv_spi.c \
-  $(SDK_ROOT)/components/libraries/bsp/bsp.c \
-  $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
-  $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -63,10 +60,9 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
   $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
-  $(CUSTOM_INCLUDES_DIR)/battery_service/battery.c \
-  $(CUSTOM_INCLUDES_DIR)/boards/boards.c \
-  $(CUSTOM_INCLUDES_DIR)/gpiote/nrf_drv_gpiote.c \
-  $(CUSTOM_INCLUDES_DIR)/dfu_service/ble_dfu.c \
+  $(CUSTOM_INCLUDES_DIR)/services/battery_service/battery.c \
+  $(CUSTOM_INCLUDES_DIR)/services/dfu_service/ble_dfu.c \
+  $(CUSTOM_INCLUDES_DIR)/libraries/gpiote/nrf_drv_gpiote.c \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \
   $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
   $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
@@ -197,9 +193,9 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/sequence/ \
   $(PROJ_DIR)/src/timer/ \
   $(PROJ_DIR)/src/persistence/ \
-  $(CUSTOM_INCLUDES_DIR)/battery_service \
+  $(CUSTOM_INCLUDES_DIR)/services/battery_service \
   $(CUSTOM_INCLUDES_DIR)/boards \
-  $(CUSTOM_INCLUDES_DIR)/dfu_service \
+  $(CUSTOM_INCLUDES_DIR)/services/dfu_service \
 
 # Libraries common to all targets
 LIB_FILES += \

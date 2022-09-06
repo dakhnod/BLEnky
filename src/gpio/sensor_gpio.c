@@ -169,8 +169,8 @@ void gpio_init() {
 
   pin_configuration_init();
 
-  gpio_output_pin_count = get_pin_count_output();
-  gpio_input_pin_count = get_pin_count_input();
+  gpio_output_pin_count = get_pin_count_digital_output();
+  gpio_input_pin_count = get_pin_count_digital_input();
 
   uint32_t size;
   ret_code_t result;

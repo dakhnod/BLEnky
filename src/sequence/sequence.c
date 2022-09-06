@@ -13,7 +13,9 @@ uint32_t sequence_buffer_start_index;
 uint8_t repeat_indefinetly;
 uint64_t sequence_repeat_count;
 
-uint32_t sequence_pin_data_length;
+uint32_t sequence_pin_digital_data_length;
+uint32_t sequence_pin_analog_data_length;
+uint8_t sequence_contains_analog = false;
 
 pin_data_handler_t sequence_pin_data_handler;
 sequence_progress_update_handler_t sequence_progress_update_handler;
@@ -22,8 +24,11 @@ uint8_t sequence_is_running_ = false;
 uint32_t sequence_packet_index = 0;
 
 typedef struct {
-    uint8_t *pin_data;
-    uint32_t pin_data_length;
+    uint8_t *pin_digital_data;
+    uint32_t pin_digital_data_length;
+
+    uint16_t *pin_analog_data;
+    uint32_t pin_analog_data_length;
 
     uint64_t delay;
 } sequence_packet_t;
@@ -129,15 +134,27 @@ void sequence_execute_packet(sequence_packet_t *packet) {
 }
 
 void sequence_buffer_next_packet() {
-    uint32_t pin_data_length = sequence_pin_data_length;
-    uint8_t pin_data[pin_data_length];
+    uint32_t pin_data_length = sequence_pin_digital_data_length;
+    // the buffer copying could perhaps be skipped
+    uint8_t pin_data_digital[pin_data_length];
 
     sequence_read_bytes(pin_data, &pin_data_length);
+
+    uint16_t analog_data[sequence_pin_analog_data_length * 2];
+    uint32_t analog_data_length = 0;
+
+    if(sequence_contains_analog){
+        analog_data_length = sequence_pin_analog_data_length;
+        sequence_read_bytes((uint8_t*) analog_data, analog_data_length);
+    }
+
     uint64_t delay = sequence_read_varint();
 
     sequence_packet_t next_packet = {
-        .pin_data = pin_data,
-        .pin_data_length = pin_data_length,
+        .pin_digital_data = pin_data_digital,
+        .pin_digital_data_length = pin_data_length,
+        .pin_analog_data = analog_data,
+        .pin_analog_data_length = analog_data_length,
         .delay = delay
     };
 
@@ -166,11 +183,12 @@ void sequence_timer_timeout_handler() {
     sequence_step();
 }
 
-void sequence_start() {
+void sequence_start(uint8_t contains_analog) {
     sequence_reset();
     sequence_buffer_read_index = 0;
     sequence_repeat_count = sequence_read_varint();
     repeat_indefinetly = (sequence_repeat_count == 0);
+    sequence_contains_analog = contains_analog;
 
     sequence_buffer_start_index = sequence_buffer_read_index;
 
@@ -180,11 +198,13 @@ void sequence_start() {
 }
 
 void sequence_init(
-    uint32_t pin_data_length,
+    uint32_t pin_data_digital_length,
+    uint32_t pin_data_analog_length,
     pin_data_handler_t pin_data_handler,
     sequence_progress_update_handler_t progress_update_handler
 ) {
-    sequence_pin_data_length = pin_data_length;
+    sequence_pin_digital_data_length = pin_data_digital_length;
+    sequence_pin_analog_data_length = pin_data_analog_length;
     timer_sequence_set_timeout_handler(sequence_timer_timeout_handler);
     sequence_pin_data_handler = pin_data_handler;
     sequence_progress_update_handler = progress_update_handler;

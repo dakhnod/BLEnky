@@ -14,7 +14,12 @@ typedef enum {
     DECODE_OVERFLOW
 } SEQUENCE_DECODE_RESULT;
 
-typedef void (*pin_data_handler_t)(uint8_t *pin_data, uint32_t pin_data_length);
+typedef void (*pin_data_handler_t)(
+    uint8_t *pin_digital_data, 
+    uint32_t pin_digital_data_length,
+    uint16_t *pin_analog_data,
+    uint32_t pin_analog_data_length
+);
 typedef void (*sequence_progress_update_handler_t)(uint8_t sequence_is_running, uint32_t packet_index, uint32_t remaining_repetitions);
 
 void sequence_start();

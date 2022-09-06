@@ -22,6 +22,8 @@ uint16_t ble_aio_digital_in_cccd_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_aio_digital_sequence_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_aio_digital_sequence_cccd_handle = BLE_GATT_HANDLE_INVALID;
 
+uint16_t ble_aio_combined_sequence_handle = BLE_GATT_HANDLE_INVALID;
+
 uint16_t ble_aio_analog_out_write_handles[GPIO_OUTPUT_ANALOG_PIN_LIMIT];
 
 uint8_t ble_aio_send_digital_input_updates = false;
@@ -96,7 +98,7 @@ void handle_digital_out_write(ble_gatts_evt_write_t *write_evt) {
     ble_aio_handle_pin_data(data, len);
 }
 
-void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt) {
+void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt, uint8_t contains_analog) {
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
@@ -116,7 +118,7 @@ void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt) {
         return;
     }
     if (result == PUSH_FINAL_PACKET) {
-        sequence_start();
+        sequence_start(contains_analog);
         return;
     }
 }
@@ -129,7 +131,9 @@ void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_ev
 
     uint16_t value = *((uint16_t) write_evt->data);
 
-    gpio_write_output_digital_pin(index, value);
+    NRF_LOG_DEBUG("writing analog value %d\n", value);
+
+    // gpio_write_output_digital_pin(index, value);
 }
 
 void ble_aio_authorize_digital_out_sequence() {
@@ -255,6 +259,24 @@ ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
         &ble_aio_digital_sequence_cccd_handle);
 }
 
+ret_code_t ble_aio_characteristic_combined_output_sequence_add() {
+    return ble_helper_characteristic_digital_add(
+        ble_aio_service_handle,
+        UUID_DIGITAL_CHARACTERISTIC,
+        ble_configuration_service_get_custom_uuid_type(),
+        "Combined output sequence",
+        gpio_get_output_digital_pin_count(),
+        0x00,
+        true,
+        false,
+        false,
+        false,
+        false,
+        20,
+        &ble_aio_combined_sequence_handle,
+        NULL);
+}
+
 void ble_aio_on_write(ble_evt_t *p_ble_evt) {
     ble_gatts_evt_write_t *write_evt = &p_ble_evt
         ->evt
@@ -269,7 +291,11 @@ void ble_aio_on_write(ble_evt_t *p_ble_evt) {
         return;
     }
     if (handle == ble_aio_digital_sequence_handle) {
-        handle_digital_out_sequence_write(write_evt);
+        handle_digital_out_sequence_write(write_evt, false);
+        return;
+    }
+    if (handle == ble_aio_combined_sequence_handle) {
+        handle_digital_out_sequence_write(write_evt, true);
         return;
     }
     if (handle == ble_aio_digital_sequence_cccd_handle) {
@@ -483,6 +509,8 @@ ret_code_t ble_aio_init() {
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &ble_aio_service_handle);
     APP_ERROR_CHECK(err_code);
 
+    uint8_t init_sequence = false;
+
     if (output_digital_pin_count > 0) {
         err_code = ble_aio_characteristic_digital_output_add();
         APP_ERROR_CHECK(err_code);
@@ -490,17 +518,27 @@ ret_code_t ble_aio_init() {
         err_code = ble_aio_characteristic_digital_output_sequence_add();
         APP_ERROR_CHECK(err_code);
 
-        sequence_init(
-            ble_aio_get_byte_count_from_pins(output_digital_pin_count),
-            ble_aio_handle_pin_data,
-            ble_aio_handle_sequence_progress_update
-        );
+        init_sequence = true;
     }
 
     if (output_analog_pin_count > 0){
         for(uint32_t i = 0; i < output_analog_pin_count; i++){
             err_code = ble_aio_characteristic_analog_output_add(i);
         }
+
+        err_code = ble_aio_characteristic_combined_output_sequence_add();
+        APP_ERROR_CHECK(err_code);
+
+        init_sequence = true;
+    }
+
+    if(init_sequence){
+        sequence_init(
+            ble_aio_get_byte_count_from_pins(output_digital_pin_count),
+            output_analog_pin_count,
+            ble_aio_handle_pin_data,
+            ble_aio_handle_sequence_progress_update
+        );
     }
 
     if (input_digital_pin_count > 0) {

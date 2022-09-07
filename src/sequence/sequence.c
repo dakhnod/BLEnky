@@ -150,7 +150,8 @@ void sequence_buffer_next_packet() {
 
     if(sequence_contains_analog){
         analog_data_length = sequence_pin_analog_data_length;
-        sequence_read_bytes((uint8_t*) analog_data, &analog_data_length);
+        uint32_t sequence_analog_data_byte_length = analog_data_length * 2;
+        sequence_read_bytes((uint8_t*) analog_data, &sequence_analog_data_byte_length);
     }
 
     uint64_t delay = sequence_read_varint();
@@ -189,6 +190,8 @@ void sequence_timer_timeout_handler() {
 }
 
 void sequence_start(uint8_t contains_analog) {
+    NRF_LOG_DEBUG("starting seuqnece (contains analog: %i)\n", contains_analog);
+
     sequence_reset();
     sequence_buffer_read_index = 0;
     sequence_repeat_count = sequence_read_varint();

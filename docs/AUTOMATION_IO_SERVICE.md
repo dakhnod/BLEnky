@@ -1,7 +1,8 @@
 ## TOC
 
-1. [Interfacing with output pins](#output-pins)
-1. [Interfacing with input pins](#input-pins)
+1. [Interfacing with digital output pins](#output-digital-pins)
+2. [Interfacing with analog output pins](#output-analog-pins)
+3. [Interfacing with input pins](#input-pins)
 
 
 ## Pin interface protocol

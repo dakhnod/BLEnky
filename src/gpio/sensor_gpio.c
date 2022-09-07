@@ -71,11 +71,11 @@ void gpio_configure_aio_outputs_digital() {
 }
 
 void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value){
-  while (app_pwm_channel_duty_ticks_set(&pwm0, 0, value) == NRF_ERROR_BUSY);
+  while (app_pwm_channel_duty_ticks_set(&pwm0, index, value) == NRF_ERROR_BUSY);
 }
 
-void gpio_write_output_analog_pin_ms(uint32_t index, uint16_t ms){
-  gpio_write_output_analog_pin_ticks(index, ms * 2);
+void gpio_write_output_analog_pin_us(uint32_t index, uint16_t us){
+  gpio_write_output_analog_pin_ticks(index, us * 2);
 }
 
 void gpio_configure_aio_outputs_analog(){
@@ -204,9 +204,9 @@ void gpio_init() {
 
   pin_configuration_init();
 
-  gpio_output_digital_pin_count = gpio_get_output_digital_pin_count();
-  gpio_output_analog_pin_count = gpio_get_output_analog_pin_count();
-  gpio_input_digital_pin_count = gpio_get_input_digital_pin_count();
+  gpio_output_digital_pin_count = get_pin_count_output_digital();
+  gpio_output_analog_pin_count = get_pin_count_output_analog();
+  gpio_input_digital_pin_count = get_pin_count_input_digital();
 
   uint32_t size;
   ret_code_t result;

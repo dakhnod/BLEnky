@@ -136,9 +136,7 @@ void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_ev
 
     uint16_t value = *((uint16_t*) write_evt->data);
 
-    NRF_LOG_DEBUG("writing analog value %d\n", value);
-
-    // gpio_write_output_digital_pin(index, value);
+    gpio_write_output_analog_pin_us(index, value);
 }
 
 void ble_aio_authorize_digital_out_sequence() {

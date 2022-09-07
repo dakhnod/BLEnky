@@ -58,7 +58,12 @@ uint8_t read_bits_at_index(uint8_t data, uint8_t index) {
     return (data & (0b11000000 >> index)) >> (6 - index); // & 1 at the end to enforce only last bit set
 }
 
-void ble_aio_handle_pin_data(uint8_t *pin_data, uint32_t pin_data_length) {
+void ble_aio_handle_pin_data(
+    uint8_t *pin_data, 
+    uint32_t pin_data_length,
+    uint16_t *pin_analog_data,
+    uint32_t pin_analog_data_length
+    ) {
 
     uint32_t available_output_count = gpio_get_output_digital_pin_count();
     uint32_t sent_output_count = pin_data_length * 4;
@@ -89,13 +94,26 @@ void ble_aio_handle_pin_data(uint8_t *pin_data, uint32_t pin_data_length) {
         }
         gpio_write_output_digital_pin(index, new_state);
     }
+
+
+    uint32_t available_output_analog_count = gpio_get_output_analog_pin_count();
+    uint32_t parsed_output_analog_count = MIN(pin_analog_data_length, available_output_analog_count);
+
+    for(uint32_t index = 0; index < parsed_output_analog_count; index++){
+        uint16_t analog_value = pin_analog_data[index];
+        if(analog_value == 0xffff){
+            NRF_LOG_DEBUG("ignoring analog value %i\n", index);
+            continue;
+        }
+        gpio_write_output_analog_pin_us(index, analog_value);
+    }
 }
 
 void handle_digital_out_write(ble_gatts_evt_write_t *write_evt) {
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
-    ble_aio_handle_pin_data(data, len);
+    ble_aio_handle_pin_data(data, len, NULL, 0);
 }
 
 void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt, uint8_t contains_analog) {
@@ -129,11 +147,13 @@ void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_ev
         return;
     }
 
-    uint16_t value = *((uint16_t) write_evt->data);
+    uint16_t value = *((uint16_t*) write_evt->data);
 
-    NRF_LOG_DEBUG("writing analog value %d\n", value);
+    if(value == 0xffff){
+        NRF_LOG_DEBUG("ignoring analog %i value\n", index);
+    }
 
-    // gpio_write_output_digital_pin(index, value);
+    gpio_write_output_analog_pin_us(index, value);
 }
 
 void ble_aio_authorize_digital_out_sequence() {
@@ -208,7 +228,7 @@ ret_code_t ble_aio_characteristic_digital_output_add() {
 ret_code_t ble_aio_characteristic_analog_output_add(uint32_t index) {
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
-        UUID_DIGITAL_CHARACTERISTIC,
+        UUID_ANALOG_CHARACTERISTIC,
         BLE_UUID_TYPE_BLE,
         "Analog output",
         0x00,
@@ -262,7 +282,7 @@ ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
 ret_code_t ble_aio_characteristic_combined_output_sequence_add() {
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
-        UUID_DIGITAL_CHARACTERISTIC,
+        UUID_COMBINED_SEQUENCE,
         ble_configuration_service_get_custom_uuid_type(),
         "Combined output sequence",
         gpio_get_output_digital_pin_count(),
@@ -521,7 +541,7 @@ ret_code_t ble_aio_init() {
         init_sequence = true;
     }
 
-    if (output_analog_pin_count > 0){
+    if (output_analog_pin_count > 0 || output_digital_pin_count > 0){
         for(uint32_t i = 0; i < output_analog_pin_count; i++){
             err_code = ble_aio_characteristic_analog_output_add(i);
         }

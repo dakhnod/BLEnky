@@ -1,3 +1,5 @@
+#include "stdint.h"
+
 typedef void (*pin_output_analog_handler_t)(uint32_t index, uint32_t pin, uint8_t invert);
 typedef void (*pin_output_digital_handler_t)(uint32_t index, uint32_t pin, uint8_t default_state, uint8_t invert);
 typedef void (*pin_input_digital_handler_t)(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert);

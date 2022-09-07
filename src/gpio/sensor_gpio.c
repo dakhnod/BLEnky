@@ -7,6 +7,7 @@
 #include "app_pwm.h"
 
 uint32_t gpio_output_digital_pin_count = 0;
+uint32_t gpio_output_analog_pin_count = 0;
 uint32_t gpio_input_digital_pin_count = 0;
 
 gpio_config_output_digital_t *gpio_output_configs;
@@ -16,7 +17,6 @@ gpio_input_change_handler_t input_change_handler = NULL;
 
 app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, APP_PWM_NOPIN, APP_PWM_NOPIN);
 APP_PWM_INSTANCE(pwm0, 1);
-uint8_t gpio_pwm_ready = false;
 
 void gpio_write_output_digital_pin(uint32_t index, uint8_t value) {
   gpio_config_output_digital_t *config = gpio_output_configs + index;
@@ -36,6 +36,10 @@ void gpio_set_input_change_handler(gpio_input_change_handler_t handler) {
 
 uint32_t gpio_get_output_digital_pin_count() {
   return gpio_output_digital_pin_count;
+}
+
+uint32_t gpio_get_output_analog_pin_count() {
+  return gpio_output_analog_pin_count;
 }
 
 uint32_t gpio_get_input_digital_pin_count() {
@@ -67,16 +71,16 @@ void gpio_configure_aio_outputs_digital() {
 }
 
 void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value){
-  while (app_pwm_channel_duty_ticks_set(&pwm0, 0, value) == NRF_ERROR_BUSY);
+  while (app_pwm_channel_duty_ticks_set(&pwm0, index, value) == NRF_ERROR_BUSY);
 }
 
-void gpio_write_output_analog_pin_ms(uint32_t index, uint16_t ms){
-  gpio_write_output_analog_pin_ticks(index, ms * 2);
+void gpio_write_output_analog_pin_us(uint32_t index, uint16_t us){
+  gpio_write_output_analog_pin_ticks(index, us * 2);
 }
 
 void gpio_configure_aio_outputs_analog(){
   ret_code_t err_code;
-  err_code = app_pwm_init(&pwm0, &gpio_output_analog_config, gpio_pwm_ready_callback);
+  err_code = app_pwm_init(&pwm0, &gpio_output_analog_config, NULL);
   APP_ERROR_CHECK(err_code);
 
   app_pwm_enable(&pwm0);
@@ -171,12 +175,13 @@ void gpio_handle_parse_output_digital(uint32_t index, uint32_t pin, uint8_t defa
 }
 
 void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t invert) {
+  static uint32_t analog_pin_index = 0;
   if(index >= GPIO_OUTPUT_ANALOG_PIN_LIMIT){
     return;
   }
-  gpio_config_output_analog_t *config = gpio_output_analog_config + index;
-  config->pins[index] = pin;
-  config->polarity = invert ? APP_PWM_POLARITY_ACTIVE_LOW : APP_PWM_POLARITY_ACTIVE_HIGH;
+  gpio_output_analog_config.pins[index] = pin;
+  gpio_output_analog_config.pin_polarity[index] = invert ? APP_PWM_POLARITY_ACTIVE_LOW : APP_PWM_POLARITY_ACTIVE_HIGH;
+  analog_pin_index++;
 }
 
 void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert) {
@@ -185,11 +190,6 @@ void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull,
   config->pull = pull;
   config->invert = invert;
   config->ignore_input = false;
-}
-
-void gpio_pwm_ready_callback(uint32_t pwm_id)    // PWM callback function
-{
-    gpio_pwm_ready = true;
 }
 
 void gpio_init() {
@@ -204,9 +204,9 @@ void gpio_init() {
 
   pin_configuration_init();
 
-  gpio_output_digital_pin_count = get_pin_count_digital_output();
-  gpio_output_analog_pin_count = get_pin_count_analog_output();
-  gpio_input_digital_pin_count = get_pin_count_digital_input();
+  gpio_output_digital_pin_count = get_pin_count_output_digital();
+  gpio_output_analog_pin_count = get_pin_count_output_analog();
+  gpio_input_digital_pin_count = get_pin_count_input_digital();
 
   uint32_t size;
   ret_code_t result;
@@ -233,6 +233,7 @@ void gpio_init() {
 
   pin_configuration_parse(
     gpio_handle_parse_output_digital,
+    gpio_handle_parse_output_analog,
     gpio_handle_parse_input_digital
   );
 

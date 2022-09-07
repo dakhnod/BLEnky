@@ -214,7 +214,7 @@ ret_code_t ble_aio_characteristic_analog_output_add(uint32_t index) {
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_ANALOG_CHARACTERISTIC,
-        ble_configuration_service_get_custom_uuid_type(),
+        BLE_UUID_TYPE_BLE,
         "Analog output",
         0x00,
         (uint8_t)(index + 1),

@@ -25,7 +25,14 @@ xxx1: inverted
 ```
 
 ### Output pins
-The third byte defines the default pin state.
+The second byte decides whether the pin is a digital or an analog (PWM) output.
+
+```
+00xx: digital output
+01xx: analog output
+```
+
+The third byte defines the default pin state for digital output pins.
 ```
 0x0x: LOW after startup
 0x1x: HIGH after startup
@@ -34,10 +41,12 @@ The inversion bit inverts the real output on the pin.
 
 Here are a few examples:
 ```
-0000: pin configured as output, default LOW, not inverted
-0010: pin configured as output, default HIGH, not inverted
-0001: pin configured as output, default LOW, inverted (real output will be HIGH by default due to inversion)
-0011: pin configured as output, default HIGH, inverted (real output will be LOW by default)
+0000: pin configured as digital output, default LOW, not inverted
+0010: pin configured as digital output, default HIGH, not inverted
+0001: pin configured as digital output, default LOW, inverted (real output will be HIGH by default due to inversion)
+0011: pin configured as digital output, default HIGH, inverted (real output will be LOW by default)
+0100: pin configured as analog output, non-inverted output
+0101: pin configured as analog output, inverted output
 ```
 
 ### Input pins

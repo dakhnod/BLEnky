@@ -7,7 +7,7 @@ That allows you to blink leds, play funny patterns, periodically toggle Relays e
 
 If output pins are configured, the Automation IO service exposed a characteristic with the UUID `9c102a56-5cf1-8fa7-1549-01fdc1d171dc`, the digital output characteristic.
 
-### Output sequence protocol
+### Output digital sequence protocol
 
 First, let us establish the concept of `varint`s.
 Varints are used in Google's Protobuf amongst other things and are described pretty well [here](https://developers.google.com/protocol-buffers/docs/encoding#varints).
@@ -52,8 +52,8 @@ To not overcomplicate things, you'll have to believe me that 1000 in decimal is 
 Now, let's assume we have two output pins configured. We want to set them to [HIGH, LOW] and sleep for 1000ms after that. Here's the corresponding packet:
 ```
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 
 Great, we've controlled pins once and slept after.
@@ -61,36 +61,36 @@ Now let's say we want to make the two pins blink, here's the data:
 
 ```
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 This writes the pins twice. We're missing the repeat varint. Let's add it in:
 ```
 0b00000000 // repeat indefinetly
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 Whoa, we want the blinking to end after 10 blinks, though:
 ```
 0b00001010 // 10 repititions, varint-encoded
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 
 Since this fits in 19 bytes (the maximum amount of bytes per write),
@@ -101,12 +101,12 @@ we can can wrap the whole sequence into one packet:
 0b00001010 // 10 repititions, varint-encoded
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 Now we can send this packet (0b000A4FE8071fE807) straight to the sequence characteristic and the chip might start playing it.
 
@@ -115,36 +115,36 @@ Lets look at a bigger payload:
 0b00001010 // 10 repititions, varint-encoded
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b01011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b01011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 We will habe to split this payload up into two packets:
 
@@ -155,40 +155,40 @@ We will habe to split this payload up into two packets:
 0b00001010 // 10 repititions, varint-encoded
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b01011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b01001111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 #2:
 ```
 0b00000001 // sequence number 1, first indicated last packet
 
 0b01011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 
 0b00011111 // pin bytes
-0b11101000 // varint byte 0 (sleep)
-0b00000111 // varint byte 1 (sleep)
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
 ```
 
 The sequence characteristic can be read and subscribed to to obtain information about the playing sequence.
@@ -208,3 +208,41 @@ Reading the characteristic will yeald 9 bytes:
 0b00000000
 ```
 Subscribing to the sequence characteristic will send updates from the sequence playback via notifications with the above described 9-byte format.
+
+
+### Outout combined sequence protocol
+
+If any output pins are configured, the IO service exposes a characteristic with the UUID `9c100056-5cf1-8fa7-1549-01fdc1d171dc`, the so-called combined output sequence cahracteristic.
+
+If only digital outputs are configured, the characteristic accepts the same data and behaves exactly as the digital output sequence characteristic.
+
+If any analog output pins are configured, each sequence packet has to also include values for the analog outputs.
+This gives you the opportunity of controlling digital and analog output pins with the same sequence.
+
+The digital pins are encoded like with the regular output sequence.
+Analog pins are encoded as little-endian uint16 values, just like then writing to the [analog characteristics](AUTOMATION_IO_SERVICE.md#output-analog-pins) directly.
+
+Setting the value to 0xffff leaves the pin untouched, aka preserves its set pwm duty cycle.
+
+So, here is an example of a packet with analog values:
+
+```
+0b01001111 // pin bytes
+0b11011100 // first analog value (1500) first byte
+0b00000101 // first analog value (1500) second byte
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
+```
+
+Here is an example with multiple analogs:
+
+
+```
+0b01001111 // pin bytes
+0b11010000 // first analog value (2000) first byte
+0b00000111 // first analog value (2000) second byte
+0b11111111 // second analog value (0xffff) first byte
+0b11111111 // second analog value (0xffff) second byte
+0b11101000 // delay varint byte 0 (sleep)
+0b00000111 // delay varint byte 1 (sleep)
+```

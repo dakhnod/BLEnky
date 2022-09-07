@@ -1,7 +1,8 @@
 ## TOC
 
-1. [Interfacing with output pins](#output-pins)
-1. [Interfacing with input pins](#input-pins)
+1. [Interfacing with digital output pins](#output-digital-pins)
+2. [Interfacing with analog output pins](#output-analog-pins)
+3. [Interfacing with input pins](#input-pins)
 
 
 ## Pin interface protocol
@@ -16,7 +17,7 @@ If inputs and outputs are configured, there are two characteristics with the UUI
 The one allowing to be written to is the output-endpoint, the other one the input.
 Each characteristic exposes a Descriptor with the UUID `00002909-0000-1000-8000-00805f9b34fb`, exposing the amount of configured pins.
 
-### Output pins
+### Output digital pins
 
 When a pin is configured as an output, here is what the bit combinations mean:
 ```
@@ -52,6 +53,17 @@ If you want to set only one pin instead of all of them, you can send 0b11 as the
 Sending `0b11110011` for instance will only touch the third output and set it to LOW.
 Sending `0b01110000` will set the first pin to HIGH and the third and fourth pin to LOW,
 while leaving the second pin output as it is.
+
+### Output analog pins
+
+For every pin that is configured as an analog output, the IO Service will expose a characteristic with the UUID
+`00002a58-0000-1000-8000-00805f9b34fb`.
+This characteristic accepts a two-byte little-endian unsigned integer representing the output PWM duty cycle.
+The PWM pulse width ranges from 0us to 20000us.
+Due to a PWM frequency of 50HZ an analog output can be used to control a standard servo by writing values
+from 1000us to 2000us, even outside of that if your servo supports that.
+Writing `0xDC05` for instance would set the output to a duty cycle of 1500us, setting a servo to center position.
+The value 0xffff will be ignored.
 
 ### Input pins
 

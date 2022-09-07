@@ -1,7 +1,7 @@
 #include "sequence.h"
 #include "sensor_timer.h"
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 128
 
 uint8_t sequence_buffer[BUFFER_SIZE]; // 127 packets, each 19 bytes
 uint32_t sequence_buffer_write_index = 0;
@@ -128,7 +128,12 @@ uint8_t sequence_read_has_reached_end() {
 
 void sequence_execute_packet(sequence_packet_t *packet) {
     if (sequence_pin_data_handler != NULL) {
-        sequence_pin_data_handler(packet->pin_data, packet->pin_data_length);
+        sequence_pin_data_handler(
+            packet->pin_digital_data, 
+            packet->pin_digital_data_length,
+            packet->pin_analog_data, 
+            packet->pin_analog_data_length
+        );
     }
     timer_sequence_start(packet->delay);
 }
@@ -138,14 +143,14 @@ void sequence_buffer_next_packet() {
     // the buffer copying could perhaps be skipped
     uint8_t pin_data_digital[pin_data_length];
 
-    sequence_read_bytes(pin_data, &pin_data_length);
+    sequence_read_bytes(pin_data_digital, &pin_data_length);
 
     uint16_t analog_data[sequence_pin_analog_data_length * 2];
     uint32_t analog_data_length = 0;
 
     if(sequence_contains_analog){
         analog_data_length = sequence_pin_analog_data_length;
-        sequence_read_bytes((uint8_t*) analog_data, analog_data_length);
+        sequence_read_bytes((uint8_t*) analog_data, &analog_data_length);
     }
 
     uint64_t delay = sequence_read_varint();

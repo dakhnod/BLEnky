@@ -2,9 +2,9 @@
 #include "nrf_log.h"
 #include "storage.h"
 
-uint32_t pin_count_output_digital;
-uint32_t pin_count_output_analog;
-uint32_t pin_count_input_digital;
+uint32_t pin_count_output_digital = 0;
+uint32_t pin_count_output_analog = 0;
+uint32_t pin_count_input_digital = 0;
 
 uint32_t current_output_digital_pin_index;
 uint32_t current_output_analog_pin_index;
@@ -69,13 +69,13 @@ void parse_pin_byte(uint32_t pin_index, uint8_t pin_data) {
   }
   else if (is_input_pin_enabled(pin_data)) {
     pin_configuration_input_digital_handler(
-      current_input_pin_index,
+      current_input_digital_pin_index,
       pin_index,
       get_input_digital_pin_pull(pin_data),
       invert
     );
 
-    current_input_pin_index++;
+    current_input_digital_pin_index++;
   }
 }
 
@@ -98,7 +98,7 @@ void count_up_if_enabled(uint32_t pin_index, uint8_t pin_data) {
       pin_count_output_digital++;
     }
   }else if (is_input_pin_enabled(pin_data)) {
-    pin_count_input++;
+    pin_count_input_digital++;
   }
 }
 
@@ -138,7 +138,7 @@ void pin_configuration_parse(
 
   pin_configuration_output_digital_handler = output_digital_handler;
   pin_configuration_output_analog_handler = output_analog_handler;
-  pin_configuration_input_handler = input_digital_handler;
+  pin_configuration_input_digital_handler = input_digital_handler;
 
   pin_data_for_each_pin(pin_configuration_data, 16, parse_pin_byte);
 }

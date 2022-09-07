@@ -14,7 +14,9 @@ without needing to reflash the chip.
 Furthermore, it gives you the oppurtunity to not only write bits to output pins, but upload whole sequences (also known as animations)
 that can repeat and will be played by the chip, even when nothing is connected to it, as seen in the following gif.
 
-![Running sequence](https://user-images.githubusercontent.com/26143255/188962641-51a0ebce-5ac9-48d3-87b0-ee771796e816.gif)
+![Running sequence](https://user-images.githubusercontent.com/26143255/189000402-cf582116-7096-429b-8a44-aa2442ba5524.gif)
+
+(This sequence loops through pin and servo states without any device actively connected over BLE)
 
 ## Table of contents
 

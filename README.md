@@ -30,7 +30,7 @@ that can repeat and will be played by the chip, even when nothing is connected t
 
 Here are a few things I have planned for the future
 
-- [ ] Add analog (PWM) outputs for servo control
+- [x] Add analog (PWM) outputs for servo control
 - [ ] Add analog inputs to read out voltage(s)
 - [ ] Add debounce settings to allow for quicker button presses
-- [ ] Add selection of common boards to website
+- [x] Add selection of common boards to website

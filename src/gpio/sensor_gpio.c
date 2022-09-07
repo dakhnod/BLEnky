@@ -3,7 +3,6 @@
 #include "mem_manager.h"
 #include "app_timer.h"
 #include "ble_configuration.h"
-#include "nrf_delay.h"
 #include "app_pwm.h"
 
 uint32_t gpio_output_digital_pin_count = 0;

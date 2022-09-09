@@ -30,47 +30,55 @@ uint8_t ble_aio_send_digital_input_updates = false;
 uint8_t ble_aio_send_digital_output_sequence_updates = false;
 uint32_t ble_aio_output_analog_pin_count;
 
-void ble_aio_on_connect(ble_evt_t *p_ble_evt) {
+void ble_aio_on_connect(ble_evt_t *p_ble_evt)
+{
     ble_aio_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_aio_on_disconnect(ble_evt_t *p_ble_evt) {
+void ble_aio_on_disconnect(ble_evt_t *p_ble_evt)
+{
     UNUSED_PARAMETER(p_ble_evt);
     ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
     ble_aio_send_digital_input_updates = false;
     ble_aio_send_digital_output_sequence_updates = false;
 }
 
-void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt) {
-    if (write_evt->len == 2) {
+void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt)
+{
+    if (write_evt->len == 2)
+    {
         ble_aio_send_digital_input_updates = ble_srv_is_notification_enabled(write_evt->data);
     }
 }
 
-void handle_digital_out_sequence_cccd_write(ble_gatts_evt_write_t *write_evt) {
-    if (write_evt->len == 2) {
+void handle_digital_out_sequence_cccd_write(ble_gatts_evt_write_t *write_evt)
+{
+    if (write_evt->len == 2)
+    {
         ble_aio_send_digital_output_sequence_updates = ble_srv_is_notification_enabled(write_evt->data);
     }
 }
 
 // return bit and following bit at index
-uint8_t read_bits_at_index(uint8_t data, uint8_t index) {
+uint8_t read_bits_at_index(uint8_t data, uint8_t index)
+{
     return (data & (0b11000000 >> index)) >> (6 - index); // & 1 at the end to enforce only last bit set
 }
 
 void ble_aio_handle_pin_data(
-    uint8_t *pin_data, 
+    uint8_t *pin_data,
     uint32_t pin_data_length,
     uint16_t *pin_analog_data,
-    uint32_t pin_analog_data_length
-    ) {
+    uint32_t pin_analog_data_length)
+{
 
     uint32_t available_output_count = gpio_get_output_digital_pin_count();
     uint32_t sent_output_count = pin_data_length * 4;
 
     uint32_t parsed_output_count = MIN(available_output_count, sent_output_count);
 
-    for (int index = 0; index < parsed_output_count; index++) {
+    for (int index = 0; index < parsed_output_count; index++)
+    {
         uint32_t bit_index_full = index * 2;
 
         uint32_t byte_index = bit_index_full / 8;
@@ -80,28 +88,32 @@ void ble_aio_handle_pin_data(
 
         uint8_t output_bits = read_bits_at_index(current_byte, bit_index);
 
-        if (output_bits == 0b11) {
+        if (output_bits == 0b11)
+        {
             // don't touch state, 0b11 meand ignore
             continue;
         }
-        if (output_bits == 0b10) {
+        if (output_bits == 0b10)
+        {
             // tri-state not supported
             continue;
         }
         uint8_t new_state = (output_bits == 0b01);
-        if (new_state == gpio_get_output_digital_state(index)) {
+        if (new_state == gpio_get_output_digital_state(index))
+        {
             continue;
         }
         gpio_write_output_digital_pin(index, new_state);
     }
 
-
     uint32_t available_output_analog_count = gpio_get_output_analog_pin_count();
     uint32_t parsed_output_analog_count = MIN(pin_analog_data_length, available_output_analog_count);
 
-    for(uint32_t index = 0; index < parsed_output_analog_count; index++){
+    for (uint32_t index = 0; index < parsed_output_analog_count; index++)
+    {
         uint16_t analog_value = pin_analog_data[index];
-        if(analog_value == 0xffff){
+        if (analog_value == 0xffff)
+        {
             NRF_LOG_DEBUG("ignoring analog value %i\n", index);
             continue;
         }
@@ -109,54 +121,69 @@ void ble_aio_handle_pin_data(
     }
 }
 
-void handle_digital_out_write(ble_gatts_evt_write_t *write_evt) {
+void handle_digital_out_write(ble_gatts_evt_write_t *write_evt)
+{
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
     ble_aio_handle_pin_data(data, len, NULL, 0);
 }
 
-void handle_digital_out_sequence_write(ble_gatts_evt_write_t *write_evt, uint8_t contains_analog) {
-    uint8_t *data = write_evt->data;
-    uint32_t len = write_evt->len;
+uint8_t handle_digital_out_sequence_write_data(uint8_t *data, uint32_t length, uint8_t contains_analog)
+{
+    static uint8_t is_overflown = false;
 
-    if (len < 3) {
+    if (length < 3)
+    {
         sequence_stop(true);
-        return;
+        return is_overflown;
     }
 
-    uint8_t result = sequence_push_packet(data, len);
-    if (result == PUSH_SUCCESS) {
-        return;
+    uint8_t result = sequence_push_packet(data, length);
+    if (result == PUSH_OVERFLOW)
+    {
+        is_overflown = true;
+        return is_overflown;
     }
-    if (result == PUSH_OVERFLOW) {
-        return;
+    if (result == PUSH_FIRST_PACKET)
+    {
+        is_overflown = false;
+        NRF_LOG_DEBUG("first packet\n");
+        return is_overflown;
     }
-    if (result == PUSH_MISSED_PACKET) {
-        return;
-    }
-    if (result == PUSH_FINAL_PACKET) {
+    if (result == PUSH_FINAL_PACKET)
+    {
+        if (is_overflown)
+        {
+            NRF_LOG_ERROR("not starting sequence due to overflow\n");
+            return is_overflown;
+        }
+        NRF_LOG_DEBUG("last packet\n");
         sequence_start(contains_analog);
-        return;
     }
+    return is_overflown;
 }
 
-void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_evt){
-    if(write_evt->len != 2){
+void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_evt)
+{
+    if (write_evt->len != 2)
+    {
         NRF_LOG_ERROR("wrong analog value\n");
         return;
     }
 
-    uint16_t value = *((uint16_t*) write_evt->data);
+    uint16_t value = *((uint16_t *)write_evt->data);
 
-    if(value == 0xffff){
+    if (value == 0xffff)
+    {
         NRF_LOG_DEBUG("ignoring analog %i value\n", index);
     }
 
     gpio_write_output_analog_pin_us(index, value);
 }
 
-void ble_aio_authorize_digital_out_sequence() {
+void ble_aio_authorize_digital_out_sequence()
+{
     uint8_t data[9];
 
     data[0] = sequence_is_running();
@@ -170,16 +197,15 @@ void ble_aio_authorize_digital_out_sequence() {
             .update = 1,
             .offset = 0,
             .len = 9,
-            .p_data = data
-        }
-    };
+            .p_data = data}};
 
     sd_ble_gatts_rw_authorize_reply(
         ble_aio_connection_handle,
         &authorize_params);
 }
 
-void ble_aio_authorize_digital_out() {
+void ble_aio_authorize_digital_out()
+{
     uint32_t output_count = gpio_get_output_digital_pin_count();
     uint32_t data_length = ble_aio_get_byte_count_from_pins(output_count);
 
@@ -197,17 +223,15 @@ void ble_aio_authorize_digital_out() {
             .update = 1,
             .offset = 0,
             .len = data_length,
-            .p_data = data
-            }
-    };
+            .p_data = data}};
 
     sd_ble_gatts_rw_authorize_reply(
         ble_aio_connection_handle,
-        &authorize_params
-    );
+        &authorize_params);
 }
 
-ret_code_t ble_aio_characteristic_digital_output_add() {
+ret_code_t ble_aio_characteristic_digital_output_add()
+{
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_DIGITAL_CHARACTERISTIC,
@@ -225,7 +249,8 @@ ret_code_t ble_aio_characteristic_digital_output_add() {
         &ble_aio_digital_out_cccd_handle);
 }
 
-ret_code_t ble_aio_characteristic_analog_output_add(uint32_t index) {
+ret_code_t ble_aio_characteristic_analog_output_add(uint32_t index)
+{
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_ANALOG_CHARACTERISTIC,
@@ -243,7 +268,8 @@ ret_code_t ble_aio_characteristic_analog_output_add(uint32_t index) {
         &ble_aio_digital_out_cccd_handle);
 }
 
-ret_code_t ble_aio_characteristic_digital_input_add() {
+ret_code_t ble_aio_characteristic_digital_input_add()
+{
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_DIGITAL_CHARACTERISTIC,
@@ -261,7 +287,8 @@ ret_code_t ble_aio_characteristic_digital_input_add() {
         &ble_aio_digital_in_cccd_handle);
 }
 
-ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
+ret_code_t ble_aio_characteristic_digital_output_sequence_add()
+{
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_DIGITAL_CHARACTERISTIC,
@@ -279,7 +306,8 @@ ret_code_t ble_aio_characteristic_digital_output_sequence_add() {
         &ble_aio_digital_sequence_cccd_handle);
 }
 
-ret_code_t ble_aio_characteristic_combined_output_sequence_add() {
+ret_code_t ble_aio_characteristic_combined_output_sequence_add()
+{
     return ble_helper_characteristic_digital_add(
         ble_aio_service_handle,
         UUID_COMBINED_SEQUENCE,
@@ -291,50 +319,49 @@ ret_code_t ble_aio_characteristic_combined_output_sequence_add() {
         false,
         false,
         false,
-        false,
+        true,
         20,
         &ble_aio_combined_sequence_handle,
         NULL);
 }
 
-void ble_aio_on_write(ble_evt_t *p_ble_evt) {
+void ble_aio_on_write(ble_evt_t *p_ble_evt)
+{
     ble_gatts_evt_write_t *write_evt = &p_ble_evt
-        ->evt
-        .gatts_evt
-        .params
-        .write;
+                                            ->evt
+                                            .gatts_evt
+                                            .params
+                                            .write;
 
     uint16_t handle = write_evt->handle;
 
-    if (handle == ble_aio_digital_out_write_handle) {
+    if (handle == ble_aio_digital_out_write_handle)
+    {
         handle_digital_out_write(write_evt);
         return;
     }
-    if (handle == ble_aio_digital_sequence_handle) {
-        handle_digital_out_sequence_write(write_evt, false);
-        return;
-    }
-    if (handle == ble_aio_combined_sequence_handle) {
-        handle_digital_out_sequence_write(write_evt, true);
-        return;
-    }
-    if (handle == ble_aio_digital_sequence_cccd_handle) {
+    if (handle == ble_aio_digital_sequence_cccd_handle)
+    {
         handle_digital_out_sequence_cccd_write(write_evt);
         return;
     }
-    if (handle == ble_aio_digital_in_cccd_handle) {
+    if (handle == ble_aio_digital_in_cccd_handle)
+    {
         handle_pin_digital_in_cccd_write(write_evt);
         return;
     }
-    for(uint32_t i = 0; i < ble_aio_output_analog_pin_count; i++){
-        if(handle == ble_aio_analog_out_write_handles[i]){
+    for (uint32_t i = 0; i < ble_aio_output_analog_pin_count; i++)
+    {
+        if (handle == ble_aio_analog_out_write_handles[i])
+        {
             handle_pin_analog_out_write(i, write_evt);
             return;
         }
     }
 }
 
-void ble_aio_authorize_digital_in() {
+void ble_aio_authorize_digital_in()
+{
     uint32_t input_count = gpio_get_input_digital_pin_count();
     uint32_t data_length = ble_aio_get_byte_count_from_pins(input_count);
 
@@ -352,17 +379,17 @@ void ble_aio_authorize_digital_in() {
             .update = 1,
             .offset = 0,
             .len = data_length,
-            .p_data = data
-        }
-    };
+            .p_data = data}};
 
     sd_ble_gatts_rw_authorize_reply(
         ble_aio_connection_handle,
         &authorize_params);
 }
 
-void ble_aio_update_digital_in_states() {
-    if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates)) {
+void ble_aio_update_digital_in_states()
+{
+    if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates))
+    {
         return;
     }
 
@@ -385,36 +412,40 @@ void ble_aio_update_digital_in_states() {
         .type = BLE_GATT_HVX_NOTIFICATION,
         .offset = 0,
         .p_len = &len,
-        .p_data = data
-    };
+        .p_data = data};
 
     err_code = sd_ble_gatts_hvx(
         ble_aio_connection_handle,
-        &params
-    );
+        &params);
     APP_ERROR_CHECK(err_code);
 }
 
-uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count) {
+uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count)
+{
     return CEIL_DIV(pin_count, 4);
 }
 
-void write_bit(uint8_t *byte, uint32_t position, uint8_t value) {
+void write_bit(uint8_t *byte, uint32_t position, uint8_t value)
+{
     uint8_t shifted = 0b10000000 >> position;
-    if (value) {
+    if (value)
+    {
         (*byte) |= shifted;
     }
-    else {
+    else
+    {
         (*byte) &= ~shifted;
     }
 }
 
-void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer) {
+void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer)
+{
     uint32_t byte_index = 0;
     uint32_t bit_index = 0;
     uint8_t *current_byte = 0;
 
-    for (uint32_t i = 0; i < state_count; i++) {
+    for (uint32_t i = 0; i < state_count; i++)
+    {
         byte_index = i / 4;
         bit_index = (i % 4) * 2;
 
@@ -425,72 +456,127 @@ void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buff
         write_bit(current_byte, bit_index + 0, 0);
     }
 
-    for (uint32_t i = bit_index + 2; i < 8; i++) {
+    for (uint32_t i = bit_index + 2; i < 8; i++)
+    {
         write_bit(current_byte, i, 1);
     }
 }
 
-void ble_aio_on_authorize(ble_evt_t *p_ble_evt) {
-    ble_gatts_evt_rw_authorize_request_t req = p_ble_evt
-        ->evt.gatts_evt
-        .params
-        .authorize_request;
-    uint16_t handle = req
-        .request
-        .read
-        .handle;
+void ble_aio_authorize_sequence_write(ble_gatts_evt_write_t *write_req, uint8_t contains_analog)
+{
+    uint16_t status = BLE_GATT_STATUS_SUCCESS;
 
-    if (req.type == BLE_GATTS_AUTHORIZE_TYPE_READ) {
-        if (handle == ble_aio_digital_out_write_handle) {
+    ble_gatts_rw_authorize_reply_params_t authorize_params = {
+        .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+        .params.write = {
+            .update = 1,
+            .offset = 0,
+            .len = write_req->len,
+            .p_data = write_req->data}};
+
+    if(handle_digital_out_sequence_write_data(write_req->data, write_req->len, contains_analog)){
+        status = BLE_GATT_STATUS_ATTERR_INVALID_ATT_VAL_LENGTH;
+    }
+
+    authorize_params.params.write.gatt_status = status;
+
+    sd_ble_gatts_rw_authorize_reply(
+        ble_aio_connection_handle,
+        &authorize_params);
+}
+
+void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
+{
+    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+                                                      ->evt.gatts_evt
+                                                      .params
+                                                      .authorize_request);
+
+    if (req->type == BLE_GATTS_AUTHORIZE_TYPE_READ)
+    {
+
+        uint16_t handle = req
+                              ->request
+                              .read
+                              .handle;
+
+        if (handle == ble_aio_digital_out_write_handle)
+        {
             ble_aio_authorize_digital_out();
             return;
         }
-        if (handle == ble_aio_digital_in_write_handle) {
+        if (handle == ble_aio_digital_in_write_handle)
+        {
             ble_aio_authorize_digital_in();
             return;
         }
-        if (handle == ble_aio_digital_sequence_handle) {
+        if (handle == ble_aio_digital_sequence_handle)
+        {
             ble_aio_authorize_digital_out_sequence();
+            return;
+        }
+        return;
+    }
+    else if (req->type == BLE_GATTS_AUTHORIZE_TYPE_WRITE)
+    {
+        uint16_t handle = req
+                              ->request
+                              .write
+                              .handle;
+
+        if (handle == ble_aio_digital_sequence_handle)
+        {
+            ble_aio_authorize_sequence_write(&(req->request.write), false);
+            return;
+        }
+        if (handle == ble_aio_combined_sequence_handle)
+        {
+            ble_aio_authorize_sequence_write(&(req->request.write), true);
             return;
         }
         return;
     }
 }
 
-void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt) {
-    switch (p_ble_evt->header.evt_id) {
-        case BLE_GAP_EVT_CONNECTED:
-            ble_aio_on_connect(p_ble_evt);
-            break;
+void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
+{
+    switch (p_ble_evt->header.evt_id)
+    {
+    case BLE_GAP_EVT_CONNECTED:
+        ble_aio_on_connect(p_ble_evt);
+        break;
 
-        case BLE_GAP_EVT_DISCONNECTED:
-            ble_aio_on_disconnect(p_ble_evt);
-            break;
+    case BLE_GAP_EVT_DISCONNECTED:
+        ble_aio_on_disconnect(p_ble_evt);
+        break;
 
-        case BLE_GATTS_EVT_WRITE:
-            ble_aio_on_write(p_ble_evt);
-            break;
+    case BLE_GATTS_EVT_WRITE:
+        ble_aio_on_write(p_ble_evt);
+        break;
 
-        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-            ble_aio_on_authorize(p_ble_evt);
-            break;
+    case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+        ble_aio_on_authorize(p_ble_evt);
+        break;
 
-        default:
-            // No implementation needed.
-            break;
+    default:
+        // No implementation needed.
+        break;
     }
 }
 
-void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config) {
+void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+{
     NRF_LOG_DEBUG("ble pin %d changed to %d\n", index, config->state);
     ble_aio_update_digital_in_states();
 
-    if (index == 0) {
+    if (index == 0)
+    {
         ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
     }
 }
 
-void ble_aio_handle_sequence_progress_update(uint8_t is_running, uint32_t packet_index, uint32_t repetitions_remaining) {
+void ble_aio_handle_sequence_progress_update(uint8_t is_running, uint32_t packet_index, uint32_t repetitions_remaining)
+{
     uint16_t length = 9;
     uint8_t data[length];
 
@@ -498,23 +584,23 @@ void ble_aio_handle_sequence_progress_update(uint8_t is_running, uint32_t packet
     *((uint32_t *)(data + 1)) = packet_index;
     *((uint32_t *)(data + 5)) = repetitions_remaining;
 
-    if (ble_aio_connection_handle != BLE_CONN_HANDLE_INVALID && ble_aio_send_digital_output_sequence_updates) {
+    if (ble_aio_connection_handle != BLE_CONN_HANDLE_INVALID && ble_aio_send_digital_output_sequence_updates)
+    {
         ble_gatts_hvx_params_t params = {
             .handle = ble_aio_digital_sequence_handle,
             .type = BLE_GATT_HVX_NOTIFICATION,
             .offset = 0,
             .p_len = &length,
-            .p_data = data
-        };
+            .p_data = data};
 
         sd_ble_gatts_hvx(
             ble_aio_connection_handle,
-            &params
-        );
+            &params);
     }
 }
 
-ret_code_t ble_aio_init() {
+ret_code_t ble_aio_init()
+{
     ret_code_t err_code;
     ble_uuid_t ble_uuid;
 
@@ -531,7 +617,8 @@ ret_code_t ble_aio_init() {
 
     uint8_t init_sequence = false;
 
-    if (output_digital_pin_count > 0) {
+    if (output_digital_pin_count > 0)
+    {
         err_code = ble_aio_characteristic_digital_output_add();
         APP_ERROR_CHECK(err_code);
 
@@ -541,8 +628,10 @@ ret_code_t ble_aio_init() {
         init_sequence = true;
     }
 
-    if (output_analog_pin_count > 0 || output_digital_pin_count > 0){
-        for(uint32_t i = 0; i < output_analog_pin_count; i++){
+    if (output_analog_pin_count > 0 || output_digital_pin_count > 0)
+    {
+        for (uint32_t i = 0; i < output_analog_pin_count; i++)
+        {
             err_code = ble_aio_characteristic_analog_output_add(i);
         }
 
@@ -552,16 +641,17 @@ ret_code_t ble_aio_init() {
         init_sequence = true;
     }
 
-    if(init_sequence){
+    if (init_sequence)
+    {
         sequence_init(
             ble_aio_get_byte_count_from_pins(output_digital_pin_count),
             output_analog_pin_count,
             ble_aio_handle_pin_data,
-            ble_aio_handle_sequence_progress_update
-        );
+            ble_aio_handle_sequence_progress_update);
     }
 
-    if (input_digital_pin_count > 0) {
+    if (input_digital_pin_count > 0)
+    {
         err_code = ble_aio_characteristic_digital_input_add();
         APP_ERROR_CHECK(err_code);
 
@@ -570,7 +660,8 @@ ret_code_t ble_aio_init() {
 
     gpio_set_input_change_handler(ble_aio_handle_input_change);
 
-    if (input_digital_pin_count > 0) {
+    if (input_digital_pin_count > 0)
+    {
         err_code = ble_bss_init();
         APP_ERROR_CHECK(err_code);
     }

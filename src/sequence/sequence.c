@@ -1,7 +1,7 @@
 #include "sequence.h"
 #include "sensor_timer.h"
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 150
 
 uint8_t sequence_buffer[BUFFER_SIZE]; // 127 packets, each 19 bytes
 uint32_t sequence_buffer_write_index = 0;
@@ -55,11 +55,15 @@ SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length)
 
     NRF_LOG_DEBUG("packet seq %d\n", sequence_number);
 
+    SEQUENCE_PACKET_PUSH_RESULT result = PUSH_SUCCESS;
+
     if (sequence_number == 0) {
         sequence_stop(false);
         sequence_reset();
         sequence_current_write_seq_num = 0;
         sequence_buffer_write_index = 0;
+
+        result = PUSH_FIRST_PACKET;
     }
     else if (sequence_number != (sequence_current_write_seq_num + 1)) {
         return PUSH_MISSED_PACKET;
@@ -69,7 +73,7 @@ SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length)
     uint32_t payload_length = length - 1;
     uint8_t *payload = data + 1;
 
-    if ((sequence_buffer_write_index + payload_length) >= BUFFER_SIZE) {
+    if ((sequence_buffer_write_index + payload_length) > BUFFER_SIZE) {
         return PUSH_OVERFLOW;
     }
 
@@ -83,7 +87,7 @@ SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length)
         return PUSH_FINAL_PACKET;
     }
 
-    return PUSH_SUCCESS;
+    return result;
 }
 
 uint8_t sequence_is_running() {

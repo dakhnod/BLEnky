@@ -1,5 +1,3 @@
-https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge/releases/latest
-
 # Flashing
 
 ## Flashing via bootloader

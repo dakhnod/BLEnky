@@ -7,16 +7,16 @@ Here are the available instructions:
 
 | command | arguments | meaning |
 | ------- | --------- | ------- |
-| `0b00000000` | digital bits | [write digital outputs](#write-digital-output) |
+| `0b00000000` | [digital bits](#digital-bits) | [write digital outputs](#write-digital-output) |
 | `0b00010000` | uint16_t | [write first analog channel](#write-analog-outputs) |
 | `0b00010001` | uint16_t | [write second analog channel](#write-analog-outputs) |
 | `0b00010010` | uint16_t | [write third analog channel](#write-analog-outputs) |
 | `0b00010011` | uint16_t | [write fourth analog channel](#write-analog-outputs) |
-| `0b00100000` | varint | [sleep for n milliseconds](#sleep-for-n-milliseconds) |
-| `0b00100001` | digital bits | [sleep until inputs match](#sleep-until-inputs-match) |
+| `0b00100000` | [varint](#varint) | [sleep for n milliseconds](#sleep-for-n-milliseconds) |
+| `0b00100001` | [digital bits](#digital-bits) | [sleep until inputs match](#sleep-until-inputs-match) |
 | `0b01000000` | uint16_t | [jump to code location](#jump-to-code-location) |
-| `0b01000001` | uint16_t, digital bits | [jump to location if pins match](#jump-to-location-if-pins-match) |
-| `0b01000010` | varint | [perform jump max. n times](#perform-jump-max-n-times)
+| `0b01000001` | uint16_t, [digital bits](#digital-bits) | [jump to location if pins match](#jump-to-location-if-pins-match) |
+| `0b01000010` | [varint](#varint) | [perform jump max. n times](#perform-jump-max-n-times)
 | `0b10000000` | | [stop script execution](#stop-script-execution)
 
 ## Datatypes

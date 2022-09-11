@@ -2,7 +2,7 @@
 
 ![Running sequence](https://user-images.githubusercontent.com/26143255/189000402-cf582116-7096-429b-8a44-aa2442ba5524.gif)
 
-This project provides a firmware for cheap, nRF51-based IO-modules to control LEDs, relays, motors (and more) and read from buttons, sensors (etc.) via Bluetooth low energy.
+This project provides a firmware for cheap, nRF51-based IO-modules to control LEDs, relays, servos, motors (and more) and read from buttons, sensors (etc.) via Bluetooth low energy.
 An IO module can have inputs and outputs that can be read from and written to.
 
 To summarize, this is basically like Tasmota for the nRF51, that can be powered from a coin cell for a long time.

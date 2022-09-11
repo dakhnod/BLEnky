@@ -2,7 +2,7 @@
 #include "sensor_timer.h"
 #include "instructions.h"
 
-#define BUFFER_SIZE 150
+#define BUFFER_SIZE 50
 
 uint8_t sequence_buffer[BUFFER_SIZE]; // 127 packets, each 19 bytes
 uint32_t sequence_buffer_write_index = 0;

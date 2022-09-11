@@ -1,5 +1,6 @@
 #include "sequence.h"
 #include "sensor_timer.h"
+#include "instructions.h"
 
 #define BUFFER_SIZE 150
 
@@ -8,33 +9,19 @@ uint32_t sequence_buffer_write_index = 0;
 uint8_t sequence_current_write_seq_num = 0;
 
 uint32_t sequence_buffer_read_index = 0;
-uint32_t sequence_buffer_start_index;
-
-uint8_t repeat_indefinetly;
-uint64_t sequence_repeat_count;
 
 uint32_t sequence_pin_digital_data_length;
 uint32_t sequence_pin_analog_data_length;
-uint8_t sequence_contains_analog = false;
 
-pin_data_handler_t sequence_pin_data_handler;
+pin_digital_data_handler_t sequence_pin_digital_data_handler;
+pin_analog_data_handler_t sequence_pin_analog_data_handler;
 sequence_progress_update_handler_t sequence_progress_update_handler;
 
 uint8_t sequence_is_running_ = false;
 uint32_t sequence_packet_index = 0;
 
-typedef struct {
-    uint8_t *pin_digital_data;
-    uint32_t pin_digital_data_length;
-
-    uint16_t *pin_analog_data;
-    uint32_t pin_analog_data_length;
-
-    uint64_t delay;
-} sequence_packet_t;
-
 void handle_sequence_update() {
-    sequence_progress_update_handler(sequence_is_running_, sequence_packet_index, sequence_repeat_count);
+    sequence_progress_update_handler(sequence_is_running_, sequence_packet_index, 0);
 }
 
 void sequence_stop(uint8_t should_notify) {
@@ -46,7 +33,7 @@ void sequence_stop(uint8_t should_notify) {
 }
 
 void sequence_reset() {
-    sequence_buffer_read_index = sequence_buffer_start_index;
+    sequence_buffer_read_index = 0;
     sequence_packet_index = 0;
 }
 
@@ -98,10 +85,6 @@ uint32_t sequence_get_packet_index() {
     return sequence_packet_index;
 }
 
-uint32_t sequence_get_repeat_count() {
-    return sequence_repeat_count;
-}
-
 uint64_t sequence_read_varint() {
     uint64_t current = 0;
     for (uint32_t i = 0; i < 8; i++) {
@@ -116,79 +99,117 @@ uint64_t sequence_read_varint() {
     return 0;
 }
 
-void sequence_read_bytes(uint8_t *buffer, uint32_t *length) {
+uint16_t sequence_read_uint16_t() {
+    uint16_t result = *(uint16_t*)(sequence_buffer + sequence_buffer_read_index);
+
+    sequence_buffer_read_index += 2;
+
+    return result;
+}
+
+uint8_t sequence_read_instruction(){
+    return sequence_buffer[sequence_buffer_read_index++];
+}
+
+void sequence_read_bytes(uint8_t **buffer, uint32_t *length) {
     uint32_t bytes_available = sequence_buffer_write_index - sequence_buffer_read_index;
+
     *length = MIN(bytes_available, *length);
 
-    for (uint32_t i = 0; i < *length; i++) {
-        buffer[i] = sequence_buffer[sequence_buffer_read_index];
-        sequence_buffer_read_index++;
-    }
+    *buffer = sequence_buffer + sequence_buffer_read_index;
+    sequence_buffer_read_index += bytes_available;
 }
 
 uint8_t sequence_read_has_reached_end() {
     return sequence_buffer_read_index >= sequence_buffer_write_index;
 }
 
-void sequence_execute_packet(sequence_packet_t *packet) {
-    if (sequence_pin_data_handler != NULL) {
-        sequence_pin_data_handler(
-            packet->pin_digital_data, 
-            packet->pin_digital_data_length,
-            packet->pin_analog_data, 
-            packet->pin_analog_data_length
-        );
+void sequence_execute_instruction_write_digital_outputs(){
+    uint32_t pin_data_length = sequence_pin_digital_data_length;
+    uint8_t *pin_data_digital;
+
+    NRF_LOG_DEBUG("instruction write digital\n");
+
+    sequence_read_bytes(&pin_data_digital, &pin_data_length);
+
+    sequence_pin_digital_data_handler(pin_data_digital, pin_data_length);
+}
+
+void sequence_execute_instruction_write_analog_output(uint32_t channel){
+    uint16_t duty_cycle = sequence_read_uint16_t();
+
+    NRF_LOG_DEBUG("instruction analog channel %i %i\n", channel, duty_cycle);
+
+    sequence_pin_analog_data_handler(channel, duty_cycle);
+}
+
+void sequence_execute_instruction_sleep_ms(){
+    uint64_t delay = sequence_read_varint();
+    NRF_LOG_DEBUG("instruction sleep: %i\n", delay);
+    timer_sequence_start(delay);
+}
+
+void sequence_execute_instruction_jump_unconditionally(){
+    uint16_t target = sequence_read_uint16_t();
+    target = MIN(target, sequence_buffer_write_index);
+
+    NRF_LOG_DEBUG("instruction jump to %i\n", target);
+
+    sequence_buffer_read_index = target;
+}
+
+void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
+    *should_run_next = true;
+    switch(instruction){
+        case INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS:
+            sequence_execute_instruction_write_digital_outputs();
+            break;
+        case INSTRUCTION_SLEEP_MS:
+            sequence_execute_instruction_sleep_ms();
+            *should_run_next = false;
+            break;
+        case INSTRUCTION_SLEEP_MATCH_INPUTS:
+            // handler function needs to decide whether we continue with next instruction
+            *should_run_next = false;
+            break;
+        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_0:
+        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_1:
+        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_2:
+        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_3:
+            sequence_execute_instruction_write_analog_output(instruction & 0b00001111);
+            break;
+        case INSTRUCTION_JUMP_UNCONDITIONALLY:
+            sequence_execute_instruction_jump_unconditionally();
+            break;
+        case INSTRUCTION_JUMP_MATCH_PINS:
+            break;
+        case INSTRCUTION_JUMP_N_TIMES:
+            break;
+        case INSTRUCTION_STOP_EXECUTION:
+            NRF_LOG_DEBUG("stopping execution\n");
+            *should_run_next = false;
+            break;
+        default:
+            NRF_LOG_DEBUG("instruction %x unknown\n", instruction);
+            break;
     }
-    timer_sequence_start(packet->delay);
 }
 
 void sequence_buffer_next_packet() {
-    uint32_t pin_data_length = sequence_pin_digital_data_length;
-    // the buffer copying could perhaps be skipped
-    uint8_t pin_data_digital[pin_data_length];
-
-    sequence_read_bytes(pin_data_digital, &pin_data_length);
-
-    uint16_t analog_data[sequence_pin_analog_data_length * 2];
-    uint32_t analog_data_length = 0;
-
-    if(sequence_contains_analog){
-        analog_data_length = sequence_pin_analog_data_length;
-        uint32_t sequence_analog_data_byte_length = analog_data_length * 2;
-        sequence_read_bytes((uint8_t*) analog_data, &sequence_analog_data_byte_length);
-    }
-
-    uint64_t delay = sequence_read_varint();
-
-    sequence_packet_t next_packet = {
-        .pin_digital_data = pin_data_digital,
-        .pin_digital_data_length = pin_data_length,
-        .pin_analog_data = analog_data,
-        .pin_analog_data_length = analog_data_length,
-        .delay = delay
-    };
-
-    sequence_execute_packet(&next_packet);
+    bool should_run_next;
+    do{
+        uint8_t instruction = sequence_read_instruction();
+        sequence_execute_instruction(instruction, &should_run_next);
+    }while(should_run_next);
 }
 
 void sequence_step() {
     sequence_buffer_next_packet();
-
-    handle_sequence_update();
-    sequence_packet_index++;
 }
 
 void sequence_timer_timeout_handler() {
     if (sequence_read_has_reached_end()) {
-        if (!repeat_indefinetly) {
-            sequence_repeat_count--;
-            if (sequence_repeat_count == 0) {
-                sequence_is_running_ = false;
-                handle_sequence_update();
-                return;
-            }
-        }
-        sequence_reset();
+        return;
     }
     sequence_step();
 }
@@ -197,12 +218,6 @@ void sequence_start(uint8_t contains_analog) {
     NRF_LOG_DEBUG("starting seuqnece (contains analog: %i)\n", contains_analog);
 
     sequence_reset();
-    sequence_buffer_read_index = 0;
-    sequence_repeat_count = sequence_read_varint();
-    repeat_indefinetly = (sequence_repeat_count == 0);
-    sequence_contains_analog = contains_analog;
-
-    sequence_buffer_start_index = sequence_buffer_read_index;
 
     sequence_is_running_ = true;
 
@@ -212,12 +227,14 @@ void sequence_start(uint8_t contains_analog) {
 void sequence_init(
     uint32_t pin_data_digital_length,
     uint32_t pin_data_analog_length,
-    pin_data_handler_t pin_data_handler,
+    pin_digital_data_handler_t pin_digital_data_handler,
+    pin_analog_data_handler_t pin_analog_data_handler,
     sequence_progress_update_handler_t progress_update_handler
 ) {
     sequence_pin_digital_data_length = pin_data_digital_length;
     sequence_pin_analog_data_length = pin_data_analog_length;
     timer_sequence_set_timeout_handler(sequence_timer_timeout_handler);
-    sequence_pin_data_handler = pin_data_handler;
+    sequence_pin_digital_data_handler = pin_digital_data_handler;
+    sequence_pin_analog_data_handler = pin_analog_data_handler;
     sequence_progress_update_handler = progress_update_handler;
 }

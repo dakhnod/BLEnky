@@ -65,11 +65,9 @@ uint8_t read_bits_at_index(uint8_t data, uint8_t index)
     return (data & (0b11000000 >> index)) >> (6 - index); // & 1 at the end to enforce only last bit set
 }
 
-void ble_aio_handle_pin_data(
+void ble_aio_handle_pin_digital_data(
     uint8_t *pin_data,
-    uint32_t pin_data_length,
-    uint16_t *pin_analog_data,
-    uint32_t pin_analog_data_length)
+    uint32_t pin_data_length)
 {
 
     uint32_t available_output_count = gpio_get_output_digital_pin_count();
@@ -105,20 +103,22 @@ void ble_aio_handle_pin_data(
         }
         gpio_write_output_digital_pin(index, new_state);
     }
+}
 
-    uint32_t available_output_analog_count = gpio_get_output_analog_pin_count();
-    uint32_t parsed_output_analog_count = MIN(pin_analog_data_length, available_output_analog_count);
 
-    for (uint32_t index = 0; index < parsed_output_analog_count; index++)
-    {
-        uint16_t analog_value = pin_analog_data[index];
-        if (analog_value == 0xffff)
-        {
-            NRF_LOG_DEBUG("ignoring analog value %i\n", index);
-            continue;
-        }
-        gpio_write_output_analog_pin_us(index, analog_value);
+void ble_aio_handle_pin_analog_data(
+    uint32_t index,
+    uint16_t duty_cycle
+    )
+{
+    if(duty_cycle == 0xffff){
+        return;
     }
+    if(index > gpio_get_output_analog_pin_count()){
+        NRF_LOG_ERROR("writing to unconfigured analog channel %i\n", index);
+        return;
+    }
+    gpio_write_output_analog_pin_us(index, duty_cycle);
 }
 
 void handle_digital_out_write(ble_gatts_evt_write_t *write_evt)
@@ -126,7 +126,7 @@ void handle_digital_out_write(ble_gatts_evt_write_t *write_evt)
     uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
-    ble_aio_handle_pin_data(data, len, NULL, 0);
+    ble_aio_handle_pin_digital_data(data, len);
 }
 
 uint8_t handle_digital_out_sequence_write_data(uint8_t *data, uint32_t length, uint8_t contains_analog)
@@ -188,7 +188,8 @@ void ble_aio_authorize_digital_out_sequence()
 
     data[0] = sequence_is_running();
     *((uint32_t *)(data + 1)) = sequence_get_packet_index();
-    *((uint32_t *)(data + 5)) = sequence_get_repeat_count();
+    //*((uint32_t *)(data + 5)) = sequence_get_repeat_count();
+    *((uint32_t *)(data + 5)) = 0;
 
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
@@ -646,7 +647,8 @@ ret_code_t ble_aio_init()
         sequence_init(
             ble_aio_get_byte_count_from_pins(output_digital_pin_count),
             output_analog_pin_count,
-            ble_aio_handle_pin_data,
+            ble_aio_handle_pin_digital_data,
+            ble_aio_handle_pin_analog_data,
             ble_aio_handle_sequence_progress_update);
     }
 

@@ -14,8 +14,8 @@ Here are the available instructions:
 | `0b00010011` | uint16_t | [write fourth analog channel](#write-analog-outputs) |
 | `0b00100000` | [varint](#varint) | [sleep for n milliseconds](#sleep-for-n-milliseconds) |
 | `0b00100001` | [digital bits](#digital-bits) | [sleep until inputs match](#sleep-until-inputs-match) |
-| `0b01000000` | uint16_t | [jump to code location](#jump-to-code-location) |
-| `0b01000001` | uint16_t, [digital bits](#digital-bits) | [jump to location if pins match](#jump-to-location-if-pins-match) |
+| `0b01000000` | [varint](#varint) | [jump to code location](#jump-to-code-location) |
+| `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if pins match](#jump-to-location-if-pins-match) |
 | `0b01000010` | [varint](#varint) | [perform jump max. n times](#perform-jump-max-n-times)
 | `0b10000000` | | [stop script execution](#stop-script-execution)
 

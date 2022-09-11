@@ -150,7 +150,7 @@ void sequence_execute_instruction_sleep_ms(){
 }
 
 void sequence_execute_instruction_jump_unconditionally(){
-    uint16_t target = sequence_read_uint16_t();
+    uint32_t target = sequence_read_varint();
     target = MIN(target, sequence_buffer_write_index);
 
     NRF_LOG_DEBUG("instruction jump to %i\n", target);

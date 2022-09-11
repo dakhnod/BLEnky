@@ -65,6 +65,8 @@ from 1000us to 2000us, even outside of that if your servo supports that.
 Writing `0xDC05` for instance would set the output to a duty cycle of 1500us, setting a servo to center position.
 The value 0xffff will be ignored.
 
+It should noted that having any analog pins configured raises the boards current consumption to a minimum of 1mA.
+
 ### Input pins
 
 If configured, the characteristic with the UUID `00002a56-0000-1000-8000-00805f9b34fb` that is not not writable will expose information about input pins.

@@ -124,14 +124,14 @@ Pins #1 und #2 are ignored since their bits are set to `0b11`.
 
 ### perform jump max. n times
 
-This instruction reads in a [varint](#varint) `n`, and repeats the jump only `n` number of times.
+This instruction reads in a [varint](#varint) jump target and a [varint](#varint) `n`, and repeats the jump only `n` number of times.
 
 The runtime knows what jump to count for as long as no other jump instruction is executed.
 As soon as any other jump instruction is executed, the runtime forgets what jump it was supposed to count for.
 
 Example:
 
-`0b01000010 00000000 00000000 01100100`
+`0b01000010 00000000 01100100`
 
 jumps back to byte index 0 100 times, unless the loop is jumped out of.
 

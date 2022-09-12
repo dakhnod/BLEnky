@@ -102,7 +102,7 @@ Pins #1 and #2 are ignored since their bits are set to `0b11`.
 
 ### jump to code location
 
-This instruction reads in a uint16_t and sets the internal instruction pointer to that value, continuing code execution from there.
+This instruction reads in a [varint](#varint) and sets the internal instruction pointer to that value, continuing code execution from there.
 
 Example:
 

@@ -13,9 +13,11 @@ Here are the available instructions:
 | `0b00010010` | uint16_t | [write third analog channel](#write-analog-outputs) |
 | `0b00010011` | uint16_t | [write fourth analog channel](#write-analog-outputs) |
 | `0b00100000` | [varint](#varint) | [sleep for n milliseconds](#sleep-for-n-milliseconds) |
-| `0b00100001` | [digital bits](#digital-bits) | [sleep until inputs match](#sleep-until-inputs-match) |
+| `0b00100001` | [digital bits](#digital-bits) | [sleep until all inputs match](#sleep-until-all-inputs-match) |
+| `0b00100010` | [digital bits](#digital-bits) | [sleep until any inputs match](#sleep-until-any-inputs-match) |
 | `0b01000000` | [varint](#varint) | [jump to code location](#jump-to-code-location) |
-| `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if pins match](#jump-to-location-if-pins-match) |
+| `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if all pins match](#jump-to-location-if-all-pins-match) |
+| `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if any pins match](#jump-to-location-if-any-pins-match) |
 | `0b01000010` | [varint](#varint) | [perform jump max. n times](#perform-jump-max-n-times)
 | `0b10000000` | | [stop script execution](#stop-script-execution)
 
@@ -88,7 +90,7 @@ Example:
 delays script execution for 100ms.
 
 
-### sleep until inputs match
+### sleep until all inputs match
 
 This instruction takes in [digital bits](#digital-bits) and waits until all the input pins match the given states.
 It can be used to wait for endstops, reed switches, button presses etc.
@@ -98,6 +100,17 @@ Example:
 `0b00100001 11110001`
 
 Waits for pins #3 to become LOW and pin #4 to become HIGH.
+Pins #1 and #2 are ignored since their bits are set to `0b11`.
+
+### sleep until any inputs match
+
+same as [sleep until all inputs match](#sleep-until-all-inputs-match), but one single matching input is enough to terminate the sleep.
+
+Example:
+
+`0b00100001 11110001`
+
+sleep terminates when either pin #3 is LOW __or__ pin #4 is high.
 Pins #1 and #2 are ignored since their bits are set to `0b11`.
 
 ### jump to code location
@@ -110,7 +123,7 @@ Example:
 
 jumpts to byte index 0, restarting script execution from the first instruction.
 
-### jump to location if pins match
+### jump to location if all pins match
 
 This instruction reads in a byte index like the [simple jump](#jump-to-code-location), but also reads in [bit states](#digital-bits).
 It only performs the jump if the configured input pin states match the requested pin states.
@@ -120,6 +133,17 @@ Example:
 `0b01000001 00000000 11110100`
 
 only jumpts to byte index 0, when pin #3 reads HIGH and pin #4 reads LOW.
+Pins #1 und #2 are ignored since their bits are set to `0b11`.
+
+### jump to location if any pins match
+
+This instruction works just like [jump if all match](#jump-to-location-if-all-pins-match), but one single amtchis sufficient to trigger the jump. Not all pins have to match.
+
+Example:
+
+`0b01000001 00000000 11110100`
+
+only jumpts to byte index 0, when pin #3 reads HIGH __or__ pin #4 reads LOW.
 Pins #1 und #2 are ignored since their bits are set to `0b11`.
 
 ### perform jump max. n times

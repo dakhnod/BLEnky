@@ -49,6 +49,10 @@ uint8_t gpio_get_output_digital_state(uint32_t index) {
   return gpio_output_configs[index].state;
 }
 
+bool gpio_get_input_digital_state(uint32_t index) {
+  return gpio_input_configs[index].state;
+}
+
 void gpio_encode_output_states(uint8_t *buffer) {
   for (int i = 0; i < gpio_output_digital_pin_count; i++) {
     buffer[i] = gpio_output_configs[i].state;

@@ -18,7 +18,7 @@ Here are the available instructions:
 | `0b01000000` | [varint](#varint) | [jump to code location](#jump-to-code-location) |
 | `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if all pins match](#jump-to-location-if-all-pins-match) |
 | `0b01000010` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if any pins match](#jump-to-location-if-any-pins-match) |
-| `0b01000010` | [varint](#varint) | [perform jump max. n times](#perform-jump-max-n-times)
+| `0b01001000` | [varint](#varint), [varint](#varint) | [perform jump max. n times](#perform-jump-max-n-times)
 | `0b10000000` | | [stop script execution](#stop-script-execution)
 
 ## Datatypes
@@ -155,7 +155,7 @@ As soon as any other jump instruction is executed, the runtime forgets what jump
 
 Example:
 
-`0b01000010 00000000 01100100`
+`0b01001000 00000000 01100100`
 
 jumps back to byte index 0 100 times, unless the loop is jumped out of.
 

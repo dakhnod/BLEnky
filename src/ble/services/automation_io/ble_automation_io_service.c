@@ -8,6 +8,7 @@
 #include "ble_binary_sensor_service.h"
 #include "ble_configuration_service.h"
 #include "ble_helpers.h"
+#include "encoding.h"
 
 uint16_t ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -59,12 +60,6 @@ void handle_digital_out_sequence_cccd_write(ble_gatts_evt_write_t *write_evt)
     }
 }
 
-// return bit and following bit at index
-uint8_t read_bits_at_index(uint8_t data, uint8_t index)
-{
-    return (data & (0b11000000 >> index)) >> (6 - index); // & 1 at the end to enforce only last bit set
-}
-
 void ble_aio_handle_pin_digital_data(
     uint8_t *pin_data,
     uint32_t pin_data_length)
@@ -77,14 +72,7 @@ void ble_aio_handle_pin_digital_data(
 
     for (int index = 0; index < parsed_output_count; index++)
     {
-        uint32_t bit_index_full = index * 2;
-
-        uint32_t byte_index = bit_index_full / 8;
-        uint8_t bit_index = bit_index_full % 8;
-
-        uint8_t current_byte = pin_data[byte_index];
-
-        uint8_t output_bits = read_bits_at_index(current_byte, bit_index);
+        uint8_t output_bits = encoding_get_pin_bits(pin_data, pin_data_length, index);
 
         if (output_bits == 0b11)
         {
@@ -133,7 +121,7 @@ uint8_t handle_digital_out_sequence_write_data(uint8_t *data, uint32_t length, u
 {
     static uint8_t is_overflown = false;
 
-    if (length < 3)
+    if (length == 0)
     {
         sequence_stop(true);
         return is_overflown;
@@ -389,6 +377,8 @@ void ble_aio_authorize_digital_in()
 
 void ble_aio_update_digital_in_states()
 {
+
+
     if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates))
     {
         return;
@@ -493,6 +483,9 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
                                                       .params
                                                       .authorize_request);
 
+
+                                                      NRF_LOG_DEBUG("authththth\n");
+
     if (req->type == BLE_GATTS_AUTHORIZE_TYPE_READ)
     {
 
@@ -569,6 +562,7 @@ void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
 {
     NRF_LOG_DEBUG("ble pin %d changed to %d\n", index, config->state);
     ble_aio_update_digital_in_states();
+    sequence_handle_digital_input_update(index, config->state);
 
     if (index == 0)
     {
@@ -646,6 +640,7 @@ ret_code_t ble_aio_init()
     {
         sequence_init(
             ble_aio_get_byte_count_from_pins(output_digital_pin_count),
+            ble_aio_get_byte_count_from_pins(input_digital_pin_count),
             output_analog_pin_count,
             ble_aio_handle_pin_digital_data,
             ble_aio_handle_pin_analog_data,

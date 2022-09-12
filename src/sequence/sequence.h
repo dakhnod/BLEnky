@@ -30,13 +30,16 @@ typedef void (*sequence_progress_update_handler_t)(uint8_t sequence_is_running, 
 void sequence_start(uint8_t contains_analogs);
 void sequence_stop(uint8_t should_notify);
 void sequence_init(
-    uint32_t pin_data_digital_length,
+    uint32_t pin_data_digital_output_length,
+    uint32_t pin_data_digital_input_length,
     uint32_t pin_data_analog_length,
     pin_digital_data_handler_t pin_data_digital_handler,
     pin_analog_data_handler_t pin_data_analog_handler,
     sequence_progress_update_handler_t progress_update_handler
 );
+void sequence_step();
 uint8_t sequence_is_running();
 uint32_t sequence_get_packet_index();
 uint32_t sequence_get_repeat_count();
 SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length);
+void sequence_handle_digital_input_update(uint32_t index, bool is_high);

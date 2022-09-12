@@ -72,6 +72,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
+  $(PROJ_DIR)/src/helpers/encoding.c \
   $(PROJ_DIR)/src/timer/sensor_timer.c \
   $(PROJ_DIR)/src/error_handler/error_handler.c \
   $(PROJ_DIR)/src/sequence/sequence.c \
@@ -190,6 +191,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/services/configuration/ \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
+  $(PROJ_DIR)/src/helpers/ \
   $(PROJ_DIR)/src/config/ \
   $(PROJ_DIR)/src/gpio/ \
   $(PROJ_DIR)/src/storage/ \

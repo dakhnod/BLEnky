@@ -17,7 +17,7 @@ Here are the available instructions:
 | `0b00100010` | [digital bits](#digital-bits) | [sleep until any inputs match](#sleep-until-any-inputs-match) |
 | `0b01000000` | [varint](#varint) | [jump to code location](#jump-to-code-location) |
 | `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if all pins match](#jump-to-location-if-all-pins-match) |
-| `0b01000001` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if any pins match](#jump-to-location-if-any-pins-match) |
+| `0b01000010` | [varint](#varint), [digital bits](#digital-bits) | [jump to location if any pins match](#jump-to-location-if-any-pins-match) |
 | `0b01000010` | [varint](#varint) | [perform jump max. n times](#perform-jump-max-n-times)
 | `0b10000000` | | [stop script execution](#stop-script-execution)
 
@@ -108,7 +108,7 @@ same as [sleep until all inputs match](#sleep-until-all-inputs-match), but one s
 
 Example:
 
-`0b00100001 11110001`
+`0b00100010 11110001`
 
 sleep terminates when either pin #3 is LOW __or__ pin #4 is high.
 Pins #1 and #2 are ignored since their bits are set to `0b11`.
@@ -141,7 +141,7 @@ This instruction works just like [jump if all match](#jump-to-location-if-all-pi
 
 Example:
 
-`0b01000001 00000000 11110100`
+`0b01000010 00000000 11110100`
 
 only jumpts to byte index 0, when pin #3 reads HIGH __or__ pin #4 reads LOW.
 Pins #1 und #2 are ignored since their bits are set to `0b11`.

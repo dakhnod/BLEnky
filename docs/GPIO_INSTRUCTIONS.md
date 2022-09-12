@@ -106,7 +106,7 @@ This instruction reads in a [varint](#varint) and sets the internal instruction 
 
 Example:
 
-`0b01000000 00000000 00000000`
+`0b01000000 00000000`
 
 jumpts to byte index 0, restarting script execution from the first instruction.
 
@@ -117,7 +117,7 @@ It only performs the jump if the configured input pin states match the requested
 
 Example:
 
-`0b01000001 00000000 00000000 11110100`
+`0b01000001 00000000 11110100`
 
 only jumpts to byte index 0, when pin #3 reads HIGH and pin #4 reads LOW.
 Pins #1 und #2 are ignored since their bits are set to `0b11`.

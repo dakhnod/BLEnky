@@ -69,6 +69,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \
   $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
   $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
+  $(PROJ_DIR)/src/ble/services/ble_gpio_asm/ble_gpio_asm.c \
   $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
@@ -189,6 +190,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/services/automation_io/ \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ \
   $(PROJ_DIR)/src/ble/services/configuration/ \
+  $(PROJ_DIR)/src/ble/services/ble_gpio_asm/ \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/helpers/ \

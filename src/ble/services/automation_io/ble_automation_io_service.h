@@ -6,8 +6,6 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "nrf_log.h"
-#include "sensor_gpio.h"
-#include "sequence.h"
 // #include "nrf_ble_gatt.h"
 
 #ifdef __cplusplus

@@ -1,6 +1,7 @@
 #include "sensor_ble.h"
 
 #include "ble_configuration_service.h"
+#include "ble_gpio_asm.h"
 #include "app_error.h"
 
 ble_gap_adv_params_t m_adv_params;
@@ -121,6 +122,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
     ble_bas_on_ble_evt(p_ble_evt);
     ble_configuration_on_ble_event(p_ble_evt);
+    ble_gpio_asm_on_ble_evt(p_ble_evt);
 }
 
 
@@ -260,7 +262,7 @@ void ble_stack_init(void) {
     err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
         PERIPHERAL_LINK_COUNT,
         &ble_enable_params);
-    ble_enable_params.common_enable_params.vs_uuid_count = 2;
+    ble_enable_params.common_enable_params.vs_uuid_count = 3;
     APP_ERROR_CHECK(err_code);
 
     //Check the ram settings against the used number of links
@@ -390,6 +392,8 @@ void services_init(void) {
 
     err_code = ble_aio_init();
     APP_ERROR_CHECK(err_code);
+
+    ble_gpio_asm_init();
 
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);

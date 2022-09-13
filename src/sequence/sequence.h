@@ -27,15 +27,14 @@ typedef void (*pin_analog_data_handler_t)(
 
 typedef void (*sequence_progress_update_handler_t)(uint8_t sequence_is_running, uint32_t packet_index, uint32_t remaining_repetitions);
 
-void sequence_start(uint8_t contains_analogs);
+void sequence_start();
 void sequence_stop(uint8_t should_notify);
 void sequence_init(
     uint32_t pin_data_digital_output_length,
     uint32_t pin_data_digital_input_length,
     uint32_t pin_data_analog_length,
     pin_digital_data_handler_t pin_data_digital_handler,
-    pin_analog_data_handler_t pin_data_analog_handler,
-    sequence_progress_update_handler_t progress_update_handler
+    pin_analog_data_handler_t pin_data_analog_handler
 );
 void sequence_step();
 uint8_t sequence_is_running();

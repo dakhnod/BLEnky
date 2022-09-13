@@ -18,7 +18,6 @@ uint32_t sequence_pin_analog_output_data_length;
 
 pin_digital_data_handler_t sequence_pin_digital_data_handler;
 pin_analog_data_handler_t sequence_pin_analog_data_handler;
-sequence_progress_update_handler_t sequence_progress_update_handler;
 
 uint8_t sequence_is_running_ = false;
 uint32_t sequence_packet_index = 0;
@@ -32,16 +31,9 @@ enum {
     SLEEP_MATCH_PINS_ANY
 } sequence_sleep_condition = SLEEP_NO_CONDITION;
 
-void handle_sequence_update() {
-    sequence_progress_update_handler(sequence_is_running_, sequence_packet_index, 0);
-}
-
 void sequence_stop(uint8_t should_notify) {
     timer_sequence_stop();
     sequence_is_running_ = false;
-    if (should_notify) {
-        handle_sequence_update();
-    }
 }
 
 void sequence_reset() {
@@ -283,9 +275,8 @@ void sequence_execute_instruction_jump_n_times(){
         sequence_jump_instruction_index = jump_instruction_index;
         // set counter to desired jump count
         sequence_jump_counter = jump_count;
-    }else{
-        sequence_jump_counter--;
     }
+    sequence_jump_counter--;
 
     if(sequence_jump_counter == 0){
         // jump counter at 0, not jumping any more
@@ -359,8 +350,8 @@ void sequence_timer_timeout_handler() {
     sequence_step();
 }
 
-void sequence_start(uint8_t contains_analog) {
-    NRF_LOG_DEBUG("starting seuqnece (contains analog: %i)\n", contains_analog);
+void sequence_start() {
+    NRF_LOG_DEBUG("starting seuqnece\n");
 
     sequence_reset();
 
@@ -374,8 +365,7 @@ void sequence_init(
     uint32_t pin_data_digital_input_length,
     uint32_t pin_data_analog_length,
     pin_digital_data_handler_t pin_digital_data_handler,
-    pin_analog_data_handler_t pin_analog_data_handler,
-    sequence_progress_update_handler_t progress_update_handler
+    pin_analog_data_handler_t pin_analog_data_handler
 ) {
     sequence_pin_digital_output_data_length = pin_data_digital_output_length;
     sequence_pin_digital_input_data_length = pin_data_digital_input_length;
@@ -383,5 +373,4 @@ void sequence_init(
     timer_sequence_set_timeout_handler(sequence_timer_timeout_handler);
     sequence_pin_digital_data_handler = pin_digital_data_handler;
     sequence_pin_analog_data_handler = pin_analog_data_handler;
-    sequence_progress_update_handler = progress_update_handler;
 }

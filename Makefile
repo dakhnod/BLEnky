@@ -63,6 +63,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
   $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_dis/ble_dis.c \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service/battery.c \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service/ble_dfu.c \
   $(CUSTOM_INCLUDES_DIR)/libraries/gpiote/nrf_drv_gpiote.c \

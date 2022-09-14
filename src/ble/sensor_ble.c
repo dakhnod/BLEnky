@@ -3,6 +3,7 @@
 #include "ble_configuration_service.h"
 #include "ble_gpio_asm.h"
 #include "app_error.h"
+#include "ble_dis.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -387,10 +388,34 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
     // APP_ERROR_CHECK(err_code);
 }
 
+ret_code_t dis_init(){
+    char *manufacturer = "https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge";
+    char *version_fw = "0.3.0";
+    ble_srv_security_mode_t sec_mode;
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode.write_perm);
+    ble_dis_init_t init = {
+        .dis_attr_md = sec_mode,
+        .fw_rev_str = {
+            .p_str = (uint8_t*) version_fw,
+            .length = strlen(version_fw)
+        },
+        .manufact_name_str = {
+            .p_str = (uint8_t*) manufacturer,
+            .length = strlen(manufacturer)
+        }
+    };
+
+    return ble_dis_init(&init);
+}
+
 /**@brief Function for initializing services that will be used by the application.
  */
 void services_init(void) {
     ret_code_t err_code;
+
+    err_code = dis_init();
+    APP_ERROR_CHECK(err_code);
 
     err_code = bas_init();
     APP_ERROR_CHECK(err_code);

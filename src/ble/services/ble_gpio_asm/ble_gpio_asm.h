@@ -1,6 +1,7 @@
 #include "stdint.h"
 #include "sdk_common.h"
 #include "ble_srv_common.h"
+#include "sensor_gpio.h"
 
 #define UUID_GPIO_ASM_SERVICE   0x0000
 #define UUID_GPIO_ASM_DATA      0x0001
@@ -9,3 +10,4 @@
 
 void ble_gpio_asm_init();
 void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt);
+void ble_gpio_asm_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);

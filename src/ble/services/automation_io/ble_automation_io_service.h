@@ -6,6 +6,7 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "nrf_log.h"
+#include "sensor_gpio.h"
 // #include "nrf_ble_gatt.h"
 
 #ifdef __cplusplus
@@ -28,6 +29,7 @@ extern "C" {
     void ble_aio_on_authorize(ble_evt_t *p_ble_evt);
     void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer);
     uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count);
+    void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);
 
 #ifdef __cplusplus
 }

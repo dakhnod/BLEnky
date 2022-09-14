@@ -5,7 +5,6 @@
 #include "ble_srv_common.h"
 #include "app_error.h"
 #include "storage.h"
-#include "sensor_gpio.h"
 #include "ble_binary_sensor_service.h"
 #include "ble_configuration_service.h"
 #include "ble_helpers.h"
@@ -340,9 +339,6 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
                                                       .params
                                                       .authorize_request);
 
-
-                                                      NRF_LOG_DEBUG("authththth\n");
-
     if (req->type == BLE_GATTS_AUTHORIZE_TYPE_READ)
     {
 
@@ -393,7 +389,6 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
 
 void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    NRF_LOG_DEBUG("ble pin %d changed to %d\n", index, config->state);
     ble_aio_update_digital_in_states();
 
     if (index == 0)
@@ -440,9 +435,6 @@ ret_code_t ble_aio_init()
         ble_aio_update_digital_in_states();
     }
     
-
-    gpio_set_input_change_handler(ble_aio_handle_input_change);
-
     if (input_digital_pin_count > 0)
     {
         err_code = ble_bss_init();

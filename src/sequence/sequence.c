@@ -4,7 +4,7 @@
 #include "sensor_gpio.h"
 #include "encoding.h"
 
-#define BUFFER_SIZE 50
+#define BUFFER_SIZE 256
 
 uint8_t sequence_buffer[BUFFER_SIZE]; // 127 packets, each 19 bytes
 uint32_t sequence_buffer_write_index = 0;
@@ -43,8 +43,6 @@ void sequence_reset() {
 
 SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length) {
     uint8_t sequence_number = data[0] & 0b01111111;
-
-    NRF_LOG_DEBUG("packet seq %d\n", sequence_number);
 
     SEQUENCE_PACKET_PUSH_RESULT result = PUSH_SUCCESS;
 
@@ -102,11 +100,19 @@ uint64_t sequence_read_varint() {
 }
 
 uint16_t sequence_read_uint16_t() {
-    uint16_t result = *(uint16_t*)(sequence_buffer + sequence_buffer_read_index);
+    uint16_t value = 0;
+    value |= sequence_buffer[sequence_buffer_read_index] << 0;
+    value |= sequence_buffer[sequence_buffer_read_index + 1] << 8;
 
     sequence_buffer_read_index += 2;
 
-    return result;
+    return value;
+
+    uint16_t *ptr = (uint16_t*)(sequence_buffer + sequence_buffer_read_index);
+
+    sequence_buffer_read_index += 2;
+
+    return *ptr;
 }
 
 uint8_t sequence_read_instruction(){
@@ -115,8 +121,6 @@ uint8_t sequence_read_instruction(){
 
 void sequence_read_bytes(uint8_t **buffer, uint32_t *length) {
     uint32_t bytes_available = sequence_buffer_write_index - sequence_buffer_read_index;
-
-    NRF_LOG_DEBUG("available: %i\n", bytes_available);
 
     *length = MIN(bytes_available, *length);
 
@@ -142,7 +146,7 @@ void sequence_execute_instruction_write_digital_outputs(){
 void sequence_execute_instruction_write_analog_output(uint32_t channel){
     uint16_t duty_cycle = sequence_read_uint16_t();
 
-    NRF_LOG_DEBUG("instruction write analog channel %i %i\n", channel, duty_cycle);
+    NRF_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t) duty_cycle);
 
     sequence_pin_analog_data_handler(channel, duty_cycle);
 }
@@ -175,8 +179,6 @@ bool sequence_filter_matches_digital_input_pins(uint8_t *pin_filter_data, uint32
         bool pin_should_be_high = (pin_bits == 0b01);
         bool pin_matches = (pin_should_be_high == gpio_get_input_digital_state(index));
 
-        NRF_LOG_DEBUG("pin %i matches: %i\n", index, pin_matches);
-
         if(pin_matches){
             result = true;
             if(!match_all){ // singe match is enough
@@ -199,6 +201,8 @@ void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_n
 
     bool match_condition_fulfilled = sequence_filter_matches_digital_input_pins(pin_data_digital, pin_data_length, match_all);
 
+    NRF_LOG_DEBUG("init condition %i\n", match_condition_fulfilled);
+
     // we are not continuing the execution when pins don't match
     // we wait for a gpio notification to continue
     *should_run_next = match_condition_fulfilled;
@@ -210,8 +214,6 @@ void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_n
             sequence_sleep_condition = SLEEP_MATCH_PINS_ANY;
         }
     }
-
-    NRF_LOG_DEBUG("sleep match condition fulfilled: %i\n", match_condition_fulfilled);
 }
 
 void sequence_handle_digital_input_update(uint32_t index, bool is_high){
@@ -225,8 +227,6 @@ void sequence_handle_digital_input_update(uint32_t index, bool is_high){
     bool execute_next_instruction;
 
     sequence_execute_instruction_sleep_match(sequence_sleep_condition == SLEEP_MATCH_PINS_ALL, &execute_next_instruction);
-
-    NRF_LOG_DEBUG("sleep condition met: %i\n", execute_next_instruction);
 
     if(execute_next_instruction){
         sequence_sleep_condition = SLEEP_NO_CONDITION;
@@ -331,12 +331,9 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
 void sequence_buffer_next_packet() {
     bool should_run_next;
     do{
-        NRF_LOG_DEBUG("instruction pointer before: %i\n", sequence_buffer_read_index);
         uint8_t instruction = sequence_read_instruction();
         sequence_execute_instruction(instruction, &should_run_next);
-        NRF_LOG_DEBUG("instruction pointer after: %i\n", sequence_buffer_read_index);
     }while(should_run_next && !sequence_read_has_reached_end());
-    NRF_LOG_DEBUG("instruction pointer end: %i\n", sequence_buffer_read_index);
 }
 
 void sequence_step() {

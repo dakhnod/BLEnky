@@ -12,7 +12,7 @@ uint32_t gpio_input_digital_pin_count = 0;
 gpio_config_output_digital_t *gpio_output_configs;
 gpio_config_input_digital_t *gpio_input_configs;
 
-gpio_input_change_handler_t input_change_handler = NULL;
+gpio_input_change_handler_t gpio_input_change_handler = NULL;
 
 app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, APP_PWM_NOPIN, APP_PWM_NOPIN);
 APP_PWM_INSTANCE(pwm0, 1);
@@ -27,10 +27,6 @@ void gpio_write_output_digital_pin(uint32_t index, uint8_t value) {
     nrf_gpio_pin_clear(pin);
   }
   config->state = value;
-}
-
-void gpio_set_input_change_handler(gpio_input_change_handler_t handler) {
-  input_change_handler = handler;
 }
 
 uint32_t gpio_get_output_digital_pin_count() {
@@ -97,8 +93,8 @@ void on_pin_changed(uint32_t index) {
     config->trigger_count++;
   }
 
-  if (input_change_handler != NULL) {
-    input_change_handler(index, gpio_input_configs + index);
+  if (gpio_input_change_handler != NULL) {
+    gpio_input_change_handler(index, gpio_input_configs + index);
   }
 
   config->ignore_input = true;
@@ -195,7 +191,7 @@ void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull,
   config->ignore_input = false;
 }
 
-void gpio_init() {
+void gpio_init(gpio_input_change_handler_t input_change_handler) {
   // ret_code_t err_code;
 
   ret_code_t err_code;
@@ -272,4 +268,5 @@ void gpio_init() {
     NRF_LOG_INFO("pin invert: %d\n", config->invert);
   }
 
+  gpio_input_change_handler = input_change_handler;
 }

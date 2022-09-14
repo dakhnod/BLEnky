@@ -33,8 +33,7 @@ typedef struct
 
 typedef void (*gpio_input_change_handler_t)(uint32_t pin_index, gpio_config_input_digital_t *config);
 
-void gpio_init();
-
+void gpio_init(gpio_input_change_handler_t input_change_handler);
 void gpio_configure_aio_outputs();
 void gpio_write_output_digital_pin(uint32_t index, uint8_t value);
 void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value);
@@ -46,6 +45,5 @@ uint8_t gpio_get_output_digital_state(uint32_t index);
 bool gpio_get_input_digital_state(uint32_t index);
 void gpio_encode_output_states(uint8_t *buffer);
 void gpio_encode_input_states(uint8_t *buffer);
-void gpio_set_input_change_handler(gpio_input_change_handler_t handler);
 
 #endif

@@ -43,6 +43,7 @@ uint32_t dfu_init(void);
 void services_init(void);
 void advertising_stop(void);
 void ble_init(void);
+void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);
 
 
 #endif

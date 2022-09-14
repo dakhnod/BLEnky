@@ -3,7 +3,6 @@
 #include "encoding.h"
 #include "app_error.h"
 
-#include "sensor_gpio.h"
 #include "sequence.h"
 
 uint16_t ble_gpio_asm_connection_handle;
@@ -43,6 +42,7 @@ uint8_t ble_gpio_asm_handle_data_write(uint8_t *data, uint32_t length)
     uint8_t result = sequence_push_packet(data, length);
     if (result == PUSH_OVERFLOW)
     {
+        NRF_LOG_ERROR("buffer overflown\n");
         is_overflown = true;
         return is_overflown;
     }

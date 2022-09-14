@@ -12,6 +12,12 @@
 #include "sensor_timer.h"
 #include "ble_configuration_service.h"
 
+void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+{
+    NRF_LOG_DEBUG("main pin %d changed to %d\n", index, config->state);
+    ble_handle_input_change(index, config);
+}
+
 int main(void) {
     ret_code_t err_code;
 
@@ -24,7 +30,7 @@ int main(void) {
 
     timer_init();
 
-    gpio_init();
+    gpio_init(main_handle_input_change);
 
     ble_init();
 

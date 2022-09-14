@@ -21,6 +21,14 @@ void ble_init() {
     conn_params_init();
     services_init();
     advertising_init();
+
+
+}
+
+void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+{
+    ble_aio_handle_input_change(index, config);
+    ble_gpio_asm_handle_input_change(index, config);
 }
 
 void on_ble_evt(ble_evt_t *p_ble_evt) {

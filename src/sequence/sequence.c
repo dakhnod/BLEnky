@@ -4,7 +4,7 @@
 #include "sensor_gpio.h"
 #include "encoding.h"
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 200
 
 uint8_t sequence_buffer[BUFFER_SIZE]; // 127 packets, each 19 bytes
 uint32_t sequence_buffer_write_index = 0;
@@ -25,10 +25,14 @@ uint32_t sequence_packet_index = 0;
 uint32_t sequence_jump_counter;
 uint32_t sequence_jump_instruction_index = 0xffffffff;
 
+uint32_t sleep_pin_data;
+
 enum {
     SLEEP_NO_CONDITION,
     SLEEP_MATCH_PINS_ALL,
-    SLEEP_MATCH_PINS_ANY
+    SLEEP_MATCH_PINS_ANY,
+    SLEEP_MATCH_PINS_ALL_TIMEOUT,
+    SLEEP_MATCH_PINS_ANY_TIMEOUT,
 } sequence_sleep_condition = SLEEP_NO_CONDITION;
 
 void sequence_stop(uint8_t should_notify) {
@@ -197,6 +201,8 @@ void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_n
     uint32_t pin_data_length = sequence_pin_digital_input_data_length;
     uint8_t *pin_data_digital;
 
+    sleep_pin_data = sequence_buffer_read_index;
+
     sequence_read_bytes(&pin_data_digital, &pin_data_length);
 
     bool match_condition_fulfilled = sequence_filter_matches_digital_input_pins(pin_data_digital, pin_data_length, match_all);
@@ -216,19 +222,59 @@ void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_n
     }
 }
 
+void sequence_execute_instruction_sleep_match_timeout(bool match_all, bool *should_run_next){
+    bool match_condition_fulfilled;
+
+    sequence_execute_instruction_sleep_match(match_all, &match_condition_fulfilled);
+
+    *should_run_next = match_condition_fulfilled;
+
+    uint64_t timeout = sequence_read_varint();
+
+    if(match_condition_fulfilled){
+        return;
+    }
+
+    bool already_waiting = (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
+
+    if(already_waiting){
+        return;
+    }
+
+    if(match_all){
+        sequence_sleep_condition = SLEEP_MATCH_PINS_ALL_TIMEOUT;
+    }else{
+        sequence_sleep_condition = SLEEP_MATCH_PINS_ANY_TIMEOUT;
+    }
+
+    NRF_LOG_DEBUG("instruction sleep timeout: %i\n", timeout);
+    timer_sequence_start(timeout);
+}
+
 void sequence_handle_digital_input_update(uint32_t index, bool is_high){
     if(sequence_sleep_condition == SLEEP_NO_CONDITION){
         return;
     }
     // rewind read head to previous sleep command
     // rewind by (pin data length)
-    sequence_buffer_read_index -= (sequence_pin_digital_input_data_length);
+    sequence_buffer_read_index = sleep_pin_data;
 
     bool execute_next_instruction;
 
-    sequence_execute_instruction_sleep_match(sequence_sleep_condition == SLEEP_MATCH_PINS_ALL, &execute_next_instruction);
+    bool match_all = (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL) || (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT);
+    bool has_timeout = (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
+
+    if(has_timeout){
+        sequence_execute_instruction_sleep_match_timeout(match_all, &execute_next_instruction);
+    }else{
+        sequence_execute_instruction_sleep_match(match_all, &execute_next_instruction);
+    }
 
     if(execute_next_instruction){
+        if(sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT || sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT){
+            timer_sequence_stop();
+        }
+
         sequence_sleep_condition = SLEEP_NO_CONDITION;
         sequence_step();
     }
@@ -303,6 +349,10 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY:
             sequence_execute_instruction_sleep_match(instruction == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL, should_run_next);
             break;
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY_TIMEOUT:
+            sequence_execute_instruction_sleep_match_timeout(instruction == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT, should_run_next);
+            break;
         case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_0:
         case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_1:
         case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_2:
@@ -323,7 +373,8 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
             *should_run_next = false;
             break;
         default:
-            NRF_LOG_DEBUG("instruction %x unknown\n", instruction);
+            NRF_LOG_DEBUG("instruction %i unknown\n", instruction);
+            *should_run_next = false;
             break;
     }
 }

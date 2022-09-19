@@ -7,21 +7,20 @@ An IO module can have inputs and outputs that can be read from and written to.
 
 To summarize, this is basically like Tasmota for the nRF51, that can be powered from a coin cell for a long time.
 
-With this firmware you can basically use every available pin on the chip as an input or an output.
+With this firmware you can use every available pin on the chip as an input or an output.
 Well, until a buffer overruns or the RAM runs out or something...
 
 This firmware allows for flashing an nRF51 once and control and configuration via a [website](https://ble.nullco.de),
 without needing to reflash the chip.
 
-Furthermore, it gives you the oppurtunity to not only write bits to output pins, but upload whole sequences (also known as animations)
-that can repeat and will be played by the chip, even when nothing is connected to it, as seen in the following gif.
+Furthermore, it gives you the oppurtunity to not only write and read bits to/from pins, but also to upload little [gpioASM](https://github.com/dakhnod/gpioASM) programms that run offline on the chip.
 
 ## Table of contents
 
 1. [Configuration](docs/CONFIGURATION.md)
 2. [Pin inputs/outputs (Automation IO)](docs/AUTOMATION_IO_SERVICE.md)
 3. [Pin inputs (Binary Sensor Service)](docs/BINARY_SENSOR_SERVICE.md)
-4. [Sequences/Animations](docs/SEQUENCES.md)
+4. [gpioASM](docs/GPIO_ASM_SERVICE.md)
 5. [Compilation](docs/COMPILATION.md)
 6. [Programming the chip](docs/FLASHING.md)
 7. [First steps](docs/FIRST_STEPS.md)

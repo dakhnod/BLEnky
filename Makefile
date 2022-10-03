@@ -305,8 +305,8 @@ push: $(OUT_ZIP)
 	adb shell mkdir -p $(ADB_DIRECTORY)
 	adb push $(OUT_ZIP) $(ADB_DIRECTORY)
 
-config: sdk_config.h
-	java -jar ../../CMSIS_Configuration_Wizard.jar sdk_config.h
+config: src/config/sdk_config.h
+	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/sdk_config.h
 	
 reset:
 	nrfjprog --reset

@@ -37,7 +37,7 @@ void advertising_data_init(void);
 void advertising_init(void);
 void advertising_start(void);
 void ble_stack_init(void);
-void gap_params_init(void);
+void gap_params_init(uint8_t *device_name, uint32_t device_name_length);
 uint32_t bas_init(void);
 uint32_t dfu_init(void);
 void services_init(void);

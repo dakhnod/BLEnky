@@ -68,17 +68,39 @@ void storage_read_connection_params_configuration(uint8_t *buffer) {
   storage_read(OFFSET_CONNECTION_PARAMS_CONFIGURATION, buffer, 10);
 }
 
+void storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
+  storage_read(OFFSET_DEVICE_NAME, buffer, LENGTH_DEVICE_NAME);
+
+  uint32_t length;
+
+  for(length = 0; ; length++){
+    if(length >= LENGTH_DEVICE_NAME){
+      break;
+    }
+    if(buffer[length] == 0){
+      break;
+    }
+    if(buffer[length] == 0xFF){
+      break;
+    }
+  }
+
+  *length_ = length;
+}
+
 void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t reboot) {
   fs_ret_t ret_code;
 
-  uint32_t data_size_32 = CEIL_DIV(26, 4);
+  const uint32_t size = 46; // 16 bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
+  
+  // should should be done dynamically, but at compile-time
+  const uint32_t size_aligned = 48; // calculate 4-byte-alignet size
 
-  // this is prefered, but initializing storage_data with unknown length is illegal
-  // uint32_t data_size = data_size_32 * 4;;
+  const uint32_t data_size_32 = size_aligned / 4; // calculate size in 32-bit-words
 
-  // needs to be static for fs_store
-  static uint8_t storage_data[28]; // 16 pins for pin configuration + 10 pins for connection param configuration + 2 bytes for alignment
-  storage_read(0, storage_data, 26); // read whole storage
+  // we should use size_aligned as the size, but that isn't constant enough for the compiler...
+  static uint8_t storage_data[48]; 
+  storage_read(0, storage_data, size); // read whole storage
 
   memcpy(storage_data + offset, data, length);
 
@@ -114,4 +136,14 @@ void storage_store_pin_configuration(uint8_t *data) {
 
 void storage_store_connection_params_configuration(uint8_t *data) {
   storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, true);
+}
+
+void storage_store_device_name(uint8_t *name, int length) {
+  uint8_t name_buffer[LENGTH_DEVICE_NAME];
+  memcpy(name_buffer, name, MIN(length, LENGTH_DEVICE_NAME));
+  if(length < LENGTH_DEVICE_NAME){
+    name_buffer[length] = 0;
+  }
+
+  storage_store(OFFSET_DEVICE_NAME, name_buffer, LENGTH_DEVICE_NAME, true);
 }

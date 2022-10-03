@@ -214,7 +214,6 @@ void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *
     }
   }
 
-
   authorize_params.params.write.gatt_status = status;
 
   sd_ble_gatts_rw_authorize_reply(

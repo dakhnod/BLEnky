@@ -18,18 +18,60 @@ uint16_t advertising_interval = APP_ADV_INTERVAL_FAST;
 
 void ble_init() {
     ble_stack_init();
-    gap_params_init();
+
+    uint8_t device_name[LENGTH_DEVICE_NAME];
+    uint32_t device_name_length;
+
+    storage_read_device_name(device_name, &device_name_length);
+
+    NRF_LOG_INFO("device name length: %d\n", device_name_length);
+
+    if(device_name_length == 0){
+        // set default device name
+        gap_params_init(
+            (uint8_t*) DEVICE_NAME,
+            strlen(DEVICE_NAME)
+        );
+    }else {
+        gap_params_init(
+            device_name,
+            device_name_length
+        );
+    }
     conn_params_init();
     services_init();
     advertising_init();
-
-
 }
 
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
     ble_aio_handle_input_change(index, config);
     ble_gpio_asm_handle_input_change(index, config);
+}
+
+void ble_handle_device_name_write(ble_gatts_evt_write_t *write_evt){
+    uint16_t len = write_evt->len;
+    uint8_t *data = write_evt->data;
+
+    storage_store_device_name(data, len);
+}
+
+void ble_on_write(ble_evt_t *p_ble_evt) {
+  ble_gatts_evt_write_t *write_evt = &p_ble_evt
+    ->evt
+    .gatts_evt
+    .params
+    .write;
+
+  uint16_t handle = write_evt->handle;
+  uint16_t uuid = write_evt->uuid.uuid;
+
+  UNUSED_PARAMETER(handle);
+
+  if (uuid == BLE_UUID_GAP_CHARACTERISTIC_DEVICE_NAME) {
+    ble_handle_device_name_write(write_evt);
+    return;
+  }
 }
 
 void on_ble_evt(ble_evt_t *p_ble_evt) {
@@ -45,6 +87,11 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
             NRF_LOG_INFO("disconnected\r\n");
             connection_handle = BLE_CONN_HANDLE_INVALID;
             break; // BLE_GAP_EVT_DISCONNECTED
+
+
+        case BLE_GATTS_EVT_WRITE:
+            ble_on_write(p_ble_evt);
+            break;
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
             // Pairing not supported
@@ -297,15 +344,16 @@ void ble_stack_init(void) {
  * @details This function sets up all the necessary GAP (Generic Access Profile) parameters of the
  *          device including the device name, appearance, and the preferred connection parameters.
  */
-void gap_params_init(void) {
+void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     uint32_t                err_code;
     ble_gap_conn_sec_mode_t sec_mode;
 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
     err_code = sd_ble_gap_device_name_set(&sec_mode,
-        (const uint8_t *)DEVICE_NAME,
-        strlen(DEVICE_NAME));
+        device_name,
+        device_name_length
+    );
     APP_ERROR_CHECK(err_code);
 
     ble_gap_conn_params_t gap_conn_params;

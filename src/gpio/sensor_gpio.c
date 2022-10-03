@@ -256,16 +256,16 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
 
   for (int i = 0; i < gpio_output_digital_pin_count; i++) {
     gpio_config_output_digital_t *config = gpio_output_configs + i;
-    NRF_LOG_INFO("pin output: %d\n", config->pin);
-    NRF_LOG_INFO("pin default state: %d\n", config->default_state);
-    NRF_LOG_INFO("pin invert: %d\n\n", config->invert);
+    NRF_LOG_DEBUG("pin output: %d\n", config->pin);
+    NRF_LOG_DEBUG("pin default state: %d\n", config->default_state);
+    NRF_LOG_DEBUG("pin invert: %d\n\n", config->invert);
   }
 
   for (int i = 0; i < gpio_input_digital_pin_count; i++) {
     gpio_config_input_digital_t *config = gpio_input_configs + i;
-    NRF_LOG_INFO("pin input: %d\n", config->pin);
-    NRF_LOG_INFO("pin pull: %d\n", config->pull);
-    NRF_LOG_INFO("pin invert: %d\n", config->invert);
+    NRF_LOG_DEBUG("pin input: %d\n", config->pin);
+    NRF_LOG_DEBUG("pin pull: %d\n", config->pull);
+    NRF_LOG_DEBUG("pin invert: %d\n", config->invert);
   }
 
   gpio_input_change_handler = input_change_handler;

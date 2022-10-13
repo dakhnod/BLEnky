@@ -438,7 +438,7 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
 
 ret_code_t dis_init(){
     char *manufacturer = "https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge";
-    char *version_fw = "0.4.0";
+    char *version_fw = "0.4.1";
     ble_srv_security_mode_t sec_mode;
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode.write_perm);

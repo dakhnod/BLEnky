@@ -318,11 +318,13 @@ void sequence_execute_instruction_jump_n_times(){
     uint32_t jump_count = sequence_read_varint();
 
     if(jump_instruction_index != sequence_jump_instruction_index){
+        // firstly encountering this jump instruction
         sequence_jump_instruction_index = jump_instruction_index;
         // set counter to desired jump count
         sequence_jump_counter = jump_count;
+    }else{
+        sequence_jump_counter--;
     }
-    sequence_jump_counter--;
 
     if(sequence_jump_counter == 0){
         // jump counter at 0, not jumping any more

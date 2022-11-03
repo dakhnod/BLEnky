@@ -292,6 +292,11 @@ void sequence_execute_instruction_jump_unconditionally(){
     sequence_buffer_read_index = target;
 }
 
+void sequence_execute_instruction_check_bytecode_version(bool *should_run_next){
+    uint64_t bytecode_version = sequence_read_varint();
+    *should_run_next = (bytecode_version == 0);
+}
+
 void sequence_execute_instruction_jump_match(bool match_all){
     uint64_t target = sequence_read_varint();
 
@@ -337,7 +342,7 @@ void sequence_execute_instruction_jump_n_times(){
     sequence_buffer_read_index = jump_target;
 }
 
-void sequence_instruction_filter_bits(uint8_t instruction){
+uint8_t sequence_instruction_filter_bits(uint8_t instruction){
     uint8_t instruction_without_last_bits = instruction & 0b11110000;
     if(instruction_without_last_bits == INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS){
         return instruction_without_last_bits;
@@ -401,6 +406,9 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
             break;
         case INSTRUCTION_JUMP_UNCONDITIONALLY:
             sequence_execute_instruction_jump_unconditionally();
+            break;
+        case INSTRUCTION_CHECK_BYTECODE_VERSION:
+            sequence_execute_instruction_check_bytecode_version(should_run_next);
             break;
         case INSTRUCTION_JUMP_MATCH_PINS_ALL:
         case INSTRUCTION_JUMP_MATCH_PINS_ANY:

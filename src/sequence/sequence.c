@@ -337,9 +337,47 @@ void sequence_execute_instruction_jump_n_times(){
     sequence_buffer_read_index = jump_target;
 }
 
+void sequence_instruction_filter_bits(uint8_t instruction){
+    uint8_t instruction_without_last_bits = instruction & 0b11110000;
+    if(instruction_without_last_bits == INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS){
+        return instruction_without_last_bits;
+    }
+    if(instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL){
+        return instruction_without_last_bits;
+    }
+    if(instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ANY){
+        return instruction_without_last_bits;
+    }
+    if(instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ALL){
+        return instruction_without_last_bits;
+    }
+    if(instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ANY){
+        return instruction_without_last_bits;
+    }
+
+    return instruction;
+}
+
 void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
     *should_run_next = true;
-    switch(instruction){
+
+    uint8_t instruction_filtered = sequence_instruction_filter_bits(instruction);
+
+    switch(instruction_filtered){
+        case INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS:
+            sequence_pin_digital_output_data_length = (instruction & 0b00001111);
+            break;
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY_TIMEOUT:
+        case INSTRUCTION_JUMP_MATCH_PINS_ALL:
+        case INSTRUCTION_JUMP_MATCH_PINS_ANY:
+            sequence_pin_digital_input_data_length = (instruction & 0b00001111);
+            break;
+    }
+
+    switch(instruction_filtered){
         case INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS:
             sequence_execute_instruction_write_digital_outputs();
             break;

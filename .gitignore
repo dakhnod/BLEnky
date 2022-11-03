@@ -3,3 +3,5 @@ _build/
 .vscode/
 test/
 nohup.out
+*.hex
+*.bin

@@ -256,7 +256,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += --specs=nano.specs -lc -lnosys
 
 
-.PHONY: $(TARGETS) default all clean help flash flash_softdevice erase merge_softdevice applicaiton_zip push sign reset
+.PHONY: $(TARGETS) default all clean help flash flash_softdevice erase merge_softdevice applicaiton_zip push sign reset config
 
 # Default target - first one defined
 default: $(TARGETS)

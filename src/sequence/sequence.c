@@ -1,12 +1,13 @@
 #include "sequence.h"
-#include "sensor_timer.h"
+
+#include "encoding.h"
 #include "instructions.h"
 #include "sensor_gpio.h"
-#include "encoding.h"
+#include "sensor_timer.h"
 
 #define BUFFER_SIZE 200
 
-uint8_t sequence_buffer[BUFFER_SIZE]; // 127 packets, each 19 bytes
+uint8_t sequence_buffer[BUFFER_SIZE];  // 127 packets, each 19 bytes
 uint32_t sequence_buffer_write_index = 0;
 uint8_t sequence_current_write_seq_num = 0;
 
@@ -57,8 +58,7 @@ SEQUENCE_PACKET_PUSH_RESULT sequence_push_packet(uint8_t *data, uint32_t length)
         sequence_buffer_write_index = 0;
 
         result = PUSH_FIRST_PACKET;
-    }
-    else if (sequence_number != (sequence_current_write_seq_num + 1)) {
+    } else if (sequence_number != (sequence_current_write_seq_num + 1)) {
         return PUSH_MISSED_PACKET;
     }
     sequence_current_write_seq_num = sequence_number;
@@ -112,14 +112,14 @@ uint16_t sequence_read_uint16_t() {
 
     return value;
 
-    uint16_t *ptr = (uint16_t*)(sequence_buffer + sequence_buffer_read_index);
+    uint16_t *ptr = (uint16_t *)(sequence_buffer + sequence_buffer_read_index);
 
     sequence_buffer_read_index += 2;
 
     return *ptr;
 }
 
-uint8_t sequence_read_instruction(){
+uint8_t sequence_read_instruction() {
     return sequence_buffer[sequence_buffer_read_index++];
 }
 
@@ -136,7 +136,7 @@ uint8_t sequence_read_has_reached_end() {
     return sequence_buffer_read_index >= sequence_buffer_write_index;
 }
 
-void sequence_execute_instruction_write_digital_outputs(){
+void sequence_execute_instruction_write_digital_outputs() {
     uint32_t pin_data_length = sequence_pin_digital_output_data_length;
     uint8_t *pin_data_digital;
 
@@ -147,15 +147,15 @@ void sequence_execute_instruction_write_digital_outputs(){
     sequence_pin_digital_data_handler(pin_data_digital, pin_data_length);
 }
 
-void sequence_execute_instruction_write_analog_output(uint32_t channel){
+void sequence_execute_instruction_write_analog_output(uint32_t channel) {
     uint16_t duty_cycle = sequence_read_uint16_t();
 
-    NRF_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t) duty_cycle);
+    NRF_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t)duty_cycle);
 
     sequence_pin_analog_data_handler(channel, duty_cycle);
 }
 
-void sequence_execute_instruction_sleep_ms(){
+void sequence_execute_instruction_sleep_ms() {
     uint64_t delay = sequence_read_varint();
     NRF_LOG_DEBUG("instruction sleep: %i\n", delay);
     timer_sequence_start(delay);
@@ -168,28 +168,28 @@ void sequence_execute_instruction_sleep_ms(){
 // match any, one right x
 // match any, all right x
 
-bool sequence_filter_matches_digital_input_pins(uint8_t *pin_filter_data, uint32_t pin_filter_length, bool match_all){
+bool sequence_filter_matches_digital_input_pins(uint8_t *pin_filter_data, uint32_t pin_filter_length, bool match_all) {
     bool result = false;
-    for(uint32_t index = 0; index < get_pin_count_input_digital(); index++){
+    for (uint32_t index = 0; index < get_pin_count_input_digital(); index++) {
         uint8_t pin_bits = encoding_get_pin_bits(pin_filter_data, pin_filter_length, index);
-        if(pin_bits == 0b11){
+        if (pin_bits == 0b11) {
             NRF_LOG_DEBUG("ignoring pin %i\n", index);
             continue;
         }
-        if(pin_bits == 0b10){
+        if (pin_bits == 0b10) {
             NRF_LOG_ERROR("tri-state not supported on pin %i\n", index);
             continue;
         }
         bool pin_should_be_high = (pin_bits == 0b01);
         bool pin_matches = (pin_should_be_high == gpio_get_input_digital_state(index));
 
-        if(pin_matches){
+        if (pin_matches) {
             result = true;
-            if(!match_all){ // singe match is enough
+            if (!match_all) {  // singe match is enough
                 return true;
             }
-        }else{
-            if(match_all){ // first not match enough to break condition
+        } else {
+            if (match_all) {  // first not match enough to break condition
                 return false;
             }
         }
@@ -197,7 +197,7 @@ bool sequence_filter_matches_digital_input_pins(uint8_t *pin_filter_data, uint32
     return result;
 }
 
-void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_next){
+void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_next) {
     uint32_t pin_data_length = sequence_pin_digital_input_data_length;
     uint8_t *pin_data_digital;
 
@@ -213,16 +213,16 @@ void sequence_execute_instruction_sleep_match(bool match_all, bool *should_run_n
     // we wait for a gpio notification to continue
     *should_run_next = match_condition_fulfilled;
 
-    if(!match_condition_fulfilled){
-        if(match_all){
+    if (!match_condition_fulfilled) {
+        if (match_all) {
             sequence_sleep_condition = SLEEP_MATCH_PINS_ALL;
-        }else{
+        } else {
             sequence_sleep_condition = SLEEP_MATCH_PINS_ANY;
         }
     }
 }
 
-void sequence_execute_instruction_sleep_match_timeout(bool match_all, bool *should_run_next){
+void sequence_execute_instruction_sleep_match_timeout(bool match_all, bool *should_run_next) {
     bool match_condition_fulfilled;
 
     sequence_execute_instruction_sleep_match(match_all, &match_condition_fulfilled);
@@ -231,19 +231,19 @@ void sequence_execute_instruction_sleep_match_timeout(bool match_all, bool *shou
 
     uint64_t timeout = sequence_read_varint();
 
-    if(match_condition_fulfilled){
+    if (match_condition_fulfilled) {
         return;
     }
 
     bool already_waiting = (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
 
-    if(already_waiting){
+    if (already_waiting) {
         return;
     }
 
-    if(match_all){
+    if (match_all) {
         sequence_sleep_condition = SLEEP_MATCH_PINS_ALL_TIMEOUT;
-    }else{
+    } else {
         sequence_sleep_condition = SLEEP_MATCH_PINS_ANY_TIMEOUT;
     }
 
@@ -251,8 +251,8 @@ void sequence_execute_instruction_sleep_match_timeout(bool match_all, bool *shou
     timer_sequence_start(timeout);
 }
 
-void sequence_handle_digital_input_update(uint32_t index, bool is_high){
-    if(sequence_sleep_condition == SLEEP_NO_CONDITION){
+void sequence_handle_digital_input_update(uint32_t index, bool is_high) {
+    if (sequence_sleep_condition == SLEEP_NO_CONDITION) {
         return;
     }
     // rewind read head to previous sleep command
@@ -264,14 +264,14 @@ void sequence_handle_digital_input_update(uint32_t index, bool is_high){
     bool match_all = (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL) || (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT);
     bool has_timeout = (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
 
-    if(has_timeout){
+    if (has_timeout) {
         sequence_execute_instruction_sleep_match_timeout(match_all, &execute_next_instruction);
-    }else{
+    } else {
         sequence_execute_instruction_sleep_match(match_all, &execute_next_instruction);
     }
 
-    if(execute_next_instruction){
-        if(sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT || sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT){
+    if (execute_next_instruction) {
+        if (sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT || sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT) {
             timer_sequence_stop();
         }
 
@@ -280,24 +280,24 @@ void sequence_handle_digital_input_update(uint32_t index, bool is_high){
     }
 }
 
-void sequence_execute_instruction_jump_unconditionally(){
+void sequence_execute_instruction_jump_unconditionally() {
     uint32_t target = sequence_read_varint();
     target = MIN(target, sequence_buffer_write_index);
 
     NRF_LOG_DEBUG("instruction jump to %i\n", target);
-    
+
     // disable jump counter
     sequence_jump_instruction_index = 0xffffffff;
 
     sequence_buffer_read_index = target;
 }
 
-void sequence_execute_instruction_check_bytecode_version(bool *should_run_next){
+void sequence_execute_instruction_check_bytecode_version(bool *should_run_next) {
     uint64_t bytecode_version = sequence_read_varint();
     *should_run_next = (bytecode_version == 0);
 }
 
-void sequence_execute_instruction_jump_match(bool match_all){
+void sequence_execute_instruction_jump_match(bool match_all) {
     uint64_t target = sequence_read_varint();
 
     uint32_t pin_data_length = sequence_pin_digital_input_data_length;
@@ -309,7 +309,7 @@ void sequence_execute_instruction_jump_match(bool match_all){
 
     NRF_LOG_DEBUG("jump match condition fulfilled: %i\n", match_condition_fulfilled);
 
-    if(match_condition_fulfilled){
+    if (match_condition_fulfilled) {
         // disable jump counter
         sequence_jump_instruction_index = 0xffffffff;
 
@@ -317,21 +317,21 @@ void sequence_execute_instruction_jump_match(bool match_all){
     }
 }
 
-void sequence_execute_instruction_jump_n_times(){
+void sequence_execute_instruction_jump_n_times() {
     uint32_t jump_instruction_index = sequence_buffer_read_index - 1;
     uint32_t jump_target = sequence_read_varint();
     uint32_t jump_count = sequence_read_varint();
 
-    if(jump_instruction_index != sequence_jump_instruction_index){
+    if (jump_instruction_index != sequence_jump_instruction_index) {
         // firstly encountering this jump instruction
         sequence_jump_instruction_index = jump_instruction_index;
         // set counter to desired jump count
         sequence_jump_counter = jump_count;
-    }else{
+    } else {
         sequence_jump_counter--;
     }
 
-    if(sequence_jump_counter == 0){
+    if (sequence_jump_counter == 0) {
         // jump counter at 0, not jumping any more
         // disable jump counter
         sequence_jump_instruction_index = 0xffffffff;
@@ -342,21 +342,21 @@ void sequence_execute_instruction_jump_n_times(){
     sequence_buffer_read_index = jump_target;
 }
 
-uint8_t sequence_instruction_filter_bits(uint8_t instruction){
+uint8_t sequence_instruction_filter_bits(uint8_t instruction) {
     uint8_t instruction_without_last_bits = instruction & 0b11110000;
-    if(instruction_without_last_bits == INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS){
+    if (instruction_without_last_bits == INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS) {
         return instruction_without_last_bits;
     }
-    if(instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL){
+    if (instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL) {
         return instruction_without_last_bits;
     }
-    if(instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ANY){
+    if (instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ANY) {
         return instruction_without_last_bits;
     }
-    if(instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ALL){
+    if (instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ALL) {
         return instruction_without_last_bits;
     }
-    if(instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ANY){
+    if (instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ANY) {
         return instruction_without_last_bits;
     }
 
@@ -368,7 +368,7 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
 
     uint8_t instruction_filtered = sequence_instruction_filter_bits(instruction);
 
-    switch(instruction_filtered){
+    switch (instruction_filtered) {
         case INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS:
             sequence_pin_digital_output_data_length = (instruction & 0b00001111);
             break;
@@ -382,7 +382,7 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
             break;
     }
 
-    switch(instruction_filtered){
+    switch (instruction_filtered) {
         case INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS:
             sequence_execute_instruction_write_digital_outputs();
             break;
@@ -429,10 +429,10 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
 
 void sequence_buffer_next_packet() {
     bool should_run_next;
-    do{
+    do {
         uint8_t instruction = sequence_read_instruction();
         sequence_execute_instruction(instruction, &should_run_next);
-    }while(should_run_next && !sequence_read_has_reached_end());
+    } while (should_run_next && !sequence_read_has_reached_end());
 }
 
 void sequence_step() {
@@ -456,13 +456,7 @@ void sequence_start() {
     sequence_step();
 }
 
-void sequence_init(
-    uint32_t pin_data_digital_output_length,
-    uint32_t pin_data_digital_input_length,
-    uint32_t pin_data_analog_length,
-    pin_digital_data_handler_t pin_digital_data_handler,
-    pin_analog_data_handler_t pin_analog_data_handler
-) {
+void sequence_init(uint32_t pin_data_digital_output_length, uint32_t pin_data_digital_input_length, uint32_t pin_data_analog_length, pin_digital_data_handler_t pin_digital_data_handler, pin_analog_data_handler_t pin_analog_data_handler) {
     sequence_pin_digital_output_data_length = pin_data_digital_output_length;
     sequence_pin_digital_input_data_length = pin_data_digital_input_length;
     sequence_pin_analog_output_data_length = pin_data_analog_length;

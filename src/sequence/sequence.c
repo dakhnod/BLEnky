@@ -392,11 +392,11 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
             break;
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL:
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY:
-            sequence_execute_instruction_sleep_match(instruction == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL, should_run_next);
+            sequence_execute_instruction_sleep_match(instruction_filtered == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL, should_run_next);
             break;
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT:
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY_TIMEOUT:
-            sequence_execute_instruction_sleep_match_timeout(instruction == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT, should_run_next);
+            sequence_execute_instruction_sleep_match_timeout(instruction_filtered == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT, should_run_next);
             break;
         case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_0:
         case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_1:
@@ -412,7 +412,7 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
             break;
         case INSTRUCTION_JUMP_MATCH_PINS_ALL:
         case INSTRUCTION_JUMP_MATCH_PINS_ANY:
-            sequence_execute_instruction_jump_match(instruction == INSTRUCTION_JUMP_MATCH_PINS_ALL);
+            sequence_execute_instruction_jump_match(instruction_filtered == INSTRUCTION_JUMP_MATCH_PINS_ALL);
             break;
         case INSTRCUTION_JUMP_N_TIMES:
             sequence_execute_instruction_jump_n_times();

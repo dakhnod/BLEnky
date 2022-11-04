@@ -344,20 +344,15 @@ void sequence_execute_instruction_jump_n_times() {
 
 uint8_t sequence_instruction_filter_bits(uint8_t instruction) {
     uint8_t instruction_without_last_bits = instruction & 0b11110000;
-    if (instruction_without_last_bits == INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS) {
-        return instruction_without_last_bits;
-    }
-    if (instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL) {
-        return instruction_without_last_bits;
-    }
-    if (instruction_without_last_bits == INSTRUCTION_SLEEP_MATCH_INPUTS_ANY) {
-        return instruction_without_last_bits;
-    }
-    if (instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ALL) {
-        return instruction_without_last_bits;
-    }
-    if (instruction_without_last_bits == INSTRUCTION_JUMP_MATCH_PINS_ANY) {
-        return instruction_without_last_bits;
+    switch (instruction_without_last_bits) {
+        case INSTRUCTION_WRITE_OUTPUT_DIGITAL_PINS:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT:
+        case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY_TIMEOUT:
+        case INSTRUCTION_JUMP_MATCH_PINS_ALL:
+        case INSTRUCTION_JUMP_MATCH_PINS_ANY:
+            return instruction_without_last_bits;
     }
 
     return instruction;

@@ -111,12 +111,6 @@ uint16_t sequence_read_uint16_t() {
     sequence_buffer_read_index += 2;
 
     return value;
-
-    uint16_t *ptr = (uint16_t *)(sequence_buffer + sequence_buffer_read_index);
-
-    sequence_buffer_read_index += 2;
-
-    return *ptr;
 }
 
 uint8_t sequence_read_instruction() {
@@ -152,7 +146,7 @@ void sequence_execute_instruction_write_analog_output(uint32_t channel) {
 
     NRF_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t)duty_cycle);
 
-    sequence_pin_analog_data_handler(channel, duty_cycle);
+    // sequence_pin_analog_data_handler(channel, duty_cycle);
 }
 
 void sequence_execute_instruction_sleep_ms() {
@@ -427,7 +421,12 @@ void sequence_buffer_next_packet() {
     do {
         uint8_t instruction = sequence_read_instruction();
         sequence_execute_instruction(instruction, &should_run_next);
-    } while (should_run_next && !sequence_read_has_reached_end());
+
+        if(sequence_read_has_reached_end()){
+            NRF_LOG_DEBUG("instructions end.\n");
+            break;
+        }
+    } while (should_run_next);
 }
 
 void sequence_step() {

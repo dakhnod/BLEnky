@@ -105,8 +105,8 @@ uint64_t sequence_read_varint() {
 
 uint16_t sequence_read_uint16_t() {
     uint16_t value = 0;
-    value |= sequence_buffer[sequence_buffer_read_index] << 0;
-    value |= sequence_buffer[sequence_buffer_read_index + 1] << 8;
+
+    memcpy(&value, sequence_buffer + sequence_buffer_read_index, 2);
 
     sequence_buffer_read_index += 2;
 
@@ -146,7 +146,7 @@ void sequence_execute_instruction_write_analog_output(uint32_t channel) {
 
     NRF_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t)duty_cycle);
 
-    // sequence_pin_analog_data_handler(channel, duty_cycle);
+    sequence_pin_analog_data_handler(channel, duty_cycle);
 }
 
 void sequence_execute_instruction_sleep_ms() {

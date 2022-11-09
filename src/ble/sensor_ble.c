@@ -265,7 +265,7 @@ void advertising_init() {
             .uuid = UUID_AUTOMATION_IO_SERVICE,
             .type = BLE_UUID_TYPE_BLE
         }, {
-            .uuid = UUID_BINARY_SENSOR_SERVICE,
+            .uuid = UUID_GPIO_ASM_SERVICE,
             .type = BLE_UUID_TYPE_BLE
         }
     };

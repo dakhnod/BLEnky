@@ -4,6 +4,7 @@
 #include "ble_gpio_asm.h"
 #include "app_error.h"
 #include "ble_dis.h"
+#include "nrf_delay.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -40,6 +41,9 @@ void ble_init() {
     }
     conn_params_init();
     services_init();
+    // allow flash operation to complete. 
+    // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
+    nrf_delay_ms(3); 
     advertising_init();
 }
 
@@ -304,6 +308,7 @@ void advertising_start() {
 
 void sys_evt_dispatch(uint32_t sys_evt) {
     storage_on_sys_evt(sys_evt);
+    ble_advertising_on_sys_evt(sys_evt);
 }
 
 void ble_stack_init(void) {
@@ -335,7 +340,7 @@ void ble_stack_init(void) {
     err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
     APP_ERROR_CHECK(err_code);
 
-    softdevice_sys_evt_handler_set(sys_evt_dispatch);
+    err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
 }
 

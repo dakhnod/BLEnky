@@ -42,8 +42,8 @@ void ble_init() {
     conn_params_init();
     services_init();
     // allow flash operation to complete. 
-    // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
-    nrf_delay_ms(3); 
+    // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation...
+    // nrf_delay_ms(3);
     advertising_init();
 }
 
@@ -307,6 +307,7 @@ void advertising_start() {
 }
 
 void sys_evt_dispatch(uint32_t sys_evt) {
+    NRF_LOG_WARNING("evt is flash: %d\n", sys_evt == NRF_EVT_FLASH_OPERATION_SUCCESS || sys_evt == NRF_EVT_FLASH_OPERATION_ERROR);
     storage_on_sys_evt(sys_evt);
     ble_advertising_on_sys_evt(sys_evt);
 }

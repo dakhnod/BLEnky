@@ -36,13 +36,15 @@ int main(void) {
 
     advertising_start();
 
-    NRF_LOG_INFO("setup done\n");
+    NRF_LOG_WARNING("setup done\n");
 
     // Enter main loop.
     for (;;) {
-        if (NRF_LOG_PROCESS() == false) {
+        // if (NRF_LOG_PROCESS() == false) {
+            NRF_LOG_WARNING("sleeping...\n");
             power_manage();
+            NRF_LOG_WARNING("wakeup\n");
             app_sched_execute();
-        }
+        // }
     }
 }

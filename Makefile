@@ -17,7 +17,7 @@ CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET := pixel
 ADB_DIRECTORY := /sdcard/dfu
 
-BOARD := BEACON_BIG
+BOARD := WT51822_S4AT
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822.ld
@@ -48,14 +48,12 @@ SRC_FILES += \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/ble/common/ble_advdata.c \
-  $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
   $(SDK_ROOT)/components/toolchain/system_nrf51.c \
   $(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_flash.c \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings.c \
   $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
@@ -81,6 +79,8 @@ SRC_FILES += \
   $(PROJ_DIR)/src/storage/storage.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
   $(PROJ_DIR)/src/main.c \
+  $(PROJ_DIR)/src/ble/advertising/ble_advertising.c \
+  $(PROJ_DIR)/src/nrf_dfu_settings.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -333,3 +333,6 @@ rtt_viewer_stop:
 
 python_script_run:
 	test/venv/bin/python test/send.py
+
+reset_bootloader:
+	nrfjprog --erasepage 0x0003FC00

@@ -1,6 +1,5 @@
 #include "sensor_gpio.h"
 #include "pin_configuration.h"
-#include "mem_manager.h"
 #include "app_timer.h"
 #include "ble_configuration.h"
 #include "app_pwm.h"
@@ -11,6 +10,13 @@ uint32_t gpio_input_digital_pin_count = 0;
 
 gpio_config_output_digital_t *gpio_output_configs;
 gpio_config_input_digital_t *gpio_input_configs;
+
+union {
+  gpio_config_output_digital_t output;
+  gpio_config_input_digital_t input;
+} gpio_config_t;
+
+gpio_config_t gpio_configs[32];
 
 gpio_input_change_handler_t gpio_input_change_handler = NULL;
 
@@ -198,36 +204,16 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
-  err_code = nrf_mem_init();
-  APP_ERROR_CHECK(err_code);
-
   pin_configuration_init();
 
   gpio_output_digital_pin_count = get_pin_count_output_digital();
   gpio_output_analog_pin_count = get_pin_count_output_analog();
   gpio_input_digital_pin_count = get_pin_count_input_digital();
 
-  uint32_t size;
   ret_code_t result;
-
-  if (gpio_output_digital_pin_count > 0) {
-    size = sizeof(gpio_config_output_digital_t) * gpio_output_digital_pin_count;
-    result = nrf_mem_reserve(
-      (uint8_t **)&gpio_output_configs,
-      &size
-    );
-    APP_ERROR_CHECK(result);
-  }
 
   if (gpio_input_digital_pin_count > 0) {
     sensor_timer_initialize_debounce_timers(gpio_input_digital_pin_count, gpio_debounce_timeout_handler);
-
-    size = sizeof(gpio_config_input_digital_t) * gpio_input_digital_pin_count;
-    result = nrf_mem_reserve(
-      (uint8_t **)&gpio_input_configs,
-      &size
-    );
-    APP_ERROR_CHECK(result);
   }
 
   pin_configuration_parse(

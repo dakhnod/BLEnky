@@ -4,8 +4,6 @@
 #include "ble_configuration.h"
 #include "app_pwm.h"
 
-#define MAX_PIN_COUNT 32
-
 uint32_t gpio_output_digital_pin_count = 0;
 uint32_t gpio_output_analog_pin_count = 0;
 uint32_t gpio_input_digital_pin_count = 0;

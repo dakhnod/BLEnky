@@ -25,8 +25,6 @@ void ble_init() {
 
     storage_read_device_name(device_name, &device_name_length);
 
-    NRF_LOG_INFO("device name length: %d\n", device_name_length);
-
     if(device_name_length == 0){
         // set default device name
         gap_params_init(
@@ -385,7 +383,7 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
         NRF_LOG_ERROR("failed setting stored connection parameters: %s\n", (uint32_t)ERR_TO_STR(err_code));
     }
     else {
-        NRF_LOG_INFO("Connection params not configured\n");
+        NRF_LOG_WARNING("Connection params not configured\n");
     }
 
     gap_conn_params.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
@@ -435,7 +433,7 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
         NRF_LOG_ERROR("update failed: %s\n", (uint32_t)ERR_TO_STR(err_code));
     }
     else {
-        NRF_LOG_INFO("udpate success\n");
+        NRF_LOG_DEBUG("udpate success\n");
     }
     // seems to lock up the chip
     // APP_ERROR_CHECK(err_code);

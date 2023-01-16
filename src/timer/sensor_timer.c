@@ -5,7 +5,7 @@
 #define MAX_TICKS 32000
 
 // was using mem_manager and malloc, but there's no point since it reserves the max amount anyway
-app_timer_t debounce_timers[32];
+app_timer_t debounce_timers[MAX_INPUT_PIN_COUNT];
 
 debounce_timer_timeout_handler_t debounce_timer_timeout_handler;
 sequence_timer_handler_t sequence_timer_handler;

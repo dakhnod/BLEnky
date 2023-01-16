@@ -59,7 +59,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
-  $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
   $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
   $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
@@ -121,7 +120,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/ble/ble_services/ble_ans_c \
   $(SDK_ROOT)/components/libraries/slip \
-  $(SDK_ROOT)/components/libraries/mem_manager \
   $(SDK_ROOT)/external/segger_rtt \
   $(SDK_ROOT)/components/libraries/csense_drv \
   $(SDK_ROOT)/components/drivers_nrf/hal \

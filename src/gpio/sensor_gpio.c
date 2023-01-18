@@ -265,6 +265,9 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   gpio_output_analog_pin_count = get_pin_count_output_analog();
   gpio_input_digital_pin_count = get_pin_count_input_digital();
 
+  gpio_output_digital_pin_count = MIN(gpio_output_digital_pin_count, MAX_PIN_COUNT);
+  gpio_input_digital_pin_count = MIN(gpio_input_digital_pin_count, MAX_PIN_COUNT - gpio_output_digital_pin_count);
+
   if (gpio_input_digital_pin_count > 0) {
     sensor_timer_initialize_debounce_timers(gpio_input_digital_pin_count, gpio_debounce_timeout_handler);
   }

@@ -1,4 +1,3 @@
-#include "fstorage.h"
 #include "nrf_log.h"
 
 #define OFFSET_PIN_CONFIGURATION 0x00
@@ -7,7 +6,6 @@
 #define LENGTH_DEVICE_NAME 20
 
 void storage_init();
-void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result);
 void storage_on_sys_evt(uint32_t sys_evt);
 void storage_store_pin_configuration(uint8_t *buffer);
 void storage_store_device_name(uint8_t *name, int length);

@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "fstorage.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 

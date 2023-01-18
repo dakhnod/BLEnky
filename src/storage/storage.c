@@ -1,6 +1,7 @@
 #include "storage.h"
 #include "app_timer.h"
 #include "ble_configuration.h"
+#include "fstorage.h"
 #include "fds.h"
 #include "math.h"
 
@@ -12,34 +13,50 @@ APP_TIMER_DEF(reboot_timer);
 #define RECORD_ID_CONNECTION_SETTINGS 0x0002
 #define RECORD_ID_PIN_CONFIGURATION 0x0003
 
-uint8_t reboot = false;
+uint8_t reboot_requested = false;
 
-void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
-  if (result != FS_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage failure\n");
-    return;
-  }
-  if (evt->id == FS_EVT_STORE) {
-    if (result != FS_SUCCESS) {
-      NRF_LOG_DEBUG("fstorage store failed: %d\n", result);
-      return;
+
+void fds_evt_handler(fds_evt_t const * const p_fds_evt)
+{
+    switch (p_fds_evt->id)
+    {
+        case FDS_EVT_INIT:
+            if (p_fds_evt->result == FDS_SUCCESS)
+            {
+                NRF_LOG_DEBUG("fds init success\n");
+            }else{
+                NRF_LOG_ERROR("fds init error: %d\n", p_fds_evt->result);
+            }
+            break;
+        case FDS_EVT_WRITE:
+            if (p_fds_evt->result == FDS_SUCCESS)
+            {
+              NRF_LOG_DEBUG("fds write success\n");
+              if (reboot_requested) {
+                NRF_LOG_DEBUG("reboot requested, rebooting...\n");
+                ret_code_t err_code = app_timer_start(reboot_timer, REBOOT_TIMEOUT, NULL);
+                APP_ERROR_CHECK(err_code);
+                return;
+              }
+            }else{
+                NRF_LOG_ERROR("fds write error: %d\n", p_fds_evt->result);
+            }
+            break;
+        default:
+            break;
     }
-    NRF_LOG_DEBUG("fstorage store successfull\n");
-    if (((uint8_t *)evt->p_context)[0] == 0x01) {
-      NRF_LOG_DEBUG("reboot requested, rebooting...\n");
-      ret_code_t err_code = app_timer_start(reboot_timer, REBOOT_TIMEOUT, NULL);
-      APP_ERROR_CHECK(err_code);
-      return;
-    }
-  }
-  NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", evt->id, result);
 }
 
 void storage_init() {
-  fs_ret_t ret = fds_init();
-  APP_ERROR_CHECK(ret);
+  ret_code_t err_code;
+  
+  err_code = fds_register(fds_evt_handler);
+  APP_ERROR_CHECK(err_code);
 
-  ret_code_t err_code = app_timer_create(
+  err_code = fds_init();
+  APP_ERROR_CHECK(err_code);
+
+  err_code = app_timer_create(
     &reboot_timer,
     APP_TIMER_MODE_SINGLE_SHOT,
     (app_timer_timeout_handler_t)NVIC_SystemReset
@@ -76,8 +93,8 @@ ret_code_t storage_read(uint16_t file, uint16_t record_key, uint8_t *buffer, uin
   return NRF_SUCCESS;
 }
 
-ret_code_t storage_store(uint16_t file, uint16_t record_key, uint8_t *data, uint32_t length, uint8_t reboot_) {
-  reboot = reboot_;
+ret_code_t storage_store(uint16_t file, uint16_t record_key, uint8_t *data, uint32_t length, uint8_t reboot) {
+  reboot_requested = reboot;
 
   static uint8_t __ALIGN(4) buffer[32]; // should fit the biggest possible item
   memcpy(buffer, data, length);

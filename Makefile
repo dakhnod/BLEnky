@@ -20,7 +20,7 @@ ADB_DIRECTORY := /sdcard/dfu
 BOARD := BEACON_BIG
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822.ld
+  LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
 # Source files common to all targets
 SRC_FILES += \

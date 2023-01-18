@@ -1,8 +1,5 @@
 #include "nrf_log.h"
 
-#define OFFSET_PIN_CONFIGURATION 0x00
-#define OFFSET_CONNECTION_PARAMS_CONFIGURATION 0x10
-#define OFFSET_DEVICE_NAME 0x1A
 #define LENGTH_DEVICE_NAME 20
 
 void storage_init();

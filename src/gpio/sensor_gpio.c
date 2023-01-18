@@ -43,15 +43,26 @@ gpio_config_t *find_gpio_config_by_index(uint32_t index, direction_t direction){
 }
 
 gpio_config_output_digital_t *find_gpio_output_by_index(uint32_t index){
-  return &(find_gpio_config_by_index(index, OUTPUT)->pin.output);
+  gpio_config_t *config = find_gpio_config_by_index(index, OUTPUT);
+  if(config == NULL){
+    return NULL;
+  }
+  return &(config->pin.output);
 }
 
 gpio_config_input_digital_t *find_gpio_input_by_index(uint32_t index){
-  return &(find_gpio_config_by_index(index, INPUT)->pin.input);
+  gpio_config_t *config = find_gpio_config_by_index(index, INPUT);
+  if(config == NULL){
+    return NULL;
+  }
+  return &(config->pin.input);
 }
 
 void gpio_write_output_digital_pin(uint32_t index, uint8_t value) {
   gpio_config_output_digital_t *config = find_gpio_output_by_index(index);
+  if(config == NULL){
+    return;
+  }
   uint32_t pin = config->pin;
   if (value ^ config->invert) {
     nrf_gpio_pin_set(pin);
@@ -75,10 +86,18 @@ uint32_t gpio_get_input_digital_pin_count() {
 }
 
 uint8_t gpio_get_output_digital_state(uint32_t index) {
-  return find_gpio_output_by_index(index)->state;
+  gpio_config_output_digital_t *config = find_gpio_output_by_index(index);
+  if(config == NULL){
+    return false;
+  }
+  return config->state;
 }
 
 bool gpio_get_input_digital_state(uint32_t index) {
+  gpio_config_input_digital_t *config = find_gpio_input_by_index(index);
+  if(config == NULL){
+    return false;
+  }
   return find_gpio_input_by_index(index)->state;
 }
 
@@ -133,6 +152,9 @@ void gpio_configure_aio_outputs_analog(){
 
 void on_pin_changed(uint32_t index) {
   gpio_config_input_digital_t *config = find_gpio_input_by_index(index);
+  if(config == NULL){
+    return;
+  }
   NRF_LOG_DEBUG("pin %d (%d) changed to %d\n", index, config->pin, config->state);
 
   if (config->state == 0x01) {
@@ -149,8 +171,10 @@ void on_pin_changed(uint32_t index) {
 }
 
 void gpio_debounce_timeout_handler(uint32_t timer_index) {
-
   gpio_config_input_digital_t *config = find_gpio_input_by_index(timer_index);
+  if(config == NULL){
+    return;
+  }
 
   if (config->ignored_state == config->state) {
     config->ignore_input = false;

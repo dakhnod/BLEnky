@@ -2,12 +2,17 @@
 #include "app_timer.h"
 #include "ble_configuration.h"
 #include "fds.h"
+#include "math.h"
 
 APP_TIMER_DEF(reboot_timer);
 #define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
 
-#define SETTINGS_FILE 0x0000
-#
+#define FILE_ID_SETTINGS 0x0000
+#define RECORD_ID_DEVICE_NAME 0x0001
+#define RECORD_ID_CONNECTION_SETTINGS 0x0002
+#define RECORD_ID_PIN_CONFIGURATION 0x0003
+
+uint8_t reboot = false;
 
 void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
   if (result != FS_SUCCESS) {
@@ -43,11 +48,11 @@ void storage_init() {
 }
 
 void storage_on_sys_evt(uint32_t sys_evt) {
-  fds_sys_event_handler(sys_evt);
+  fs_sys_event_handler(sys_evt);
 }
 
-void storage_read(uint16_t file, uint16_t record_key, uint8_t *buffer, uint32_t length) {
-  err_code_t err_code;
+ret_code_t storage_read(uint16_t file, uint16_t record_key, uint8_t *buffer, uint32_t length) {
+  ret_code_t err_code;
 
   fds_flash_record_t  flash_record;
   fds_record_desc_t   record_desc;
@@ -68,86 +73,68 @@ void storage_read(uint16_t file, uint16_t record_key, uint8_t *buffer, uint32_t 
   err_code = fds_record_close(&record_desc);
   APP_ERROR_CHECK(err_code);
 
-  // casting p_start_addr, so that offset calculation does not add offset * sizeof(uint32_t)
-  memcpy(buffer, ((uint8_t *)fs_config.p_start_addr) + offset, length);
+  return NRF_SUCCESS;
 }
 
-void storage_read_pin_configuration(uint8_t *buffer) {
-  storage_read(OFFSET_PIN_CONFIGURATION, buffer, 16);
+ret_code_t storage_store(uint16_t file, uint16_t record_key, uint8_t *data, uint32_t length, uint8_t reboot_) {
+  reboot = reboot_;
+
+  static uint8_t __ALIGN(4) buffer[32]; // should fit the biggest possible item
+  memcpy(buffer, data, length);
+
+  fds_record_desc_t record_desc;
+
+  fds_record_chunk_t record_chunk = {
+    .p_data = data,
+    .length_words = ceil(length / 4.0)
+  };
+
+  fds_record_t record = {
+    .file_id = file,
+    .key = record_key,
+    .data = {
+      .num_chunks = 1,
+      .p_chunks = &record_chunk
+    }
+  };
+
+  ret_code_t err_code;
+
+  err_code = fds_record_update(&record_desc, &record);
+
+  APP_ERROR_CHECK(err_code);
+
+  return NRF_SUCCESS;
 }
 
-void storage_read_connection_params_configuration(uint8_t *buffer) {
-  storage_read(OFFSET_CONNECTION_PARAMS_CONFIGURATION, buffer, 10);
+ret_code_t storage_read_pin_configuration(uint8_t *buffer) {
+  return storage_read(FILE_ID_SETTINGS, RECORD_ID_PIN_CONFIGURATION, buffer, 16);
 }
 
-void storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
-  storage_read(OFFSET_DEVICE_NAME, buffer, LENGTH_DEVICE_NAME);
+ret_code_t storage_read_connection_params_configuration(uint8_t *buffer) {
+  return storage_read(FILE_ID_SETTINGS, RECORD_ID_CONNECTION_SETTINGS, buffer, 10);
+}
 
-  uint32_t length;
+ret_code_t storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
+  ret_code_t err_code = storage_read(FILE_ID_SETTINGS, RECORD_ID_DEVICE_NAME, buffer, LENGTH_DEVICE_NAME);
 
-  for(length = 0; ; length++){
-    if(length >= LENGTH_DEVICE_NAME){
-      break;
-    }
-    if(buffer[length] == 0){
-      break;
-    }
-    if(buffer[length] == 0xFF){
-      break;
-    }
+  if(err_code != NRF_SUCCESS){
+    *length_ = 0;
+    return err_code;
   }
 
-  *length_ = length;
-}
+  uint32_t len = strlen((char*) buffer);
+  *length_ = MIN(len, LENGTH_DEVICE_NAME);
 
-void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t reboot) {
-  fs_ret_t ret_code;
-
-  const uint32_t size = 46; // 16 bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
-  
-  // should should be done dynamically, but at compile-time
-  const uint32_t size_aligned = 48; // calculate 4-byte-alignet size
-
-  const uint32_t data_size_32 = size_aligned / 4; // calculate size in 32-bit-words
-
-  // we should use size_aligned as the size, but that isn't constant enough for the compiler...
-  static uint8_t storage_data[48]; 
-  storage_read(0, storage_data, size); // read whole storage
-
-  memcpy(storage_data + offset, data, length);
-
-  ret_code = fs_erase(
-    &fs_config,
-    fs_config.p_start_addr,
-    1,
-    NULL
-  );
-
-  if (ret_code != FS_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage erase failure: %d\n", ret_code);
-    return;
-  }
-
-  static uint8_t context = false;
-  context = reboot;
-
-  ret_code = fs_store(
-    &fs_config,
-    fs_config.p_start_addr,
-    (uint32_t *)storage_data,
-    data_size_32,
-    &context
-  );
-
-  APP_ERROR_CHECK(ret_code);
+  return NRF_SUCCESS;
 }
 
 void storage_store_pin_configuration(uint8_t *data) {
-  storage_store(OFFSET_PIN_CONFIGURATION, data, 16, true);
+  storage_store(FILE_ID_SETTINGS, RECORD_ID_PIN_CONFIGURATION, data, 16, true);
 }
 
 void storage_store_connection_params_configuration(uint8_t *data) {
-  storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, true);
+  storage_store(FILE_ID_SETTINGS, RECORD_ID_CONNECTION_SETTINGS, data, 10, true);
 }
 
 void storage_store_device_name(uint8_t *name, int length) {
@@ -157,5 +144,5 @@ void storage_store_device_name(uint8_t *name, int length) {
     name_buffer[length] = 0;
   }
 
-  storage_store(OFFSET_DEVICE_NAME, name_buffer, LENGTH_DEVICE_NAME, true);
+  storage_store(FILE_ID_SETTINGS, RECORD_ID_DEVICE_NAME, name, LENGTH_DEVICE_NAME, true);
 }

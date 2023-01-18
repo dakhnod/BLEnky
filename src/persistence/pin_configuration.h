@@ -1,10 +1,11 @@
 #include "stdint.h"
+#include "sdk_errors.h"
 
 typedef void (*pin_output_analog_handler_t)(uint32_t index, uint32_t pin, uint8_t invert);
 typedef void (*pin_output_digital_handler_t)(uint32_t index, uint32_t pin, uint8_t default_state, uint8_t invert);
 typedef void (*pin_input_digital_handler_t)(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert);
 
-void pin_configuration_data_read(uint8_t *data);
+ret_code_t pin_configuration_data_read(uint8_t *data);
 void pin_configuration_init();
 void pin_configuration_parse(
   pin_output_digital_handler_t output_digital_handler,

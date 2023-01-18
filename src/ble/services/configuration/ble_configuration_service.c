@@ -84,13 +84,17 @@ void ble_configuration_restore_values() {
   ret_code_t err_code;
 
   uint8_t storage_data[16]; // size 16 to cover both endpoints
-  storage_read_pin_configuration(storage_data);
-  err_code = ble_configuration_pin_configuraion_data_set(storage_data);
-  APP_ERROR_CHECK(err_code);
+  err_code = storage_read_pin_configuration(storage_data);
+  if(err_code == NRF_SUCCESS){
+    err_code = ble_configuration_pin_configuraion_data_set(storage_data);
+    APP_ERROR_CHECK(err_code);
+  }
 
-  storage_read_connection_params_configuration(storage_data);
-  err_code = ble_configuration_connection_params_configuraion_data_set(storage_data);
-  APP_ERROR_CHECK(err_code);
+  err_code = storage_read_connection_params_configuration(storage_data);
+  if(err_code == NRF_SUCCESS){
+    err_code = ble_configuration_connection_params_configuraion_data_set(storage_data);
+    APP_ERROR_CHECK(err_code);
+  }
 }
 
 ret_code_t ble_configuration_service_init(ble_configuration_connection_params_update_handler_t connection_params_update_handler) {

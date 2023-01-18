@@ -118,10 +118,12 @@ void pin_configuration_init() {
   storage_init();
 
   uint8_t pin_configuration_data[16];
-  pin_configuration_data_read(pin_configuration_data);
+  ret_code_t err_code = pin_configuration_data_read(pin_configuration_data);
 
-  // count output pins
-  pin_data_for_each_pin(pin_configuration_data, 16, count_up_if_enabled);
+  if(err_code == NRF_SUCCESS){
+    // count output pins
+    pin_data_for_each_pin(pin_configuration_data, 16, count_up_if_enabled);
+  }
 }
 
 void pin_configuration_parse(
@@ -130,19 +132,20 @@ void pin_configuration_parse(
   pin_input_digital_handler_t input_digital_handler
 ) {
   uint8_t pin_configuration_data[16];
-  pin_configuration_data_read(pin_configuration_data);
+  ret_code_t err_code = pin_configuration_data_read(pin_configuration_data);
+  if(err_code == NRF_SUCCESS){
+    current_output_digital_pin_index = 0;
+    current_output_analog_pin_index = 0;
+    current_input_digital_pin_index = 0;
 
-  current_output_digital_pin_index = 0;
-  current_output_analog_pin_index = 0;
-  current_input_digital_pin_index = 0;
+    pin_configuration_output_digital_handler = output_digital_handler;
+    pin_configuration_output_analog_handler = output_analog_handler;
+    pin_configuration_input_digital_handler = input_digital_handler;
 
-  pin_configuration_output_digital_handler = output_digital_handler;
-  pin_configuration_output_analog_handler = output_analog_handler;
-  pin_configuration_input_digital_handler = input_digital_handler;
-
-  pin_data_for_each_pin(pin_configuration_data, 16, parse_pin_byte);
+    pin_data_for_each_pin(pin_configuration_data, 16, parse_pin_byte);
+  }
 }
 
-void pin_configuration_data_read(uint8_t *data) {
-  storage_read_pin_configuration(data);
+ret_code_t pin_configuration_data_read(uint8_t *data) {
+  return storage_read_pin_configuration(data);
 }

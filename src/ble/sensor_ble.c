@@ -350,7 +350,7 @@ void ble_stack_init(void) {
  *          device including the device name, appearance, and the preferred connection parameters.
  */
 void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
-    uint32_t                err_code;
+    ret_code_t              err_code;
     ble_gap_conn_sec_mode_t sec_mode;
 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
@@ -364,9 +364,9 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     ble_gap_conn_params_t gap_conn_params;
 
     uint8_t params_data[10];
-    storage_read_connection_params_configuration(params_data);
+    err_code = storage_read_connection_params_configuration(params_data);
 
-    if (params_data[0] != 0xff) {
+    if (err_code == NRF_SUCCESS) {
         ble_configuration_connection_params_packet_t *params =
             (ble_configuration_connection_params_packet_t *)params_data;
 

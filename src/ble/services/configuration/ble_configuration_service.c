@@ -212,7 +212,6 @@ void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *
       NRF_LOG_ERROR("sup timeout smaller than effective connection interval\n");
     }
     else {
-      NRF_LOG_INFO("LGTM\n");
       ble_configuration_handle_connection_params_configuration_data(write_req->data);
       status = BLE_GATT_STATUS_SUCCESS;
     }

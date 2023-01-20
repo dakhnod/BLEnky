@@ -15,17 +15,17 @@
 typedef struct
 {
   uint32_t pin;
+  uint8_t state;
   uint8_t default_state;
   uint8_t invert;
-  uint8_t state;
 } gpio_config_output_digital_t;
 
 typedef struct
 {
   uint32_t pin;
+  uint8_t state;
   uint8_t pull;
   uint8_t invert;
-  uint8_t state;
   uint8_t ignored_state;
   uint8_t ignore_input;
   uint32_t trigger_count;

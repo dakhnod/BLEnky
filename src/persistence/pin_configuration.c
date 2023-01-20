@@ -6,10 +6,6 @@ uint32_t pin_count_output_digital = 0;
 uint32_t pin_count_output_analog = 0;
 uint32_t pin_count_input_digital = 0;
 
-uint32_t current_output_digital_pin_index;
-uint32_t current_output_analog_pin_index;
-uint32_t current_input_digital_pin_index;
-
 pin_output_analog_handler_t pin_configuration_output_analog_handler;
 pin_output_digital_handler_t pin_configuration_output_digital_handler;
 pin_input_digital_handler_t pin_configuration_input_digital_handler;
@@ -49,33 +45,32 @@ void parse_pin_byte(uint32_t pin_index, uint8_t pin_data) {
 
   uint8_t invert = get_pin_invert(pin_data);
 
+  static uint32_t pin_number = 0;
+  static uint32_t pin_number_analog = 0;
+
   if (is_output_pin_enabled(pin_data)) {
     if(is_output_pin_analog(pin_data)){
       pin_configuration_output_analog_handler(
-        current_output_analog_pin_index,
+        pin_number_analog++,
         pin_index,
         invert
       );
-      current_output_analog_pin_index++;
     }else{
       pin_configuration_output_digital_handler(
-        current_output_digital_pin_index,
+        pin_number++,
         pin_index,
         get_output_digital_pin_default_state(pin_data),
         invert
       );
-      current_output_digital_pin_index++;
     }
   }
   else if (is_input_pin_enabled(pin_data)) {
     pin_configuration_input_digital_handler(
-      current_input_digital_pin_index,
+      pin_number++,
       pin_index,
       get_input_digital_pin_pull(pin_data),
       invert
     );
-
-    current_input_digital_pin_index++;
   }
 }
 

@@ -1,11 +1,11 @@
 #include "sensor_timer.h"
-#include "mem_manager.h"
 #include "nrf_log.h"
 
 #define DEBOUNCE_TIMEOUT APP_TIMER_TICKS(200, APP_TIMER_PRESCALER)
 #define MAX_TICKS 32000
 
-app_timer_t *debounce_timers;
+// was using mem_manager and malloc, but there's no point since it reserves the max amount anyway
+app_timer_t debounce_timers[MAX_INPUT_PIN_COUNT];
 
 debounce_timer_timeout_handler_t debounce_timer_timeout_handler;
 sequence_timer_handler_t sequence_timer_handler;
@@ -28,14 +28,6 @@ void sensor_timer_debounce_timer_start(uint32_t timer_index) {
 
 void sensor_timer_initialize_debounce_timers(uint32_t input_count, debounce_timer_timeout_handler_t timeout_handler) {
     ret_code_t err_code;
-    uint32_t size;
-
-    size = sizeof(app_timer_t) * input_count;
-    err_code = nrf_mem_reserve(
-        (uint8_t **)(&debounce_timers),
-        &size
-    );
-    APP_ERROR_CHECK(err_code);
 
     for (uint32_t i = 0; i < input_count; i++) {
         app_timer_id_t timer_id = debounce_timers + i;

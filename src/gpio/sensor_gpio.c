@@ -226,7 +226,7 @@ void gpio_configure_aio_inputs_digital() {
 }
 
 void gpio_handle_parse_output_digital(uint32_t index, uint32_t pin, uint8_t default_state, uint8_t invert) {
-  gpio_config_t *config = find_gpio_config_by_index(index, OUTPUT);
+  gpio_config_t *config = gpio_configs + index;
   config->direction = OUTPUT;
   config->pin.output.pin = pin;
   config->pin.output.default_state = default_state;
@@ -244,7 +244,7 @@ void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t inver
 }
 
 void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert) {
-  gpio_config_t *config = find_gpio_config_by_index(index, INPUT);
+  gpio_config_t *config = gpio_configs + index;
   config->direction = INPUT;
   config->pin.input.pin = pin;
   config->pin.input.pull = pull;

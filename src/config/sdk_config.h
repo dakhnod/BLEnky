@@ -2732,14 +2732,14 @@
 // <e> UART0_ENABLED - Enable UART0 instance
 //==========================================================
 #ifndef UART0_ENABLED
-#define UART0_ENABLED 1
+#define UART0_ENABLED 0
 #endif
 #if  UART0_ENABLED
 // <q> UART0_CONFIG_USE_EASY_DMA  - Default setting for using EasyDMA
 
 
 #ifndef UART0_CONFIG_USE_EASY_DMA
-#define UART0_CONFIG_USE_EASY_DMA 1
+#define UART0_CONFIG_USE_EASY_DMA 0
 #endif
 
 #endif //UART0_ENABLED
@@ -3030,7 +3030,7 @@
 
 
 #ifndef APP_USBD_HID_GENERIC_ENABLED
-#define APP_USBD_HID_GENERIC_ENABLED 1
+#define APP_USBD_HID_GENERIC_ENABLED 0
 #endif
 
 // <q> APP_USBD_HID_KBD_ENABLED  - app_usbd_hid_kbd - USB HID keyboard
@@ -3283,7 +3283,7 @@
 // <e> MEM_MANAGER_ENABLED - mem_manager - Dynamic memory allocator
 //==========================================================
 #ifndef MEM_MANAGER_ENABLED
-#define MEM_MANAGER_ENABLED 1
+#define MEM_MANAGER_ENABLED 0
 #endif
 #if  MEM_MANAGER_ENABLED
 // <o> MEMORY_MANAGER_SMALL_BLOCK_COUNT - Size of each memory blocks identified as 'small' block.  <0-255> 
@@ -3675,7 +3675,7 @@
 // <i> if it is bigger than default RTT buffer size.
 
 #ifndef NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE
-#define NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE 400
+#define NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE 200
 #endif
 
 #endif //NRF_LOG_BACKEND_SERIAL_USES_RTT
@@ -3710,7 +3710,7 @@
 
 // <o> SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS - Size of upstream buffer. 
 #ifndef SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS
-#define SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS 2
+#define SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS 0
 #endif
 
 // </h> 

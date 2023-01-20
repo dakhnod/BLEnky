@@ -19,6 +19,9 @@ ADB_DIRECTORY := /sdcard/dfu
 
 BOARD := BEACON_BIG
 
+MAX_PIN_COUNT := 16
+MAX_INPUT_PIN_COUNT := 8
+
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822.ld
 
@@ -59,7 +62,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
-  $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
   $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
   $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
@@ -121,7 +123,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/ble/ble_services/ble_ans_c \
   $(SDK_ROOT)/components/libraries/slip \
-  $(SDK_ROOT)/components/libraries/mem_manager \
   $(SDK_ROOT)/external/segger_rtt \
   $(SDK_ROOT)/components/libraries/csense_drv \
   $(SDK_ROOT)/components/drivers_nrf/hal \
@@ -209,6 +210,8 @@ INC_FOLDERS += \
 LIB_FILES += \
 
 # C flags common to all targets
+CFLAGS += -DMAX_INPUT_PIN_COUNT=$(MAX_INPUT_PIN_COUNT)
+CFLAGS += -DMAX_PIN_COUNT=$(MAX_PIN_COUNT)
 CFLAGS += -DBOARD_$(BOARD)
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DNRF51

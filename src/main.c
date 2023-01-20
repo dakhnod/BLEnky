@@ -14,7 +14,6 @@
 
 void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    NRF_LOG_DEBUG("main pin %d changed to %d\n", index, config->state);
     ble_handle_input_change(index, config);
 }
 

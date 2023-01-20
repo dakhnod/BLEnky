@@ -174,6 +174,7 @@ void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t act
     config = &(cfg->pin.input);
     // check if proper pin
     if(config->pin != pin){
+      pin_index++;
       continue;
     }
     break;

@@ -40,6 +40,20 @@ void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
   NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", evt->id, result);
 }
 
+void storage_erase(){
+  ret_code_t ret_code = fs_erase(
+    &fs_config,
+    fs_config.p_start_addr,
+    1,
+    NULL
+  );
+
+  if (ret_code != FS_SUCCESS) {
+    NRF_LOG_DEBUG("fstorage erase failure: %d\n", ret_code);
+    return;
+  }
+}
+
 uint32_t checksum_compute(uint8_t *data, uint32_t length){
   return 0;
 };
@@ -52,6 +66,20 @@ void storage_checksum_check(){
   // read 4 more to capcure checksum
   storage_read(0x00, data, length + 4);
 
+  bool is_erased = true;
+
+  for(uint32_t i = 0; i < length; i++){
+    if(data[i] != 0xFF){
+      is_erased = false;
+      break;
+    }
+  }
+
+  if(is_erased){
+    NRF_LOG_DEBUG("flash erased, not checking checksum\n");
+    return;
+  }
+
   uint32_t checksum_calculated = checksum_compute(data, length);
   uint32_t checksum_stored = 0;
   // need to do it this way since checksum may not be memory-aligned
@@ -59,10 +87,18 @@ void storage_checksum_check(){
     checksum_stored |= (data[OFFSET_CHECKSUM + i]) << (i * 8);
   }
 
+  NRF_LOG_DEBUG("calculated checksum: %x, stored: %x\n", checksum_calculated, checksum_stored);
+
   if(checksum_calculated == checksum_stored){
-    // checksum success
+    // checksum valid
     return;
   }
+
+  // erase flash if checksum invalid
+  storage_erase();
+
+  // giving flash some time to erase flash page
+  nrf_delay(3);
 };
 
 void storage_init() {
@@ -136,17 +172,7 @@ void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t rebo
 
   memcpy(storage_data + offset, data, length);
 
-  ret_code = fs_erase(
-    &fs_config,
-    fs_config.p_start_addr,
-    1,
-    NULL
-  );
-
-  if (ret_code != FS_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage erase failure: %d\n", ret_code);
-    return;
-  }
+  storage_erase();
 
   static uint8_t context = false;
   context = reboot;

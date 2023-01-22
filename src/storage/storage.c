@@ -101,6 +101,8 @@ void storage_checksum_check(){
     return;
   }
 
+  NRF_LOG_ERROR("checksum invalid, erasing settings page\n");
+
   // erase flash if checksum invalid
   storage_erase();
 

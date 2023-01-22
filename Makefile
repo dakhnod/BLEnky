@@ -19,11 +19,13 @@ ADB_DIRECTORY := /sdcard/dfu
 
 BOARD := BEACON_BIG
 
-MAX_PIN_COUNT := 16
+MAX_PIN_COUNT := 32
 MAX_INPUT_PIN_COUNT := 8
 
+FIRMWARE_VERSION := \"0.5.1\"
+
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822.ld
+  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -222,7 +224,7 @@ CFLAGS += -DNRF51822
 CFLAGS += -DNRF_SD_BLE_API_VERSION=2
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS +=  -Wall -Werror -O0 -g3
+CFLAGS +=  -Wall -Werror -O3 -g3
 CFLAGS += -mfloat-abi=soft
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
@@ -231,10 +233,11 @@ CFLAGS += -DNRF_DFU_SETTINGS_VERSION=1
 CFLAGS += -DUSE_DFU
 CFLAGS += -DUSE_SPI
 CFLAGS += -DUSE_UART
-ifeq ($(BOARD), BLE400)
+ifeq ($(BOARD), WT51822-S4AT)
 CFLAGS += -DDEBUG
 endif
 CFLAGS += -DBUTTON_PIN=BUTTON_0
+CFLAGS += -DFIRMWARE_VERSION=$(FIRMWARE_VERSION)
 
 # C++ flags common to all targets
 CXXFLAGS += \

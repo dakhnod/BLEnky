@@ -113,7 +113,7 @@ void storage_checksum_check(){
   storage_erase();
 
   // giving flash some time to erase flash page
-  nrf_delay_ms(1000);
+  nrf_delay_ms(3);
 
   uint32_t count;
 

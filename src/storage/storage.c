@@ -2,6 +2,7 @@
 #include "app_timer.h"
 #include "ble_configuration.h"
 #include "crc32.h"
+#include "nrf_delay.h"
 
 APP_TIMER_DEF(reboot_timer);
 #define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
@@ -9,7 +10,7 @@ APP_TIMER_DEF(reboot_timer);
 #define OFFSET_PIN_CONFIGURATION 0x00
 #define OFFSET_CONNECTION_PARAMS_CONFIGURATION 0x10
 #define OFFSET_DEVICE_NAME 0x1A
-#define OFFSET_CHECKSUM = OFFSET_DEVICE_NAME + LENGTH_DEVICE_NAME
+#define OFFSET_CHECKSUM (OFFSET_DEVICE_NAME + LENGTH_DEVICE_NAME)
 
 FS_REGISTER_CFG(fs_config_t fs_config) =
 {
@@ -59,6 +60,11 @@ uint32_t checksum_compute(uint8_t *data, uint32_t length){
   return crc32_compute(data, length, NULL);
 };
 
+void storage_read(uint32_t offset, uint8_t *buffer, uint32_t length) {
+  // casting p_start_addr, so that offset calculation does not add offset * sizeof(uint32_t)
+  memcpy(buffer, ((uint8_t *)fs_config.p_start_addr) + offset, length);
+}
+
 void storage_checksum_check(){
   uint32_t length = OFFSET_CHECKSUM;
   // add 4 bytes for checksum
@@ -99,7 +105,7 @@ void storage_checksum_check(){
   storage_erase();
 
   // giving flash some time to erase flash page
-  nrf_delay(3);
+  nrf_delay_ms(3);
 };
 
 void storage_init() {
@@ -122,11 +128,6 @@ void storage_init() {
 
 void storage_on_sys_evt(uint32_t sys_evt) {
   fs_sys_event_handler(sys_evt);
-}
-
-void storage_read(uint32_t offset, uint8_t *buffer, uint32_t length) {
-  // casting p_start_addr, so that offset calculation does not add offset * sizeof(uint32_t)
-  memcpy(buffer, ((uint8_t *)fs_config.p_start_addr) + offset, length);
 }
 
 void storage_read_pin_configuration(uint8_t *buffer) {
@@ -160,18 +161,25 @@ void storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
 void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t reboot) {
   fs_ret_t ret_code;
 
-  const uint32_t size = 46; // 16 bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
+  // 16 bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
+  const uint32_t size = OFFSET_CHECKSUM;
   
   // should should be done dynamically, but at compile-time
-  const uint32_t size_aligned = 48; // calculate 4-byte-alignet size
+  // we are also allocating 4 bytes for checksum + 2 bytes for alignment
+  const uint32_t size_aligned = 52; // calculate 4-byte-alignet size
 
   const uint32_t data_size_32 = size_aligned / 4; // calculate size in 32-bit-words
 
   // we should use size_aligned as the size, but that isn't constant enough for the compiler...
-  static uint8_t storage_data[48]; 
+  static uint8_t storage_data[52]; 
   storage_read(0, storage_data, size); // read whole storage
 
   memcpy(storage_data + offset, data, length);
+
+  uint32_t checksum = checksum_compute(storage_data, OFFSET_CHECKSUM);
+
+  // apend checksum to buffer
+  memcpy(storage_data + OFFSET_CHECKSUM, (uint8_t*)(&checksum), 4);
 
   storage_erase();
 

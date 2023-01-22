@@ -24,6 +24,8 @@ int main(void) {
 
     NRF_LOG_INFO("starting\n");
 
+    ble_stack_init();
+
     fs_init();
 
     timer_init();

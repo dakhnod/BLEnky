@@ -3058,7 +3058,7 @@
 
 
 #ifndef CRC16_ENABLED
-#define CRC16_ENABLED 0
+#define CRC16_ENABLED 1
 #endif
 
 // <q> CRC32_ENABLED  - crc32 - CRC32 calculation routines
@@ -3084,6 +3084,11 @@
 // <o> FDS_OP_QUEUE_SIZE - Size of the internal queue. 
 #ifndef FDS_OP_QUEUE_SIZE
 #define FDS_OP_QUEUE_SIZE 4
+#endif
+
+// <o> FDS_CRC_ENABLED - Enable CRC integrity checking. 
+#ifndef FDS_CRC_ENABLED
+#define FDS_CRC_ENABLED 1
 #endif
 
 // <o> FDS_CHUNK_QUEUE_SIZE - Determines how many @ref fds_record_chunk_t structures can be buffered at any time. 

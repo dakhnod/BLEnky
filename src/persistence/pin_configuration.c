@@ -129,10 +129,6 @@ void pin_configuration_parse(
   uint8_t pin_configuration_data[16];
   ret_code_t err_code = pin_configuration_data_read(pin_configuration_data);
   if(err_code == NRF_SUCCESS){
-    current_output_digital_pin_index = 0;
-    current_output_analog_pin_index = 0;
-    current_input_digital_pin_index = 0;
-
     pin_configuration_output_digital_handler = output_digital_handler;
     pin_configuration_output_analog_handler = output_analog_handler;
     pin_configuration_input_digital_handler = input_digital_handler;

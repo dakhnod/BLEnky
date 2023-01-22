@@ -5,6 +5,11 @@
 APP_TIMER_DEF(reboot_timer);
 #define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
 
+#define OFFSET_PIN_CONFIGURATION 0x00
+#define OFFSET_CONNECTION_PARAMS_CONFIGURATION 0x10
+#define OFFSET_DEVICE_NAME 0x1A
+#define OFFSET_CHECKSUM = OFFSET_DEVICE_NAME + LENGTH_DEVICE_NAME
+
 FS_REGISTER_CFG(fs_config_t fs_config) =
 {
     .callback = fs_evt_handler, // Function for event callbacks.
@@ -35,6 +40,31 @@ void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
   NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", evt->id, result);
 }
 
+uint32_t checksum_compute(uint8_t *data, uint32_t length){
+  return 0;
+};
+
+void storage_checksum_check(){
+  uint32_t length = OFFSET_CHECKSUM;
+  // add 4 bytes for checksum
+  uint8_t data[length + 4];
+
+  // read 4 more to capcure checksum
+  storage_read(0x00, data, length + 4);
+
+  uint32_t checksum_calculated = checksum_compute(data, length);
+  uint32_t checksum_stored = 0;
+  // need to do it this way since checksum may not be memory-aligned
+  for(int i = 0; i < 4; i++){
+    checksum_stored |= (data[OFFSET_CHECKSUM + i]) << (i * 8);
+  }
+
+  if(checksum_calculated == checksum_stored){
+    // checksum success
+    return;
+  }
+};
+
 void storage_init() {
   fs_ret_t ret = fs_init();
   if (ret != FS_SUCCESS) {
@@ -42,6 +72,8 @@ void storage_init() {
     return;
   }
   NRF_LOG_DEBUG("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
+
+  storage_checksum_check();
 
   ret_code_t err_code = app_timer_create(
     &reboot_timer,

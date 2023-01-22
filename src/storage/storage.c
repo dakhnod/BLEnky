@@ -38,6 +38,12 @@ void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
       APP_ERROR_CHECK(err_code);
       return;
     }
+  }else if(evt->id == FS_EVT_ERASE) {
+    if (result != FS_SUCCESS) {
+      NRF_LOG_DEBUG("fstorage erase failed: %d\n", result);
+      return;
+    }
+    NRF_LOG_DEBUG("fstorage erase successfull\n");
   }
   NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", evt->id, result);
 }
@@ -107,7 +113,13 @@ void storage_checksum_check(){
   storage_erase();
 
   // giving flash some time to erase flash page
-  nrf_delay_ms(3);
+  nrf_delay_ms(1000);
+
+  uint32_t count;
+
+  (void)fs_queued_op_count_get(&count);
+
+  return;
 };
 
 void storage_init() {

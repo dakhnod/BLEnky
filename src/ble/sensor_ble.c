@@ -18,7 +18,7 @@ uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the curr
 uint16_t advertising_interval = APP_ADV_INTERVAL_FAST;
 
 void ble_init() {
-    ble_stack_init();
+    // ble_stack_init();
 
     uint8_t device_name[LENGTH_DEVICE_NAME];
     uint32_t device_name_length;

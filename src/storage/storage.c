@@ -1,6 +1,7 @@
 #include "storage.h"
 #include "app_timer.h"
 #include "ble_configuration.h"
+#include "crc32.h"
 
 APP_TIMER_DEF(reboot_timer);
 #define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
@@ -55,7 +56,7 @@ void storage_erase(){
 }
 
 uint32_t checksum_compute(uint8_t *data, uint32_t length){
-  return 0;
+  return crc32_compute(data, length, NULL);
 };
 
 void storage_checksum_check(){

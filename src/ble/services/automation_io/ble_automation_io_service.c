@@ -297,7 +297,7 @@ void ble_aio_update_digital_in_states()
 
 void write_bit(uint8_t *byte, uint32_t position, uint8_t value)
 {
-    uint8_t shifted = 0b10000000 >> position;
+    uint8_t shifted = 0b1 << position;
     if (value)
     {
         (*byte) |= shifted;
@@ -322,8 +322,8 @@ void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buff
         uint8_t state = states[i];
         current_byte = buffer + byte_index;
 
-        write_bit(current_byte, bit_index + 1, state);
-        write_bit(current_byte, bit_index + 0, 0);
+        write_bit(current_byte, bit_index + 0, state);
+        write_bit(current_byte, bit_index + 1, 0);
     }
 
     for (uint32_t i = bit_index + 2; i < 8; i++)

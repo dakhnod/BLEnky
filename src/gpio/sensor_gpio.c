@@ -103,7 +103,14 @@ bool gpio_get_input_digital_state(uint32_t index) {
 
 void gpio_encode_states(uint8_t *buffer, direction_t direction){
   uint32_t current_index = 0;
-  for(uint32_t i = 0; current_index < gpio_output_digital_pin_count; i++){
+  uint32_t pin_count = gpio_output_digital_pin_count;
+  if(direction == INPUT){
+    pin_count = gpio_input_digital_pin_count;
+  }
+  // here we try to fill up out buffer with all the states for a give direction
+  // caveat is that the directions might be mixed in the configuration
+  // hence we only bump current_index when we match the right direction
+  for(uint32_t i = 0; current_index < pin_count; i++){
     gpio_config_t *config = gpio_configs + i;
     if(config->direction != direction){
       continue;

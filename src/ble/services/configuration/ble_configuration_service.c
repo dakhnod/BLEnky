@@ -186,8 +186,8 @@ void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *
     else if (real_params.max_conn_interval > BLE_GAP_CP_MAX_CONN_INTVL_MAX) {
       NRF_LOG_ERROR("max connection interval min too big\n");
     }
-    else if (real_params.min_conn_interval >= real_params.max_conn_interval) {
-      NRF_LOG_ERROR("min connection interval must be smaller than max\n");
+    else if (real_params.min_conn_interval > real_params.max_conn_interval) {
+      NRF_LOG_ERROR("min connection interval cannot be bigger than max\n");
     }
     else if (real_params.slave_latency > BLE_GAP_CP_SLAVE_LATENCY_MAX) {
       NRF_LOG_ERROR("slave latency too big\n");

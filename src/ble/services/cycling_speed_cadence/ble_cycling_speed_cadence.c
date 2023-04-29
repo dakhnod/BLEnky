@@ -1,11 +1,11 @@
 #include "sdk_common.h"
-#include "cycling_speed_cadence.h"
+#include "ble_cycling_speed_cadence.h"
 #include <string.h>
 #include "ble_l2cap.h"
-#include "ble_srv_common.h"
 #include "app_error.h"
 #include "ble_helpers.h"
 #include "app_timer.h"
+#include "sensor_gpio.h"
 
 uint16_t ble_csc_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -25,7 +25,7 @@ void ble_csc_on_disconnect(ble_evt_t *p_ble_evt)
     ble_csc_connection_handle = BLE_CONN_HANDLE_INVALID;
 }
 
-void handle_speed_measurement_notification_enabled(uint88_t enabled){
+void handle_speed_measurement_notification_enabled(uint8_t enabled){
 
 }
 
@@ -100,11 +100,9 @@ void ble_csc_on_ble_evt(ble_evt_t *p_ble_evt)
 
 void ble_csc_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    ble_csc_update_digital_in_states();
-
     if (index == 0)
     {
-        ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
+        // ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
     }
 }
 

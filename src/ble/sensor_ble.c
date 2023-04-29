@@ -1,6 +1,7 @@
 #include "sensor_ble.h"
 
 #include "ble_configuration_service.h"
+#include "ble_cycling_speed_cadence.h"
 #include "ble_gpio_asm.h"
 #include "app_error.h"
 #include "ble_dis.h"
@@ -181,6 +182,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_bas_on_ble_evt(p_ble_evt);
     ble_configuration_on_ble_event(p_ble_evt);
     ble_gpio_asm_on_ble_evt(p_ble_evt);
+    // ble_csc_on_ble_evt(p_ble_evt);
 }
 
 
@@ -481,6 +483,9 @@ void services_init(void) {
 
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
+
+    // err_code = ble_csc_init();
+    // APP_ERROR_CHECK(err_code);
 }
 
 void

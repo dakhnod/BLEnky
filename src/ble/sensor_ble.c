@@ -50,6 +50,7 @@ void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config
 {
     ble_aio_handle_input_change(index, config);
     ble_gpio_asm_handle_input_change(index, config);
+    ble_csc_handle_input_change(index, config);
 }
 
 void ble_handle_device_name_write(ble_gatts_evt_write_t *write_evt){
@@ -182,7 +183,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_bas_on_ble_evt(p_ble_evt);
     ble_configuration_on_ble_event(p_ble_evt);
     ble_gpio_asm_on_ble_evt(p_ble_evt);
-    // ble_csc_on_ble_evt(p_ble_evt);
+    ble_csc_on_ble_evt(p_ble_evt);
 }
 
 
@@ -271,6 +272,9 @@ void advertising_init() {
         }, {
             .uuid = UUID_GPIO_ASM_SERVICE,
             .type = BLE_UUID_TYPE_BLE
+        }, {
+            .uuid = UUID_CSC_SERVICE,
+            .type = BLE_UUID_TYPE_BLE
         }
     };
 
@@ -279,7 +283,7 @@ void advertising_init() {
       .include_appearance = false,
       .flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE,
       .uuids_complete = {
-          .uuid_cnt = 3,
+          .uuid_cnt = 4,
           .p_uuids = uuid_bss
       }
         // clearly something forgotten here
@@ -484,8 +488,8 @@ void services_init(void) {
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
 
-    // err_code = ble_csc_init();
-    // APP_ERROR_CHECK(err_code);
+    err_code = ble_csc_init();
+    APP_ERROR_CHECK(err_code);
 }
 
 void

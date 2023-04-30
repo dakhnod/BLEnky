@@ -9,8 +9,6 @@
 #define APP_TIMER_OP_QUEUE_SIZE         6                                 /**< Size of timer operation queues. */
 #define APP_SCHEDULER_QUEUE_SIZE 				6
 
-#define DEBOUNCE_TIMER_TIMEOUT 2000
-
 typedef void (*debounce_timer_timeout_handler_t)(uint32_t timer_index);
 typedef void (*sequence_timer_handler_t)(void);
 

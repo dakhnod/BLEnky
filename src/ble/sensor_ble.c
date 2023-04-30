@@ -6,6 +6,7 @@
 #include "app_error.h"
 #include "ble_dis.h"
 #include "nrf_delay.h"
+#include "feature_config.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -48,9 +49,17 @@ void ble_init() {
 
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
+    #if FEATURE_AUTOMATION_IO_ENABLED == 1
     ble_aio_handle_input_change(index, config);
+    #endif
+
+    #if FEATURE_GPIO_ASM_ENABLED == 1
     ble_gpio_asm_handle_input_change(index, config);
+    #endif
+
+    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     ble_csc_handle_input_change(index, config);
+    #endif
 }
 
 void ble_handle_device_name_write(ble_gatts_evt_write_t *write_evt){
@@ -175,15 +184,32 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 
 void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     on_ble_evt(p_ble_evt);
+
+    #if FEATURE_AUTOMATION_IO_ENABLED == 1
     ble_aio_on_ble_evt(p_ble_evt);
+    #endif
+
+    #if FEATURE_BINARY_SENSOR_ENABLED == 1
     ble_bss_on_ble_evt(p_ble_evt);
+    #endif
+
     ble_conn_params_on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
+
+    #if FEATURE_BATTERY_PROFILE_ENABLED == 1
     ble_bas_on_ble_evt(p_ble_evt);
+    #endif
+
     ble_configuration_on_ble_event(p_ble_evt);
+
+    #if FEATURE_GPIO_ASM_ENABLED == 1
     ble_gpio_asm_on_ble_evt(p_ble_evt);
+    #endif
+
+    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     ble_csc_on_ble_evt(p_ble_evt);
+    #endif
 }
 
 
@@ -262,29 +288,34 @@ void advertising_init() {
       .ble_adv_slow_timeout = APP_ADV_TIMEOUT_SLOW_SECS,
     };
 
-    ble_uuid_t uuid_bss[] = {
-        {
-            .uuid = UUID_BINARY_SENSOR_SERVICE,
-            .type = BLE_UUID_TYPE_BLE
-        }, {
-            .uuid = UUID_AUTOMATION_IO_SERVICE,
-            .type = BLE_UUID_TYPE_BLE
-        }, {
-            .uuid = UUID_GPIO_ASM_SERVICE,
-            .type = BLE_UUID_TYPE_BLE
-        }, {
-            .uuid = UUID_CSC_SERVICE,
-            .type = BLE_UUID_TYPE_BLE
-        }
-    };
+    uint8_t uuid_len = 0;
+    ble_uuid_t uuids[4]; // size may be updated ini the future
+
+    #if FEATURE_BINARY_SENSOR_ENABLED == 1
+        uuids[uuid_len].uuid = UUID_BINARY_SENSOR_SERVICE;
+        uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
+        uuid_len++;
+    #endif
+
+    #if FEATURE_AUTOMATION_IO_ENABLED == 1
+        uuids[uuid_len].uuid = UUID_AUTOMATION_IO_SERVICE;
+        uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
+        uuid_len++;
+    #endif
+
+    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
+        uuids[uuid_len].uuid = UUID_CSC_SERVICE;
+        uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
+        uuid_len++;
+    #endif
 
     ble_advdata_t advertisement_data = {
       .name_type = BLE_ADVDATA_FULL_NAME,
       .include_appearance = false,
       .flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE,
       .uuids_complete = {
-          .uuid_cnt = 4,
-          .p_uuids = uuid_bss
+          .uuid_cnt = uuid_len,
+          .p_uuids = uuids
       }
         // clearly something forgotten here
     };
@@ -474,22 +505,30 @@ void services_init(void) {
     err_code = dis_init();
     APP_ERROR_CHECK(err_code);
 
+    #if FEATURE_BATTERY_PROFILE_ENABLED == 1
     err_code = bas_init();
     APP_ERROR_CHECK(err_code);
+    #endif
 
     err_code = ble_configuration_service_init(ble_handle_connection_parameters_configuration_update);
     APP_ERROR_CHECK(err_code);
 
+    #if FEATURE_AUTOMATION_IO_ENABLED == 1
     err_code = ble_aio_init();
     APP_ERROR_CHECK(err_code);
+    #endif
 
+    #if FEATURE_GPIO_ASM_ENABLED == 1
     ble_gpio_asm_init();
+    #endif
 
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
 
+    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     err_code = ble_csc_init();
     APP_ERROR_CHECK(err_code);
+    #endif
 }
 
 void

@@ -1,11 +1,12 @@
 #include "sensor_timer.h"
 #include "nrf_log.h"
+#include "feature_config.h"
 
-#define DEBOUNCE_TIMEOUT APP_TIMER_TICKS(200, APP_TIMER_PRESCALER)
+#define DEBOUNCE_TIMEOUT APP_TIMER_TICKS(GPIO_DEBOUNCE_TIMEOUT_MS, APP_TIMER_PRESCALER)
 #define MAX_TICKS 32000
 
 // was using mem_manager and malloc, but there's no point since it reserves the max amount anyway
-app_timer_t debounce_timers[MAX_INPUT_PIN_COUNT];
+app_timer_t debounce_timers[GPIO_INPUT_COUNT_MAX];
 
 debounce_timer_timeout_handler_t debounce_timer_timeout_handler;
 sequence_timer_handler_t sequence_timer_handler;

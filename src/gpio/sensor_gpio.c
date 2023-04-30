@@ -3,6 +3,9 @@
 #include "app_timer.h"
 #include "ble_configuration.h"
 #include "app_pwm.h"
+#include "feature_config.h"
+
+#define TOTAL_PIN_COUNT_MAX (GPIO_INPUT_COUNT_MAX + GPIO_OUTPUT_COUNT_MAX)
 
 uint32_t gpio_output_digital_pin_count = 0;
 uint32_t gpio_output_analog_pin_count = 0;
@@ -21,7 +24,7 @@ typedef struct {
   direction_t direction;
 } gpio_config_t;
 
-gpio_config_t gpio_configs[MAX_PIN_COUNT];
+gpio_config_t gpio_configs[TOTAL_PIN_COUNT_MAX];
 
 gpio_input_change_handler_t gpio_input_change_handler = NULL;
 
@@ -29,7 +32,7 @@ app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, 
 APP_PWM_INSTANCE(pwm0, 1);
 
 gpio_config_t *find_gpio_config_by_index(uint32_t index, direction_t direction){
-  for(uint32_t i = 0; i < MAX_PIN_COUNT; i++){
+  for(uint32_t i = 0; i < TOTAL_PIN_COUNT_MAX; i++){
     gpio_config_t *current = gpio_configs + i;
     if(current->direction == direction){
       if(index == 0){
@@ -196,7 +199,7 @@ void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t act
   uint32_t pin_index = 0;
   gpio_config_input_digital_t *config = NULL;
 
-  for (uint32_t i = 0; i < MAX_PIN_COUNT; i++) {
+  for (uint32_t i = 0; i < TOTAL_PIN_COUNT_MAX; i++) {
     gpio_config_t *cfg = gpio_configs + i;
     // ignore output configs
     if(cfg->direction != INPUT){
@@ -297,8 +300,8 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   gpio_output_analog_pin_count = get_pin_count_output_analog();
   gpio_input_digital_pin_count = get_pin_count_input_digital();
 
-  gpio_output_digital_pin_count = MIN(gpio_output_digital_pin_count, MAX_PIN_COUNT);
-  gpio_input_digital_pin_count = MIN(gpio_input_digital_pin_count, MAX_PIN_COUNT - gpio_output_digital_pin_count);
+  gpio_output_digital_pin_count = MIN(gpio_output_digital_pin_count, TOTAL_PIN_COUNT_MAX);
+  gpio_input_digital_pin_count = MIN(gpio_input_digital_pin_count, TOTAL_PIN_COUNT_MAX - gpio_output_digital_pin_count);
 
   if (gpio_input_digital_pin_count > 0) {
     sensor_timer_initialize_debounce_timers(gpio_input_digital_pin_count, gpio_debounce_timeout_handler);

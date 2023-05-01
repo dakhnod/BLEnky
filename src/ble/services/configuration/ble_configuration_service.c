@@ -17,37 +17,32 @@ uint16_t ble_configuration_connection_handle = BLE_CONN_HANDLE_INVALID;
 ble_configuration_connection_params_update_handler_t ble_configuration_connection_params_update_handler;
 
 ret_code_t ble_configuration_characteristic_pin_configuration_add() {
-  return ble_helper_characteristic_add(
-    ble_configuration_service_handle,
-    UUID_CHARACTERISTIC_PIN_CONFIGURATION,
-    configuration_custom_uuid_type,
-    "Pin configuration",
-    true,
-    true,
-    false,
-    false,
-    false,
-    16,
-    &ble_configuration_pin_configuration_handle,
-    NULL
-  );
+  ble_helper_characteristic_init_t init = {
+    .service_handle = ble_configuration_service_handle,
+    .uuid = UUID_CHARACTERISTIC_PIN_CONFIGURATION,
+    .uuid_type = configuration_custom_uuid_type,
+    .description_str = "Pin configuration",
+    .is_writable = true,
+    .is_readable = true,
+    .max_length = 16,
+    .value_handle = &ble_configuration_pin_configuration_handle,
+  };
+  return ble_helper_characteristic_add(&init);
 }
 
 ret_code_t ble_configuration_characteristic_connections_parameters_add() {
-  return ble_helper_characteristic_add(
-    ble_configuration_service_handle,
-    UUID_CHARACTERISTIC_CONNECITON_PARAMS_CONFIGURATION,
-    configuration_custom_uuid_type,
-    "Connection parameters configuration",
-    true,
-    true,
-    false,
-    false,
-    true,
-    10,
-    &ble_configuration_connection_parameters_handle,
-    NULL
-  );
+  ble_helper_characteristic_init_t init = {
+    .service_handle = ble_configuration_service_handle,
+    .uuid = UUID_CHARACTERISTIC_CONNECITON_PARAMS_CONFIGURATION,
+    .uuid_type = configuration_custom_uuid_type,
+    .description_str = "Connection parameters configuration",
+    .is_writable = true,
+    .is_readable = true,
+    .authorize_write = true,
+    .max_length = 10,
+    .value_handle = &ble_configuration_connection_parameters_handle,
+  };
+  return ble_helper_characteristic_add(&init);
 }
 
 ret_code_t ble_configuration_characteristic_data_set(uint32_t handle, uint8_t *data, uint32_t data_length) {

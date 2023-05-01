@@ -117,19 +117,15 @@ void handle_csc_measurement_cccd_write(ble_gatts_evt_write_t *write_evt)
 
 ret_code_t ble_csc_characteristic_measurement_add()
 {
-    return ble_helper_characteristic_add(
-        ble_csc_service_handle,
-        UUID_CSC_CHARACTERISTIC_SPEED_MEASUREMENT,
-        BLE_UUID_TYPE_BLE,
-        "Speed measurement",
-        false,
-        false,
-        true,
-        false,
-        false,
-        7,
-        &ble_csc_measurement_write_handle,
-        &ble_csc_measurement_cccd_handle);
+  ble_helper_characteristic_init_t init = {
+    .service_handle = ble_csc_service_handle,
+    .uuid = UUID_CSC_CHARACTERISTIC_SPEED_MEASUREMENT,
+    .is_notifiable = true,
+    .max_length = 7,
+    .value_handle = &ble_csc_measurement_write_handle,
+    .cccd_handle = &ble_csc_measurement_cccd_handle
+  };
+  return ble_helper_characteristic_add(&init);
 }
 
 

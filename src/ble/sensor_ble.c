@@ -310,6 +310,12 @@ void advertising_init() {
         uuid_len++;
     #endif
 
+    #if FEATURE_HID_ENABLED == 1
+        uuids[uuid_len].uuid = BLE_UUID_HID_SERVICE;
+        uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
+        uuid_len++;
+    #endif
+
     ble_advdata_t advertisement_data = {
       .name_type = BLE_ADVDATA_FULL_NAME,
       .include_appearance = false,

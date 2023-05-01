@@ -7,6 +7,7 @@
 #include "ble_dis.h"
 #include "nrf_delay.h"
 #include "feature_config.h"
+#include "ble_hid.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -527,6 +528,11 @@ void services_init(void) {
 
     #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     err_code = ble_csc_init();
+    APP_ERROR_CHECK(err_code);
+    #endif
+
+    #if FEATURE_HID_ENABLED == 1
+    err_code = ble_hid_init();
     APP_ERROR_CHECK(err_code);
     #endif
 }

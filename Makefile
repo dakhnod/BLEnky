@@ -73,6 +73,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
   $(PROJ_DIR)/src/ble/services/ble_gpio_asm/ble_gpio_asm.c \
   $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ble_cycling_speed_cadence.c \
+  $(PROJ_DIR)/src/ble/services/hid/ble_hid.c \
   $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
@@ -194,6 +195,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/services/configuration/ \
   $(PROJ_DIR)/src/ble/services/ble_gpio_asm/ \
   $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ \
+  $(PROJ_DIR)/src/ble/services/hid/ \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/helpers/ \

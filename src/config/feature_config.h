@@ -52,6 +52,12 @@
 #endif
 // </e>
 
+// <e>HID service enabled (experimental)
+#ifndef FEATURE_HID_ENABLED
+#define FEATURE_HID_ENABLED 1
+#endif
+// </e>
+
 // </h>
 
 // <<< end of configuration section >>>

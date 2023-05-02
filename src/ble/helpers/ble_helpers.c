@@ -118,7 +118,8 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
     err_code = sd_ble_gatts_descriptor_add(
       p_handles.value_handle,
       &number_of_digitals_descriptor_attributes,
-      &number_of_digitals_handle);
+      &number_of_digitals_handle
+    );
 
 
     APP_ERROR_CHECK(err_code);

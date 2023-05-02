@@ -8,6 +8,9 @@
 #include "nrf_delay.h"
 #include "feature_config.h"
 #include "ble_hid.h"
+#include "peer_manager.h"
+#include "ble_conn_state.h"
+#include "fds.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -19,6 +22,172 @@ bool is_advertising = false;
 uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 
 uint16_t advertising_interval = APP_ADV_INTERVAL_FAST;
+
+
+void peer_manager_event_handler(pm_evt_t const *p_evt)
+{
+    ret_code_t err_code;
+    switch (p_evt->evt_id)
+    {
+    case PM_EVT_BONDED_PEER_CONNECTED:
+        NRF_LOG_DEBUG("PM_EVT_BONDED_PEER_CONNECTED\n");
+        // Update the rank of the peer.
+        err_code = pm_peer_rank_highest(p_evt->peer_id);
+        break;
+    case PM_EVT_CONN_SEC_START:
+        NRF_LOG_DEBUG("PM_EVT_CONN_SEC_START\n");
+        break;
+    case PM_EVT_CONN_SEC_SUCCEEDED:
+        // Update the rank of the peer.
+        NRF_LOG_DEBUG("PM_EVT_CONN_SEC_SUCCEEDED\n");
+        err_code = pm_peer_rank_highest(p_evt->peer_id);
+        break;
+    case PM_EVT_CONN_SEC_FAILED:
+        // In some cases, when securing fails, it can be restarted directly. Sometimes it can be
+        // restarted, but only after changing some Security Parameters. Sometimes, it cannot be
+        // restarted until the link is disconnected and reconnected. Sometimes it is impossible
+        // to secure the link, or the peer device does not support it. How to handle this error
+        // is highly application-dependent.
+        NRF_LOG_DEBUG("PM_EVT_CONN_SEC_FAILED\n");
+        break;
+    case PM_EVT_CONN_SEC_CONFIG_REQ:
+    {
+        // A connected peer (central) is trying to pair, but the Peer Manager already has a bond
+        // for that peer. Setting allow_repairing to false rejects the pairing request.
+        // If this event is ignored (pm_conn_sec_config_reply is not called in the event
+        // handler), the Peer Manager assumes allow_repairing to be false.
+        NRF_LOG_DEBUG("PM_EVT_CONN_SEC_CONFIG_REQ\n");
+        pm_conn_sec_config_t conn_sec_config = {.allow_repairing = false};
+        pm_conn_sec_config_reply(p_evt->conn_handle, &conn_sec_config);
+    }
+    break;
+    case PM_EVT_STORAGE_FULL:
+        // Run garbage collection on the flash.
+        NRF_LOG_DEBUG("PM_EVT_STORAGE_FULL\n");
+        err_code = fds_gc();
+        if (err_code == FDS_ERR_BUSY || err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
+        {
+            // Retry.
+        }
+        else
+        {
+            APP_ERROR_CHECK(err_code);
+        }
+        break;
+    case PM_EVT_ERROR_UNEXPECTED:
+        // Assert.
+        NRF_LOG_DEBUG("PM_EVT_ERROR_UNEXPECTED\n");
+        APP_ERROR_CHECK(p_evt->params.error_unexpected.error);
+        break;
+    case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:
+        NRF_LOG_DEBUG("PM_EVT_PEER_DATA_UPDATE_SUCCEEDED\n");
+        break;
+    case PM_EVT_PEER_DATA_UPDATE_FAILED:
+        // Assert.
+        NRF_LOG_DEBUG("PM_EVT_PEER_DATA_UPDATE_FAILED\n");
+        APP_ERROR_CHECK_BOOL(false);
+        break;
+    case PM_EVT_PEER_DELETE_SUCCEEDED:
+        NRF_LOG_DEBUG("PM_EVT_PEER_DELETE_SUCCEEDED\n");
+        break;
+    case PM_EVT_PEER_DELETE_FAILED:
+        // Assert.
+        NRF_LOG_DEBUG("PM_EVT_PEER_DELETE_FAILED\n");
+        APP_ERROR_CHECK(p_evt->params.peer_delete_failed.error);
+        break;
+    case PM_EVT_PEERS_DELETE_SUCCEEDED:
+        // At this point it is safe to start advertising or scanning.
+        NRF_LOG_DEBUG("PM_EVT_PEERS_DELETE_SUCCEEDED\n");
+        break;
+    case PM_EVT_PEERS_DELETE_FAILED:
+        // Assert.
+        NRF_LOG_DEBUG("PM_EVT_PEERS_DELETE_FAILED\n");
+        APP_ERROR_CHECK(p_evt->params.peers_delete_failed_evt.error);
+        break;
+    case PM_EVT_LOCAL_DB_CACHE_APPLIED:
+        NRF_LOG_DEBUG("PM_EVT_LOCAL_DB_CACHE_APPLIED\n");
+        break;
+    case PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED:
+        // The local database has likely changed, send service changed indications.
+        NRF_LOG_DEBUG("PM_EVT_LOCAL_DB_CACHE_APPLY_FAILED\n");
+        pm_local_database_has_changed();
+        break;
+    case PM_EVT_SERVICE_CHANGED_IND_SENT:
+        NRF_LOG_DEBUG("PM_EVT_SERVICE_CHANGED_IND_SENT\n");
+        break;
+    case PM_EVT_SERVICE_CHANGED_IND_CONFIRMED:
+        NRF_LOG_DEBUG("PM_EVT_SERVICE_CHANGED_IND_CONFIRMED");
+        break;
+    }
+}
+
+void peer_manager_init()
+{
+    ret_code_t err_code;
+    err_code = pm_init();
+    APP_ERROR_CHECK(err_code);
+
+    ble_gap_sec_params_t sec_param = {
+        .bond = true,
+        .mitm = false,
+        .lesc = false,
+        .keypress = false,
+        .io_caps = BLE_GAP_IO_CAPS_NONE,
+        .min_key_size = 7,
+        .max_key_size = 16,
+        .kdist_own.enc = 1,
+        .kdist_own.id = 1,
+        .kdist_peer.enc = 1,
+        .kdist_peer.id = 1,
+    };
+
+    err_code = pm_sec_params_set(&sec_param);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = pm_register(peer_manager_event_handler);
+    APP_ERROR_CHECK(err_code);
+}
+
+
+
+// Simple event handler to handle errors during initialization.
+void fds_evt_handler(fds_evt_t const *const p_fds_evt)
+{
+    switch (p_fds_evt->id)
+    {
+    case FDS_EVT_INIT:
+        if (p_fds_evt->result == FDS_SUCCESS)
+        {
+            NRF_LOG_DEBUG("fds init success\n");
+        }
+        else
+        {
+            NRF_LOG_ERROR("fds init error: %d\n", p_fds_evt->result);
+        }
+        break;
+    case FDS_EVT_WRITE:
+        if (p_fds_evt->result == FDS_SUCCESS)
+        {
+            NRF_LOG_DEBUG("fds write success\n");
+        }
+        else
+        {
+            NRF_LOG_ERROR("fds write error: %d\n", p_fds_evt->result);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void filesystem_init()
+{
+    ret_code_t err_code = fds_register(fds_evt_handler);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = fds_init();
+    APP_ERROR_CHECK(err_code);
+}
 
 void ble_init() {
     // ble_stack_init();
@@ -46,6 +215,8 @@ void ble_init() {
     // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
     nrf_delay_ms(3); 
     advertising_init();
+    filesystem_init();
+    peer_manager_init();
 }
 
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
@@ -60,6 +231,10 @@ void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config
 
     #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     ble_csc_handle_input_change(index, config);
+    #endif
+
+    #if FEATURE_HID_ENABLED == 1
+    ble_hid_handle_input_change(index, config);
     #endif
 }
 
@@ -109,11 +284,13 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
             // Pairing not supported
+            /*
             err_code = sd_ble_gap_sec_params_reply(connection_handle,
                 BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
                 NULL,
                 NULL);
             APP_ERROR_CHECK(err_code);
+            */
             break; // BLE_GAP_EVT_SEC_PARAMS_REQUEST
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
@@ -184,6 +361,9 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 }
 
 void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
+    ble_conn_state_on_ble_evt(p_ble_evt);
+    pm_on_ble_evt(p_ble_evt);
+
     on_ble_evt(p_ble_evt);
 
     #if FEATURE_AUTOMATION_IO_ENABLED == 1
@@ -210,6 +390,10 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
 
     #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     ble_csc_on_ble_evt(p_ble_evt);
+    #endif
+
+    #if FEATURE_HID_ENABLED == 1
+    ble_hid_on_ble_evt(p_ble_evt);
     #endif
 }
 
@@ -318,7 +502,7 @@ void advertising_init() {
 
     ble_advdata_t advertisement_data = {
       .name_type = BLE_ADVDATA_FULL_NAME,
-      .include_appearance = false,
+      .include_appearance = true,
       .flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE,
       .uuids_complete = {
           .uuid_cnt = uuid_len,
@@ -436,6 +620,9 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     gap_conn_params.conn_sup_timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT;
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     APP_ERROR_CHECK(err_code);
+
+    err_code = sd_ble_gap_appearance_set(0x03C4);
+    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -529,16 +716,16 @@ void services_init(void) {
     ble_gpio_asm_init();
     #endif
 
+    #if FEATURE_HID_ENABLED == 1
+    err_code = ble_hid_init();
+    APP_ERROR_CHECK(err_code);
+    #endif
+
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
 
     #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
     err_code = ble_csc_init();
-    APP_ERROR_CHECK(err_code);
-    #endif
-
-    #if FEATURE_HID_ENABLED == 1
-    err_code = ble_hid_init();
     APP_ERROR_CHECK(err_code);
     #endif
 }

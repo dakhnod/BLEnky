@@ -20,6 +20,16 @@
 #endif
 // </h>
 
+// <h>BLE Configuration
+
+// <e>BLE bonding enabled
+#ifndef FEATURE_BLE_BONDING_ENABLED
+#define FEATURE_BLE_BONDING_ENABLED 0
+#endif
+// </e>
+
+// </h>
+
 // <h>Features configuration
 
 // <e>Battery status profile enabled
@@ -30,7 +40,7 @@
 
 // <e>Binary sensor profile enabled
 #ifndef FEATURE_BINARY_SENSOR_ENABLED
-#define FEATURE_BINARY_SENSOR_ENABLED 1
+#define FEATURE_BINARY_SENSOR_ENABLED 0
 #endif
 // </e>
 
@@ -42,13 +52,13 @@
 
 // <e>gpioASM profile and engine enabled
 #ifndef FEATURE_GPIO_ASM_ENABLED
-#define FEATURE_GPIO_ASM_ENABLED 1
+#define FEATURE_GPIO_ASM_ENABLED 0
 #endif
 // </e>
 
 // <e>Cycling speed/cadence profile and engine enabled
 #ifndef FEATURE_CYCLING_SPEED_CADENCE_ENABLED
-#define FEATURE_CYCLING_SPEED_CADENCE_ENABLED 1
+#define FEATURE_CYCLING_SPEED_CADENCE_ENABLED 0
 #endif
 // </e>
 

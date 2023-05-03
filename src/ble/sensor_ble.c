@@ -215,8 +215,11 @@ void ble_init() {
     // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
     nrf_delay_ms(3); 
     advertising_init();
+
+    #if FEATURE_BLE_BONDING_ENABLED == 1
     filesystem_init();
     peer_manager_init();
+    #endif
 }
 
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
@@ -283,16 +286,19 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
             break;
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-            // Pairing not supported
-            /*
+            // Only pass through to PM if feature is enabled
+            #if FEATURE_BLE_BONDING_ENABLED == 1
+            break;
+            #endif
+
             err_code = sd_ble_gap_sec_params_reply(connection_handle,
                 BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
                 NULL,
                 NULL);
             APP_ERROR_CHECK(err_code);
-            */
-            break; // BLE_GAP_EVT_SEC_PARAMS_REQUEST
 
+            break; // BLE_GAP_EVT_SEC_PARAMS_REQUEST
+            
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
             // No system attributes have been stored.
             err_code = sd_ble_gatts_sys_attr_set(connection_handle, NULL, 0, 0);

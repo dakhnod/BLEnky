@@ -72,7 +72,7 @@
 #define SLEEP_MODE 0x00
 //</o>
 
-//<o>Sleep timeout in minutes <1-8>
+//<o>Sleep timeout in minutes <0-180>
 #define SLEEP_TIMEOUT_MINUTES 5
 //</o>
 

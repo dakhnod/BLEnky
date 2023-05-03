@@ -60,6 +60,12 @@ void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config
     #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     ble_csc_handle_input_change(index, config);
     #endif
+
+    bool is_connected = (connection_handle != BLE_CONN_HANDLE_INVALID);
+    if(!is_connected && !is_advertising){
+        // awoke from light sleep mode
+        advertising_start();
+    }
 }
 
 void ble_handle_device_name_write(ble_gatts_evt_write_t *write_evt){

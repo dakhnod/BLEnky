@@ -390,7 +390,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
         bool can_advertise = true;
         #if FEATURE_ENABLED(SLEEP_MODE)
-            can_advertise = sleep_allow_advertise();
+            can_advertise = sleep_get_allow_advertise();
         #endif
         if(can_advertise){
             ble_advertising_on_ble_evt(p_ble_evt);
@@ -595,7 +595,7 @@ void ble_stack_init(void) {
     APP_ERROR_CHECK(err_code);
 
     #if FEATURE_ENABLED(SLEEP_MODE)
-    sleep_mode_init();
+    sleep_init();
     #endif
 }
 
@@ -650,8 +650,16 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     APP_ERROR_CHECK(err_code);
 
+    #if FEATURE_ENABLED(HID)
+    // set appearance to gamepad
     err_code = sd_ble_gap_appearance_set(0x03C4);
     APP_ERROR_CHECK(err_code);
+    #elif FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
+    // set appearance to speed sensor
+    // may include cadence sensor later
+    err_code = sd_ble_gap_appearance_set(0x0482);
+    APP_ERROR_CHECK(err_code);
+    #endif
 }
 
 

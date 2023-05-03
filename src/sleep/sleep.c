@@ -3,6 +3,8 @@
 #include "feature_config.h"
 #include "nrf_log.h"
 #include "ble_advertising.h"
+#include "ble_hci.h"
+#include "sensor_timer.h"
 
 #define SLEEP_TIMER_TIMEOUT APP_TIMER_TICKS(60 * 1000, APP_TIMER_PRESCALER)
 
@@ -12,7 +14,7 @@ bool sleep_allow_advertise = true;
 
 uint16_t sleep_connection_handle;
 
-uin32_t inactivity_count = 0;
+uint32_t inactivity_count = 0;
 
 void sleep_timeout_handler(void *context){
     if(inactivity_count < SLEEP_TIMEOUT_MINUTES){
@@ -23,10 +25,10 @@ void sleep_timeout_handler(void *context){
 #if SLEEP_MODE == SLEEP_MODE_SYSTEM_ON
     NRF_LOG_DEBUG("going to light sleep...\n");
     sleep_allow_advertise = false;
-    if(conn_handle != BLE_CONN_HANDLE_INVALID){
-        sd_ble_gap_disconnect(conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+    if(sleep_connection_handle != BLE_CONN_HANDLE_INVALID){
+        sd_ble_gap_disconnect(sleep_connection_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
     }
-    ble_advertising_stop();
+    sd_ble_gap_adv_stop();
 #else
     NRF_LOG_DEBUG("going to deep sleep...\n");
     // turning chip and clock off, GPIO should be set up to wake up again
@@ -42,7 +44,7 @@ void sleep_handle_ble_evt(ble_evt_t *p_ble_evt){
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            sleep_connection_handle = p_ble_evt->p_ble_evt.gap_evt.conn_handle;
+            sleep_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
@@ -51,7 +53,7 @@ void sleep_handle_ble_evt(ble_evt_t *p_ble_evt){
     }
 }
 
-bool sleep_allow_advertise(){
+bool sleep_get_allow_advertise(){
     return sleep_allow_advertise;
 }
 

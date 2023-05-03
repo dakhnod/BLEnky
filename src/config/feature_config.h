@@ -49,7 +49,7 @@
 
 // <e>Automation IO profile enabled
 #ifndef FEATURE_AUTOMATION_IO_ENABLED
-#define FEATURE_AUTOMATION_IO_ENABLED 1
+#define FEATURE_AUTOMATION_IO_ENABLED 0
 #endif
 // </e>
 

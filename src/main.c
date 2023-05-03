@@ -11,7 +11,8 @@
 #include "sensor_gpio.h"
 #include "sensor_timer.h"
 #include "ble_configuration_service.h"
-#include "sleep_mode.h"
+#include "sleep.h"
+#include "feature_config.h"
 
 void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {

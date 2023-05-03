@@ -108,7 +108,6 @@ void handle_csc_measurement_cccd_write(ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len == 2)
     {
-        // TODO enabke update timer here
         handle_speed_measurement_notification_enabled(
             ble_srv_is_notification_enabled(write_evt->data)
         );

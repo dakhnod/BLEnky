@@ -5,16 +5,46 @@
 #include "ble_advertising.h"
 #include "ble_hci.h"
 #include "sensor_timer.h"
+#include "softdevice_handler.h"
 
-#define SLEEP_TIMER_TIMEOUT APP_TIMER_TICKS(60 * 1000, APP_TIMER_PRESCALER)
+// Tick every minute and check the timeout
+// if this is changed the timeout will be too early / late
+// since the timeout is specified in minutes
+#define TICK_TIMEOUT_MS 60 * 1000
+
+#define SLEEP_TIMER_TIMEOUT APP_TIMER_TICKS(TICK_TIMEOUT_MS, APP_TIMER_PRESCALER)
 
 APP_TIMER_DEF(sleep_timeout_timer);
 
 bool sleep_allow_advertise = true;
 
-uint16_t sleep_connection_handle;
-
 uint32_t inactivity_count = 0;
+
+bool timer_running = false;
+
+sleep_enter_handler_t sleep_enter_handler;
+
+void sleep_timer_stop(){
+    if(!timer_running){
+        return;
+    }
+    timer_running = false;
+    ret_code_t err_code = app_timer_stop(sleep_timeout_timer);
+    APP_ERROR_CHECK(err_code);
+}
+
+void sleep_timer_start(){
+    if(timer_running){
+        return;
+    }
+    timer_running = true;
+    ret_code_t err_code = app_timer_start(
+        sleep_timeout_timer,
+        SLEEP_TIMER_TIMEOUT,
+        NULL
+    );
+    APP_ERROR_CHECK(err_code);
+}
 
 void sleep_timeout_handler(void *context){
     if(inactivity_count < SLEEP_TIMEOUT_MINUTES){
@@ -24,53 +54,40 @@ void sleep_timeout_handler(void *context){
     }
 #if SLEEP_MODE == SLEEP_MODE_SYSTEM_ON
     NRF_LOG_DEBUG("going to light sleep...\n");
+    // stop watchdog timer since we're sleeping anyways
+    sleep_timer_stop();
     sleep_allow_advertise = false;
-    if(sleep_connection_handle != BLE_CONN_HANDLE_INVALID){
-        sd_ble_gap_disconnect(sleep_connection_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-    }
-    sd_ble_gap_adv_stop();
+    sleep_enter_handler();
 #else
     NRF_LOG_DEBUG("going to deep sleep...\n");
     // turning chip and clock off, GPIO should be set up to wake up again
-    NVIC_SystemOff();
+    sd_power_system_off();
 #endif
 }
 
 void sleep_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *input){
     inactivity_count = 0;
-}
-
-void sleep_handle_ble_evt(ble_evt_t *p_ble_evt){
-    switch (p_ble_evt->header.evt_id)
-    {
-        case BLE_GAP_EVT_CONNECTED:
-            sleep_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
-            break;
-
-        case BLE_GAP_EVT_DISCONNECTED:
-            sleep_connection_handle = BLE_CONN_HANDLE_INVALID;
-            break;
-    }
+    // ensure that the watchdog is active
+    sleep_timer_start();
 }
 
 bool sleep_get_allow_advertise(){
     return sleep_allow_advertise;
 }
 
-void sleep_init(){
+void sleep_init(sleep_enter_handler_t sleep_enter_handler_){
     ret_code_t err_code;
 
+    sleep_enter_handler = sleep_enter_handler_;
+
+    NRF_LOG_DEBUG("creating timer\n");
     err_code = app_timer_create(
         &sleep_timeout_timer,
         APP_TIMER_MODE_REPEATED,
         sleep_timeout_handler
     );
     APP_ERROR_CHECK(err_code);
+    NRF_LOG_DEBUG("starting timer\n");
 
-    err_code = app_timer_start(
-        sleep_timeout_timer,
-        SLEEP_TIMER_TIMEOUT,
-        NULL
-    );
-    APP_ERROR_CHECK(err_code);
+    sleep_timer_start();
 }

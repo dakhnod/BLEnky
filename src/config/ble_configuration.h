@@ -9,8 +9,6 @@
 
 #define DEVICE_NAME "binary sensor"
 
-#define ADVERTISING_TIMEOUT 0
-
 #define BLE_DEFAULT_MIN_CONN_INTERVAL               MSEC_TO_UNITS(10, UNIT_1_25_MS)            /**< Minimum acceptable connection interval (0.5 seconds). */
 #define BLE_DEFAULT_MAX_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)            /**< Maximum acceptable connection interval (1 second). */
 #define BLE_DEFAULT_SLAVE_LATENCY                   0                                         /**< Slave latency. */

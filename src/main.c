@@ -36,6 +36,10 @@ int main(void) {
 
     timer_init();
 
+    #if FEATURE_ENABLED(SLEEP_MODE)
+    sleep_init(ble_disable_rf);
+    #endif
+
     gpio_init(main_handle_input_change);
 
     ble_init();

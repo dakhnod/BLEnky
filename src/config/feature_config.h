@@ -49,7 +49,7 @@
 
 // <e>Automation IO profile enabled
 #ifndef FEATURE_AUTOMATION_IO_ENABLED
-#define FEATURE_AUTOMATION_IO_ENABLED 0
+#define FEATURE_AUTOMATION_IO_ENABLED 1
 #endif
 // </e>
 
@@ -76,17 +76,15 @@
 #define FEATURE_SLEEP_MODE_ENABLED 1
 #endif
 
-//<o> Sleep mode
+//<o>Sleep mode
 //<0=> Light sleep (RAM retention)
 //<1=> Deep sleep (no RAM retention)
-#define SLEEP_MODE 0x00
-//</o>
+#define SLEEP_MODE 0x0
 
 //<o>Sleep timeout in minutes <0-180>
 #define SLEEP_TIMEOUT_MINUTES 5
-//</o>
 
-//</e>
+// </e>
 
 // </h>
 

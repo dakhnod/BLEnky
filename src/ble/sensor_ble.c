@@ -22,7 +22,7 @@ bool is_advertising = false;
 
 uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 
-uint16_t advertising_interval = APP_ADV_INTERVAL_FAST;
+uint16_t advertising_interval = APP_ADV_INTERVAL_SLOW;
 
 
 void peer_manager_event_handler(pm_evt_t const *p_evt)
@@ -277,6 +277,7 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED:
             NRF_LOG_INFO("connected\r\n");
+            is_advertising = false;
             connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
             break; // BLE_GAP_EVT_CONNECTED
 
@@ -388,6 +389,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_conn_params_on_ble_evt(p_ble_evt);
 
     if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
+        // disallow advertising if the sleep module forbids it
         bool can_advertise = true;
         #if FEATURE_ENABLED(SLEEP_MODE)
             can_advertise = sleep_get_allow_advertise();
@@ -395,6 +397,8 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
         if(can_advertise){
             ble_advertising_on_ble_evt(p_ble_evt);
         }
+    }else{
+        ble_advertising_on_ble_evt(p_ble_evt);
     }
 
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
@@ -415,10 +419,6 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
 
     #if FEATURE_ENABLED(HID)
     ble_hid_on_ble_evt(p_ble_evt);
-    #endif
-
-    #if FEATURE_ENABLED(SLEEP_MODE)
-    sleep_handle_ble_evt(p_ble_evt);
     #endif
 }
 
@@ -562,6 +562,14 @@ void sys_evt_dispatch(uint32_t sys_evt) {
     ble_advertising_on_sys_evt(sys_evt);
 }
 
+void ble_disable_rf(){
+    if(connection_handle != BLE_CONN_HANDLE_INVALID){
+        sd_ble_gap_disconnect(connection_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        connection_handle = BLE_CONN_HANDLE_INVALID;
+    }
+    advertising_stop();
+}
+
 void ble_stack_init(void) {
     uint32_t err_code;
 
@@ -593,10 +601,6 @@ void ble_stack_init(void) {
 
     err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
-
-    #if FEATURE_ENABLED(SLEEP_MODE)
-    sleep_init();
-    #endif
 }
 
 /**@brief Function for the GAP initialization.
@@ -779,4 +783,5 @@ advertising_stop() {
     }
     uint32_t err = sd_ble_gap_adv_stop();
     APP_ERROR_CHECK(err);
+    is_advertising = false;
 }

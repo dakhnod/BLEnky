@@ -8,6 +8,7 @@
 #include "nrf_delay.h"
 #include "feature_config.h"
 #include "ble_hid.h"
+#include "sleep.h"
 
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
@@ -21,8 +22,6 @@ uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the curr
 uint16_t advertising_interval = APP_ADV_INTERVAL_FAST;
 
 void ble_init() {
-    // ble_stack_init();
-
     uint8_t device_name[LENGTH_DEVICE_NAME];
     uint32_t device_name_length;
 
@@ -195,7 +194,17 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     #endif
 
     ble_conn_params_on_ble_evt(p_ble_evt);
-    ble_advertising_on_ble_evt(p_ble_evt);
+
+    if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
+        bool can_advertise = true;
+        #if FEATURE_ENABLED(SLEEP_MODE)
+            can_advertise = sleep_allow_advertise();
+        #endif
+        if(can_advertise){
+            ble_advertising_on_ble_evt(p_ble_evt);
+        }
+    }
+
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
 
     #if FEATURE_ENABLED(BATTERY_PROFILE)
@@ -210,6 +219,10 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
 
     #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     ble_csc_on_ble_evt(p_ble_evt);
+    #endif
+
+    #if FEATURE_ENABLED(SLEEP_MODE)
+    sleep_handle_ble_evt(p_ble_evt);
     #endif
 }
 
@@ -384,6 +397,10 @@ void ble_stack_init(void) {
 
     err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
+
+    #if FEATURE_ENABLED(SLEEP_MODE)
+    sleep_mode_init();
+    #endif
 }
 
 /**@brief Function for the GAP initialization.

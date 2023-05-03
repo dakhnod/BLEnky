@@ -83,6 +83,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/sequence/sequence.c \
   $(PROJ_DIR)/src/storage/storage.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
+  $(PROJ_DIR)/src/sleep/sleep.c \
   $(PROJ_DIR)/src/main.c \
 
 # Include folders common to all targets
@@ -205,6 +206,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/sequence/ \
   $(PROJ_DIR)/src/timer/ \
   $(PROJ_DIR)/src/persistence/ \
+  $(PROJ_DIR)/src/sleep/ \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service \
   $(CUSTOM_INCLUDES_DIR)/boards \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service \

@@ -215,7 +215,7 @@ void ble_init() {
     nrf_delay_ms(3); 
     advertising_init();
 
-    #if FEATURE_BLE_BONDING_ENABLED == 1
+    #if FEATURE_ENABLED(BLE_BONDING)
     filesystem_init();
     peer_manager_init();
     #endif
@@ -235,7 +235,7 @@ void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config
     ble_csc_handle_input_change(index, config);
     #endif
 
-    #if FEATURE_HID_ENABLED == 1
+    #if FEATURE_ENABLED(HID)
     ble_hid_handle_input_change(index, config);
     #endif
 
@@ -292,7 +292,7 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
             // Only pass through to PM if feature is enabled
-            #if FEATURE_BLE_BONDING_ENABLED == 1
+            #if FEATURE_ENABLED(BLE_BONDING)
             break;
             #endif
 
@@ -413,7 +413,7 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_csc_on_ble_evt(p_ble_evt);
     #endif
 
-    #if FEATURE_HID_ENABLED == 1
+    #if FEATURE_ENABLED(HID)
     ble_hid_on_ble_evt(p_ble_evt);
     #endif
 
@@ -745,7 +745,7 @@ void services_init(void) {
     ble_gpio_asm_init();
     #endif
 
-    #if FEATURE_HID_ENABLED == 1
+    #if FEATURE_ENABLED(HID)
     err_code = ble_hid_init();
     APP_ERROR_CHECK(err_code);
     #endif

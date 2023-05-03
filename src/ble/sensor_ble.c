@@ -128,12 +128,27 @@ void peer_manager_init()
     err_code = pm_init();
     APP_ERROR_CHECK(err_code);
 
+    uint32_t caps = BLE_GAP_IO_CAPS_NONE;
+    bool mitm = false;
+
+    #if STATIC_PASSKEY_ENABLED == 1
+    if(strlen(BLE_BONDIG_PASSKEY) != 6){
+        NRF_LOG_ERROR("Passkey needs to be six digits long");
+    }
+    mitm = true;
+    caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
+    static ble_opt_t passkey_opt;
+    passkey_opt.gap_opt.passkey.p_passkey = (uint8_t*) BLE_BONDIG_PASSKEY;
+    err_code = sd_ble_opt_set(BLE_GAP_OPT_PASSKEY, &passkey_opt);
+    APP_ERROR_CHECK(err_code);
+    #endif
+
     ble_gap_sec_params_t sec_param = {
         .bond = true,
-        .mitm = false,
+        .mitm = mitm,
         .lesc = false,
         .keypress = false,
-        .io_caps = BLE_GAP_IO_CAPS_NONE,
+        .io_caps = caps,
         .min_key_size = 7,
         .max_key_size = 16,
         .kdist_own.enc = 1,

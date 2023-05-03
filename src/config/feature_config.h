@@ -27,8 +27,23 @@
 
 // <e>BLE bonding enabled
 #ifndef FEATURE_BLE_BONDING_ENABLED
-#define FEATURE_BLE_BONDING_ENABLED 0
+#define FEATURE_BLE_BONDING_ENABLED 1
 #endif
+
+#if FEATURE_ENABLED(BLE_BONDING)
+// <e>Static passkey enabled
+#ifndef STATIC_PASSKEY_ENABLED
+#define STATIC_PASSKEY_ENABLED 0
+#endif
+#if STATIC_PASSKEY_ENABLED == 1
+// <s.6>Static passkey (6 digits)
+#ifndef BLE_BONDIG_PASSKEY
+#define BLE_BONDIG_PASSKEY "123456"
+#endif
+#endif
+// </e>
+#endif
+
 // </e>
 
 // </h>
@@ -76,13 +91,15 @@
 #define FEATURE_SLEEP_MODE_ENABLED 1
 #endif
 
+#if FEATURE_ENABLED(SLEEP_MODE)
 //<o>Sleep mode
 //<0=> Light sleep (RAM retention)
 //<1=> Deep sleep (no RAM retention)
-#define SLEEP_MODE 0x0
+#define SLEEP_MODE 0x1
 
 //<o>Sleep timeout in minutes <0-180>
 #define SLEEP_TIMEOUT_MINUTES 5
+#endif
 
 // </e>
 

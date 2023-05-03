@@ -2,8 +2,10 @@
 
 ![Running sequence](https://user-images.githubusercontent.com/26143255/189000402-cf582116-7096-429b-8a44-aa2442ba5524.gif)
 
-This project provides a firmware for cheap, nRF51-based IO-modules to control LEDs, relays, servos, motors (and more) and read from buttons, sensors (etc.) via Bluetooth low energy.
+This project provides a firmware for cheap, nRF51-based IO-modules to control LEDs, relays, servos, motors (and more) and read from buttons, sensors (etc.), build Cycling sensors and HID controlelrs via Bluetooth low energy.
 An IO module can have inputs and outputs that can be read from and written to.
+
+All of the features can be [enabled/disabled](docs/FEATURES.md) to save ram and flash storage.
 
 To summarize, this is basically like Tasmota for the nRF51, that can be powered from a coin cell for a long time.
 
@@ -18,12 +20,13 @@ Furthermore, it gives you the oppurtunity to not only write and read bits to/fro
 ## Table of contents
 
 1. [Configuration](docs/CONFIGURATION.md)
-2. [Pin inputs/outputs (Automation IO)](docs/AUTOMATION_IO_SERVICE.md)
-3. [Pin inputs (Binary Sensor Service)](docs/BINARY_SENSOR_SERVICE.md)
-4. [gpioASM](docs/GPIO_ASM_SERVICE.md)
-5. [Compilation](docs/COMPILATION.md)
-6. [Programming the chip](docs/FLASHING.md)
-7. [First steps](docs/FIRST_STEPS.md)
+2. [Feature configuration](docs/FEATURES.md)
+3. [Pin inputs/outputs (Automation IO)](docs/AUTOMATION_IO_SERVICE.md)
+4. [Pin inputs (Binary Sensor Service)](docs/BINARY_SENSOR_SERVICE.md)
+5. [gpioASM](docs/GPIO_ASM_SERVICE.md)
+6. [Compilation](docs/COMPILATION.md)
+7. [Programming the chip](docs/FLASHING.md)
+8. [First steps](docs/FIRST_STEPS.md)
 
 ## Roadmap
 

@@ -50,15 +50,15 @@ void ble_init() {
 
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    #if FEATURE_AUTOMATION_IO_ENABLED == 1
+    #if FEATURE_ENABLED(AUTOMATION_IO)
     ble_aio_handle_input_change(index, config);
     #endif
 
-    #if FEATURE_GPIO_ASM_ENABLED == 1
+    #if FEATURE_ENABLED(GPIO_ASM)
     ble_gpio_asm_handle_input_change(index, config);
     #endif
 
-    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
+    #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     ble_csc_handle_input_change(index, config);
     #endif
 }
@@ -186,11 +186,11 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     on_ble_evt(p_ble_evt);
 
-    #if FEATURE_AUTOMATION_IO_ENABLED == 1
+    #if FEATURE_ENABLED(AUTOMATION_IO)
     ble_aio_on_ble_evt(p_ble_evt);
     #endif
 
-    #if FEATURE_BINARY_SENSOR_ENABLED == 1
+    #if FEATURE_ENABLED(BINARY_SENSOR)
     ble_bss_on_ble_evt(p_ble_evt);
     #endif
 
@@ -198,17 +198,17 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_advertising_on_ble_evt(p_ble_evt);
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
 
-    #if FEATURE_BATTERY_PROFILE_ENABLED == 1
+    #if FEATURE_ENABLED(BATTERY_PROFILE)
     ble_bas_on_ble_evt(p_ble_evt);
     #endif
 
     ble_configuration_on_ble_event(p_ble_evt);
 
-    #if FEATURE_GPIO_ASM_ENABLED == 1
+    #if FEATURE_ENABLED(GPIO_ASM)
     ble_gpio_asm_on_ble_evt(p_ble_evt);
     #endif
 
-    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
+    #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     ble_csc_on_ble_evt(p_ble_evt);
     #endif
 }
@@ -292,25 +292,25 @@ void advertising_init() {
     uint8_t uuid_len = 0;
     ble_uuid_t uuids[4]; // size may be updated ini the future
 
-    #if FEATURE_BINARY_SENSOR_ENABLED == 1
+    #if FEATURE_ENABLED(BINARY_SENSOR)
         uuids[uuid_len].uuid = UUID_BINARY_SENSOR_SERVICE;
         uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
         uuid_len++;
     #endif
 
-    #if FEATURE_AUTOMATION_IO_ENABLED == 1
+    #if FEATURE_ENABLED(AUTOMATION_IO)
         uuids[uuid_len].uuid = UUID_AUTOMATION_IO_SERVICE;
         uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
         uuid_len++;
     #endif
 
-    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
+    #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
         uuids[uuid_len].uuid = UUID_CSC_SERVICE;
         uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
         uuid_len++;
     #endif
 
-    #if FEATURE_HID_ENABLED == 1
+    #if FEATURE_ENABLED(HID)
         uuids[uuid_len].uuid = BLE_UUID_HID_SERVICE;
         uuids[uuid_len].type = BLE_UUID_TYPE_BLE;
         uuid_len++;
@@ -512,7 +512,7 @@ void services_init(void) {
     err_code = dis_init();
     APP_ERROR_CHECK(err_code);
 
-    #if FEATURE_BATTERY_PROFILE_ENABLED == 1
+    #if FEATURE_ENABLED(BATTERY_PROFILE)
     err_code = bas_init();
     APP_ERROR_CHECK(err_code);
     #endif
@@ -520,24 +520,24 @@ void services_init(void) {
     err_code = ble_configuration_service_init(ble_handle_connection_parameters_configuration_update);
     APP_ERROR_CHECK(err_code);
 
-    #if FEATURE_AUTOMATION_IO_ENABLED == 1
+    #if FEATURE_ENABLED(AUTOMATION_IO)
     err_code = ble_aio_init();
     APP_ERROR_CHECK(err_code);
     #endif
 
-    #if FEATURE_GPIO_ASM_ENABLED == 1
+    #if FEATURE_ENABLED(GPIO_ASM)
     ble_gpio_asm_init();
     #endif
 
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
 
-    #if FEATURE_CYCLING_SPEED_CADENCE_ENABLED == 1
+    #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     err_code = ble_csc_init();
     APP_ERROR_CHECK(err_code);
     #endif
 
-    #if FEATURE_HID_ENABLED == 1
+    #if FEATURE_ENABLED(HID)
     err_code = ble_hid_init();
     APP_ERROR_CHECK(err_code);
     #endif

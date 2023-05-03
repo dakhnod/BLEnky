@@ -1,5 +1,8 @@
 #ifndef FEATURE_CONFIG_H
 #define FEATURE_CONFIG_H
+
+#define FEATURE_ENABLED(feature) FEATURE_##feature##_ENABLED == 1
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <h>GPIO configuration

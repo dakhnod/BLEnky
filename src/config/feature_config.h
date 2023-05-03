@@ -1,5 +1,8 @@
 #ifndef FEATURE_CONFIG_H
 #define FEATURE_CONFIG_H
+
+#define FEATURE_ENABLED(feature) FEATURE_##feature##_ENABLED == 1
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <h>GPIO configuration
@@ -67,6 +70,23 @@
 #define FEATURE_HID_ENABLED 1
 #endif
 // </e>
+
+// <e>Sleep mode enabled
+#ifndef FEATURE_SLEEP_MODE_ENABLED
+#define FEATURE_SLEEP_MODE_ENABLED 1
+#endif
+
+//<o> Sleep mode
+//<0=> Light sleep (RAM retention)
+//<1=> Deep sleep (no RAM retention)
+#define SLEEP_MODE 0x00
+//</o>
+
+//<o>Sleep timeout in minutes <0-180>
+#define SLEEP_TIMEOUT_MINUTES 5
+//</o>
+
+//</e>
 
 // </h>
 

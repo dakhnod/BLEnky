@@ -1,7 +1,7 @@
 #include "sensor_gpio.h"
 #include "pin_configuration.h"
 #include "app_timer.h"
-#include "ble_configuration.h"
+#include "sensor_timer.h"
 #include "app_pwm.h"
 #include "feature_config.h"
 

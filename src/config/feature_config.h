@@ -1,6 +1,8 @@
 #ifndef FEATURE_CONFIG_H
 #define FEATURE_CONFIG_H
 
+#define APP_TIMER_PRESCALER 0
+
 #define FEATURE_ENABLED(feature) FEATURE_##feature##_ENABLED == 1
 
 // <<< Use Configuration Wizard in Context Menu >>>
@@ -24,6 +26,52 @@
 // </h>
 
 // <h>BLE Configuration
+
+// <o>Fast advertisement interval (ms) <10-1000>
+#ifndef ADVERTISEMENT_INTERVAL_FAST
+#define ADVERTISEMENT_INTERVAL_FAST 100
+#endif
+
+// <o>Fast advertisement duration (s) <0-60>
+#ifndef ADVERTISEMENT_TIMEOUT_FAST
+#define ADVERTISEMENT_TIMEOUT_FAST 1
+#endif
+
+// <o>Slow advertisement interval (ms) <500-5000>
+// <i>Set to 0 for infinite
+#ifndef ADVERTISEMENT_INTERVAL_SLOW
+#define ADVERTISEMENT_INTERVAL_SLOW 1000
+#endif
+
+// <o>Slow advertisement duration (s) <0-1440>
+#ifndef ADVERTISEMENT_TIMEOUT_SLOW
+#define ADVERTISEMENT_TIMEOUT_SLOW 0
+#endif
+
+// <s.13>Default device name
+#ifndef DEVICE_NAME
+#define DEVICE_NAME "BLE400"
+#endif 
+
+// <o>Minimal connection interval (ms) <8-4000>
+#ifndef BLE_DEFAULT_MIN_CONN_INTERVAL
+#define BLE_DEFAULT_MIN_CONN_INTERVAL 10
+#endif
+
+// <o>Maximal connection interval (ms) <8-4000>
+#ifndef BLE_DEFAULT_MAX_CONN_INTERVAL
+#define BLE_DEFAULT_MAX_CONN_INTERVAL 20
+#endif
+
+// <o>Slave latency (connection event count) <0-100>
+#ifndef BLE_DEFAULT_SLAVE_LATENCY
+#define BLE_DEFAULT_SLAVE_LATENCY 100
+#endif
+
+// <o>Connection supervision timeout (ms) <100-32000>
+#ifndef BLE_DEFAULT_CONN_SUP_TIMEOUT
+#define BLE_DEFAULT_CONN_SUP_TIMEOUT 5000
+#endif
 
 // <e>BLE bonding enabled
 #ifndef FEATURE_BLE_BONDING_ENABLED

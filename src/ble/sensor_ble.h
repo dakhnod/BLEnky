@@ -14,7 +14,6 @@
 #include "ble_advertising.h"
 #include "ble_binary_sensor_service.h"
 #include "ble_automation_io_service.h"
-#include "ble_configuration.h"
 #include "storage.h"
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */

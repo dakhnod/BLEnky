@@ -80,14 +80,12 @@ void sleep_init(sleep_enter_handler_t sleep_enter_handler_){
 
     sleep_enter_handler = sleep_enter_handler_;
 
-    NRF_LOG_DEBUG("creating timer\n");
     err_code = app_timer_create(
         &sleep_timeout_timer,
         APP_TIMER_MODE_REPEATED,
         sleep_timeout_handler
     );
     APP_ERROR_CHECK(err_code);
-    NRF_LOG_DEBUG("starting timer\n");
 
     sleep_timer_start();
 }

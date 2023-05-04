@@ -86,6 +86,12 @@
 #endif
 // </e>
 
+#if FEATURE_ENABLED(HID)
+#if ! FEATURE_ENABLED(BLE_BONDING)
+#error BLE bonding needs to be enabled for HID to work
+#endif
+#endif
+
 // <e>Sleep mode enabled
 #ifndef FEATURE_SLEEP_MODE_ENABLED
 #define FEATURE_SLEEP_MODE_ENABLED 1

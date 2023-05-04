@@ -44,11 +44,11 @@ uint8_t descriptor_value[] = {
   0x85, 0x01,   // Report ID (1)
   0x05, 0x09,   // Usage Page (Button)
   0x19, 0x01,   // Usage Minimum (Button 1)
-  0x29, 0x04,   // Usage Maximum (Button 4)
+  0x29, 0x10,   // Usage Maximum (Button 32)
   0x15, 0x00,   // Logical Minimum (0)
   0x25, 0x01,   // Logical Maximum (1)
   0x75, 0x01,   // Report Size (1)
-  0x95, 0x04,   // Report Count (4)
+  0x95, 0x10,   // Report Count (8)
   0x81, 0x02,   // Input (Data, Variable, Absolute) - 4 buttons
 
   0x05, 0x01,   // Usage Page (Generic Desktop)
@@ -68,6 +68,8 @@ uint8_t descriptor_value[] = {
 uint8_t report_data[] = {
     // 0x01, // (left out, since present in descriptor) report id, as specified in report map
     0x00, // buttons, on bit each
+    0x00,
+    0x00, // hat switch rotation
 };
 
 uint8_t information_value[] = {
@@ -106,14 +108,15 @@ void ble_hid_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
   }else if(bits == 0x03){
     rotation = 8;
   }
-  rotation <<= 4; // make room for buttons
+  // rotation <<= 4; // make room for buttons
+  report_data[2] = rotation;
 
   // iterate over buttons
+  uint8_t button_data = 0x00;
   for(int i = 0; i < 2; i++){
-    rotation |= (input_states[i + 4] << i);
+    button_data |= (input_states[i + 4] << i);
   }
-
-  report_data[0] = rotation;
+  report_data[1] = button_data << 2;
   
   if(ble_hid_connection_handle == BLE_CONN_HANDLE_INVALID){
       // no client connected

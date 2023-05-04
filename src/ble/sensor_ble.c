@@ -784,11 +784,6 @@ void services_init(void) {
     err_code = ble_csc_init();
     APP_ERROR_CHECK(err_code);
     #endif
-
-    #if FEATURE_ENABLED(HID)
-    err_code = ble_hid_init();
-    APP_ERROR_CHECK(err_code);
-    #endif
 }
 
 void

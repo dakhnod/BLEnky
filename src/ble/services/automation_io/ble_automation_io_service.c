@@ -9,6 +9,7 @@
 #include "ble_configuration_service.h"
 #include "ble_helpers.h"
 #include "encoding.h"
+#include "feature_config.h"
 
 uint16_t ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -431,11 +432,13 @@ ret_code_t ble_aio_init()
         ble_aio_update_digital_in_states();
     }
     
+    #if FEATURE_ENABLED(BINARY_SENSOR)
     if (input_digital_pin_count > 0)
     {
         err_code = ble_bss_init();
         APP_ERROR_CHECK(err_code);
     }
+    #endif
 
     return NRF_SUCCESS;
 }

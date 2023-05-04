@@ -20,6 +20,12 @@
 #define APP_ADV_INTERVAL_FAST           MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_FAST, UNIT_0_625_MS)
 #define APP_ADV_INTERVAL_SLOW           MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_SLOW, UNIT_0_625_MS)
 
+#define BLE_DEFAULT_MIN_CONN_INTERVAL   MSEC_TO_UNITS(BLE_MIN_CONN_INTERVAL, UNIT_1_25_MS)
+#define BLE_DEFAULT_MAX_CONN_INTERVAL   MSEC_TO_UNITS(BLE_MAX_CONN_INTERVAL, UNIT_1_25_MS)
+#define BLE_DEFAULT_CONN_SUP_TIMEOUT    MSEC_TO_UNITS(BLE_CONN_SUP_TIMEOUT, UNIT_10_MS)
+
+
+
 ble_gap_adv_params_t m_adv_params;
 ble_advdata_t advdata;
 
@@ -671,7 +677,7 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
 
     gap_conn_params.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
     gap_conn_params.max_conn_interval = BLE_DEFAULT_MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency = BLE_DEFAULT_SLAVE_LATENCY;
+    gap_conn_params.slave_latency = BLE_SLAVE_LATENCY;
     gap_conn_params.conn_sup_timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT;
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     APP_ERROR_CHECK(err_code);

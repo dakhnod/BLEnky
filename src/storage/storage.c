@@ -17,8 +17,14 @@ FS_REGISTER_CFG(fs_config_t fs_config) =
     .callback = fs_evt_handler, // Function for event callbacks.
     .num_pages = 1,      // Number of physical flash pages required.
     .priority = 0xFE,            // Priority for flash usage.
-    .p_start_addr = (uint32_t *)0x00035800, // start of last page before bootloader
-    .p_end_addr = (uint32_t *)0x00035C00, // start of bootloader
+    // why are we not letting the range to be automatically assigned?
+    // we want to have this data to always be at the same location.
+    // automatic assignment would move the data depending on the presence of a bootloader
+    // if we know that this data cannot be in the following three pages, we can just nuke them to delete bonding data
+    // without nuking the pin data
+    .p_start_addr = (uint32_t *)0x00034C00, // start four pages before the bootloader
+    .p_end_addr = (uint32_t *)0x00035000, // end three pages before the bootloader
+    // remaining three pages are reserved for bonding data
 };
 
 void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
@@ -128,7 +134,7 @@ void storage_init() {
     NRF_LOG_DEBUG("fstorage init failure\n");
     return;
   }
-  NRF_LOG_DEBUG("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
+  NRF_LOG_ERROR("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
 
   storage_checksum_check();
 

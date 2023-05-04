@@ -6,8 +6,8 @@ GROUP(-lgcc -lc -lnosys)
 MEMORY
 {
   /* flash length is calculated using the flash origin of the bootloader_secure */
-  /* last subtraction is to have some free flash for pin configuration settings */
-  FLASH (rx) : ORIGIN = 0x0001b000, LENGTH = 0x00035C00 - 0x0001b000 - 0x0400
+  /* last subtraction is to have some free flash for pin configuration settings and peer manager */
+  FLASH (rx) : ORIGIN = 0x0001b000, LENGTH = 0x00035C00 - 0x0001b000 - (4 * 0x0400)
   RAM (rwx) :  ORIGIN = 0x20002008, LENGTH = 0x1ff8 + 0x4000 /* 16kB more than qfaa */
   BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0003FC00, LENGTH = 0x0400
 }

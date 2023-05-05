@@ -6,7 +6,9 @@
 #include "ble_helpers.h"
 #include "sensor_gpio.h"
 #include "nrf_log.h"
+#include "feature_config.h"
 
+#define HID_REPORT_ID_GAMEPAD 0x01
 
 uint16_t ble_hid_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -19,36 +21,19 @@ uint16_t ble_hid_characteristic_report_cccd_handle;
 
 bool ble_hid_report_notification_enabled = false;
 
-// just eight buttons
-//uint8_t descriptor_value[] = {
-//    /* Gamepad with eight buttons */
-//    0x05, 0x01, /* Usage Page (Generic Desktop) */
-//    0x09, 0x05, /* Usage (Game Pad) */
-//    0xA1, 0x01, /* Collection (Application) */
-//    0x85, 0x01, /* Report ID (1) */
-//    0x05, 0x09, /* Usage Page (Button) */
-//    0x19, 0x01, /* Usage Minimum (Button 1) */
-//    0x29, 0x20, /* Usage Maximum (Button 8) */
-//    0x15, 0x00, /* Logical Minimum (0) */
-//    0x25, 0x01, /* Logical Maximum (1) */
-//    0x75, 0x01, /* Report Size (1) */
-//    0x95, 0x20, /* Report Count (8) */
-//    0x81, 0x02, /* Input (Data,Var,Abs) */
-//    0xC0 /* End Collection */
-//};
-
 uint8_t descriptor_value[] = {
   0x05, 0x01,   // Usage Page (Generic Desktop)
+#if HID_GAMEPAD_ENABLED == 1
   0x09, 0x05,   // Usage (Game Pad)
   0xA1, 0x01,   // Collection (Application)
-  0x85, 0x01,   // Report ID (1)
+  0x85, HID_REPORT_ID_GAMEPAD,   // Report ID (1)
   0x05, 0x09,   // Usage Page (Button)
   0x19, 0x01,   // Usage Minimum (Button 1)
-  0x29, 0x10,   // Usage Maximum (Button 32)
+  0x29, 0x10,   // Usage Maximum (Button 16)
   0x15, 0x00,   // Logical Minimum (0)
   0x25, 0x01,   // Logical Maximum (1)
   0x75, 0x01,   // Report Size (1)
-  0x95, 0x10,   // Report Count (8)
+  0x95, 0x10,   // Report Count (16)
   0x81, 0x02,   // Input (Data, Variable, Absolute) - 4 buttons
 
   0x05, 0x01,   // Usage Page (Generic Desktop)
@@ -61,6 +46,7 @@ uint8_t descriptor_value[] = {
   0x75, 0x04,   // Report Size (4)
   0x95, 0x01,   // Report Count (1)
   0x81, 0x42,   // Input (Data, Variable, Absolute, Null State) - hat switch
+#endif
 
   0xC0          // End Collection
 };
@@ -78,54 +64,108 @@ uint8_t information_value[] = {
     0x00 // no special features
 };
 
+
 void ble_hid_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
   uint32_t input_count = gpio_get_input_digital_pin_count();
   uint8_t input_states[input_count];
   gpio_encode_input_states(input_states);
 
-  uint8_t bits = 0x00;
-  for(uint8_t i = 0; i < 4; i++){
-    bits |= (input_states[i] << i);
-  }
-  NRF_LOG_DEBUG("count: %d\n", input_count);
+  #if HID_GAMEPAD_ENABLED == 1
+
+  static struct {
+    uint8_t gamepad_up_pressed : 1;
+    uint8_t gamepad_down_pressed : 1;
+    uint8_t gamepad_left_pressed : 1;
+    uint8_t gamepad_right_pressed : 1;
+  } gamepad = {0};
+
+  /*
+  static bool gamepad_up_pressed = false;
+  static bool gamepad_down_pressed = false;
+  static bool gamepad_left_pressed = false;
+  static bool gamepad_right_pressed = false;
+  */
+
+  if(false){} // this is just the starting point for the following cases
+  #if (HID_D_PAD_UP_ENABLED == 1)
+  else if(HID_D_PAD_UP_PIN == config->pin) gamepad.gamepad_up_pressed = config->state;
+  #endif
+  #if (HID_D_PAD_DOWN_ENABLED == 1)
+  else if(HID_D_PAD_DOWN_PIN == config->pin) gamepad.gamepad_down_pressed = config->state;
+  #endif
+  #if (HID_D_PAD_LEFT_ENABLED == 1)
+  else if(HID_D_PAD_LEFT_PIN == config->pin) gamepad.gamepad_left_pressed = config->state;
+  #endif
+  #if (HID_D_PAD_RIGHT_ENABLED == 1)
+  else if(HID_D_PAD_RIGHT_PIN == config->pin) gamepad.gamepad_right_pressed = config->state;
+  #endif
+
+
+  uint8_t bits = *((uint8_t*)&gamepad);
 
   uint8_t rotation = 0;
-  if(bits == 0x01){
-    rotation = 7;
-  }else if(bits == 0x02){
+  if(bits == 0b0001){
     rotation = 1;
-  }else if(bits == 0x04){
-    rotation = 3;
-  }else if(bits == 0x08){
-    rotation = 5;
-  }else if(bits == 0x06){
-    rotation = 2;
-  }else if(bits == 0x0c){
-    rotation = 4;
-  }else if(bits == 0x09){
-    rotation = 6;
-  }else if(bits == 0x03){
+  }else if(bits == 0b0101){
     rotation = 8;
+  }else if(bits == 0b1001){
+    rotation = 2;
+  }else if(bits == 0b0010){
+    rotation = 5;
+  }else if(bits == 0b0110){
+    rotation = 6;
+  }else if(bits == 0b1010){
+    rotation = 4;
+  }else if(bits == 0b0100){
+    rotation = 7;
+  }else if(bits == 0b1000){
+    rotation = 3;
   }
+  NRF_LOG_DEBUG("bits: %x, rotation: %d\n", bits, rotation);
   // rotation <<= 4; // make room for buttons
   report_data[2] = rotation;
 
-  // iterate over buttons
-  uint8_t button_data = 0x00;
-  for(int i = 0; i < 2; i++){
-    button_data |= (input_states[i + 4] << i);
+  if(false){}
+  #if HID_BUTTON_A_ENABLED
+  else if(config->pin == HID_BUTTON_A_PIN){
+    if(config->state) report_data[0] |=  0b01;
+    else              report_data[0] &= ~0b01;
   }
-  report_data[1] = button_data << 2;
+  #endif
+  #if HID_BUTTON_B_ENABLED
+  else if(config->pin == HID_BUTTON_B_PIN){
+    if(config->state) report_data[0] |=  0b10;
+    else              report_data[0] &= ~0b10;
+  }
+  #endif
+  #if HID_BUTTON_START_ENABLED
+  else if(config->pin == HID_BUTTON_START_PIN){
+    if(config->state) report_data[1] |=  0b1000;
+    else              report_data[1] &= ~0b1000;
+  }
+  #endif
+  #if HID_BUTTON_SELECT_ENABLED
+  else if(config->pin == HID_BUTTON_SELECT_PIN){
+    if(config->state) report_data[1] |=  0b0100;
+    else              report_data[1] &= ~0b0100;
+  }
+  #endif
+
+  #endif
   
   if(ble_hid_connection_handle == BLE_CONN_HANDLE_INVALID){
       // no client connected
       return;
   }
 
+  // Disabling this since for some reason
+  // Android doesn't re-enable notifications on the report
+  /*
   if(!ble_hid_report_notification_enabled){
     return;
   }
+  */
 
   uint16_t len = sizeof(report_data);
 

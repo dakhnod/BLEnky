@@ -132,13 +132,101 @@
 #ifndef FEATURE_HID_ENABLED
 #define FEATURE_HID_ENABLED 1
 #endif
-// </e>
 
 #if FEATURE_ENABLED(HID)
 #if ! FEATURE_ENABLED(BLE_BONDING)
 #error BLE bonding needs to be enabled for HID to work
 #endif
 #endif
+
+// <e> Gamepad enabled
+#ifndef HID_GAMEPAD_ENABLED
+#define HID_GAMEPAD_ENABLED 1
+#endif
+
+// <e> D-Pad up enabled
+#ifndef HID_D_PAD_UP_ENABLED
+#define HID_D_PAD_UP_ENABLED 1
+#endif
+// <o> D-Pad up pin <0-32> <f.d>
+#ifndef HID_D_PAD_UP_PIN
+#define HID_D_PAD_UP_PIN 2
+#endif
+// </e>
+
+// <e> D-Pad down enabled
+#ifndef HID_D_PAD_DOWN_ENABLED
+#define HID_D_PAD_DOWN_ENABLED 1
+#endif
+// <o> D-Pad down pin <0-32> <f.d>
+#ifndef HID_D_PAD_DOWN_PIN
+#define HID_D_PAD_DOWN_PIN 4
+#endif
+// </e>
+
+// <e> D-Pad left enabled
+#ifndef HID_D_PAD_LEFT_ENABLED
+#define HID_D_PAD_LEFT_ENABLED 1
+#endif
+// <o> D-Pad left pin <0-32> <f.d>
+#ifndef HID_D_PAD_LEFT_PIN
+#define HID_D_PAD_LEFT_PIN 1
+#endif
+// </e>
+
+// <e> D-Pad right enabled
+#ifndef HID_D_PAD_RIGHT_ENABLED
+#define HID_D_PAD_RIGHT_ENABLED 1
+#endif
+// <o> D-Pad right pin <0-32> <f.d>
+#ifndef HID_D_PAD_RIGHT_PIN
+#define HID_D_PAD_RIGHT_PIN 3
+#endif
+// </e>
+
+// <e> A button enabled
+#ifndef HID_BUTTON_A_ENABLED
+#define HID_BUTTON_A_ENABLED 0
+#endif
+// <o> A button pin <0-32> <f.d>
+#ifndef HID_BUTTON_A_PIN
+#define HID_BUTTON_A_PIN 16
+#endif
+// </e>
+
+// <e> B button enabled
+#ifndef HID_BUTTON_B_ENABLED
+#define HID_BUTTON_B_ENABLED 0
+#endif
+// <o> B button pin <0-32> <f.d>
+#ifndef HID_BUTTON_B_PIN
+#define HID_BUTTON_B_PIN 17
+#endif
+// </e>
+
+// <e> Start button enabled
+#ifndef HID_BUTTON_START_ENABLED
+#define HID_BUTTON_START_ENABLED 1
+#endif
+// <o> Start button pin <0-32> <f.d>
+#ifndef HID_BUTTON_START_PIN
+#define HID_BUTTON_START_PIN 16
+#endif
+// </e>
+
+// <e> Select button enabled
+#ifndef HID_BUTTON_SELECT_ENABLED
+#define HID_BUTTON_SELECT_ENABLED 1
+#endif
+// <o> Select button pin <0-32> <f.d>
+#ifndef HID_BUTTON_SELECT_PIN
+#define HID_BUTTON_SELECT_PIN 17
+#endif
+// </e>
+
+// </e>
+
+// </e>
 
 // <e>Sleep mode enabled
 #ifndef FEATURE_SLEEP_MODE_ENABLED

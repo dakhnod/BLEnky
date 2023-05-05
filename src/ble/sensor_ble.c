@@ -309,11 +309,12 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
             connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
             break; // BLE_GAP_EVT_CONNECTED
 
-        case BLE_GAP_EVT_DISCONNECTED:
-            NRF_LOG_INFO("disconnected\r\n");
+        case BLE_GAP_EVT_DISCONNECTED:{
+            uint8_t reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
+            NRF_LOG_DEBUG("disconnected (reason: 0x%x)\r\n", reason);
             connection_handle = BLE_CONN_HANDLE_INVALID;
             break; // BLE_GAP_EVT_DISCONNECTED
-
+        }
 
         case BLE_GATTS_EVT_WRITE:
             ble_on_write(p_ble_evt);
@@ -422,6 +423,10 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
         #if FEATURE_ENABLED(SLEEP_MODE)
             can_advertise = sleep_get_allow_advertise();
         #endif
+
+        uint8_t reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
+        bool graceful_disconnect = (reason == BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        // TODO: implement configurable instant sleep here
         if(can_advertise){
             ble_advertising_on_ble_evt(p_ble_evt);
         }

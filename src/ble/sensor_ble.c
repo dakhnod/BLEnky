@@ -71,7 +71,7 @@ void peer_manager_event_handler(pm_evt_t const *p_evt)
         // If this event is ignored (pm_conn_sec_config_reply is not called in the event
         // handler), the Peer Manager assumes allow_repairing to be false.
         NRF_LOG_DEBUG("PM_EVT_CONN_SEC_CONFIG_REQ\n");
-        pm_conn_sec_config_t conn_sec_config = {.allow_repairing = false};
+        pm_conn_sec_config_t conn_sec_config = {.allow_repairing = true};
         pm_conn_sec_config_reply(p_evt->conn_handle, &conn_sec_config);
     }
     break;

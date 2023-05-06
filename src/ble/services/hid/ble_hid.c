@@ -23,7 +23,6 @@ bool ble_hid_report_notification_enabled = false;
 
 uint8_t descriptor_value[] = {
   0x05, 0x01,   // Usage Page (Generic Desktop)
-#if HID_GAMEPAD_ENABLED == 1
   0x09, 0x05,   // Usage (Game Pad)
   0xA1, 0x01,   // Collection (Application)
   0x85, HID_REPORT_ID_GAMEPAD,   // Report ID (1)
@@ -46,7 +45,9 @@ uint8_t descriptor_value[] = {
   0x75, 0x04,   // Report Size (4)
   0x95, 0x01,   // Report Count (1)
   0x81, 0x42,   // Input (Data, Variable, Absolute, Null State) - hat switch
-#endif
+  0x95, 0x01,   // Report count (1)
+  0x75, 0x04,   // Report size (4)
+  0x81, 0x03,   // Input (Cnst,Var,Abs)
 
   0xC0          // End Collection
 };
@@ -127,25 +128,25 @@ void ble_hid_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
   report_data[2] = rotation;
 
   if(false){}
-  #if HID_BUTTON_A_ENABLED
+  #if HID_BUTTON_A_ENABLED == 1
   else if(config->pin == HID_BUTTON_A_PIN){
     if(config->state) report_data[0] |=  0b01;
     else              report_data[0] &= ~0b01;
   }
   #endif
-  #if HID_BUTTON_B_ENABLED
+  #if HID_BUTTON_B_ENABLED == 1
   else if(config->pin == HID_BUTTON_B_PIN){
     if(config->state) report_data[0] |=  0b10;
     else              report_data[0] &= ~0b10;
   }
   #endif
-  #if HID_BUTTON_START_ENABLED
+  #if HID_BUTTON_START_ENABLED == 1
   else if(config->pin == HID_BUTTON_START_PIN){
     if(config->state) report_data[1] |=  0b1000;
     else              report_data[1] &= ~0b1000;
   }
   #endif
-  #if HID_BUTTON_SELECT_ENABLED
+  #if HID_BUTTON_SELECT_ENABLED == 1
   else if(config->pin == HID_BUTTON_SELECT_PIN){
     if(config->state) report_data[1] |=  0b0100;
     else              report_data[1] &= ~0b0100;

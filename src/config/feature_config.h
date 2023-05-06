@@ -243,6 +243,12 @@
 #define SLEEP_TIMEOUT_MINUTES 5
 #endif
 
+//<e>Go to light sleep after graceful disconnect
+#ifndef SLEEP_AFTER_DISCONNECT
+#define SLEEP_AFTER_DISCONNECT 1
+#endif
+//</e>
+
 // </e>
 
 // </h>

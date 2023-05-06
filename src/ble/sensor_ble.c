@@ -238,15 +238,16 @@ void ble_init() {
     }
     conn_params_init();
     services_init();
-    // allow flash operation to complete. 
-    // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
-    nrf_delay_ms(3); 
     advertising_init();
 
     #if FEATURE_ENABLED(BLE_BONDING)
     filesystem_init();
     peer_manager_init();
     #endif
+
+    // allow flash operation to complete. 
+    // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
+    nrf_delay_ms(3); 
 }
 
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
@@ -419,14 +420,18 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
 
     if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
         // disallow advertising if the sleep module forbids it
-        bool can_advertise = true;
-        #if FEATURE_ENABLED(SLEEP_MODE)
-            can_advertise = sleep_get_allow_advertise();
-        #endif
-
         uint8_t reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
         bool graceful_disconnect = (reason == BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-        // TODO: implement configurable instant sleep here
+
+        bool can_advertise = true;
+        #if FEATURE_ENABLED(SLEEP_MODE)
+        if((SLEEP_AFTER_DISCONNECT == 1) && graceful_disconnect){
+            can_advertise = false;
+        }else{
+            can_advertise = sleep_get_allow_advertise();
+        }
+        #endif
+        
         if(can_advertise){
             ble_advertising_on_ble_evt(p_ble_evt);
         }

@@ -6,8 +6,9 @@ BLE_ROOT := ../..
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE := $(BLE_ROOT)/private.pem
 PROJECT_ID := $(shell basename `pwd`)
-OUT_ZIP = $(PROJECT_ID).zip
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
+OUT_ZIP := $(PROJECT_ID).zip
+OUT_ZIP_BLANK := $(PROJECT_ID)-bond-blank.zip
+SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 SHELL := /bin/bash
 
@@ -313,17 +314,26 @@ merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 		$(SOFTDEVICE_HEX) \
 	-o application_with_softdevice.hex
 
-sign: $(APPLICATION_HEX)
+$(OUT_ZIP): $(APPLICATION_HEX)
 	rm -f $(OUT_ZIP)
 	ls -lh $(APPLICATION_HEX)
 	nrfutil pkg generate --application $(APPLICATION_HEX) --debug-mode $(OUT_ZIP) --key-file $(KEY_FILE)
 
-$(OUT_ZIP): sign
+$(OUT_ZIP_BLANK): $(APPLICATION_HEX)
+	rm -f $(OUT_ZIP_BLANK)
+	ls -lh $(APPLICATION_HEX)
 
-push: $(OUT_ZIP)
+	mergehex -m $(APPLICATION_HEX) blank.hex -o $(PROJECT_ID)-bond-blank.hex
+
+	nrfutil pkg generate --application $(PROJECT_ID)-bond-blank.hex --debug-mode $(OUT_ZIP_BLANK) --key-file $(KEY_FILE)
+
+sign: $(OUT_ZIP) $(OUT_ZIP_BLANK)
+
+push: $(OUT_ZIP) $(OUT_ZIP_BLANK)
 	adb connect $(ADB_TARGET)
 	adb shell mkdir -p $(ADB_DIRECTORY)
 	adb push $(OUT_ZIP) $(ADB_DIRECTORY)
+	adb push $(OUT_ZIP_BLANK) $(ADB_DIRECTORY)
 
 config: src/config/sdk_config.h
 	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/sdk_config.h

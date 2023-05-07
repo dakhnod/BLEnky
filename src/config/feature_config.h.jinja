@@ -23,6 +23,42 @@
 #ifndef GPIO_DEBOUNCE_TIMEOUT_MS
 #define GPIO_DEBOUNCE_TIMEOUT_MS 100
 #endif
+
+// <h>Pin configurations
+
+{% for index in range(0, 32) %}
+
+// <h>Pin {{ index }} configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_{{ index }}_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_{{ index }}_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_{{ index }}_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_{{ index }}_INVERT 0
+// </e>
+
+// </h>
+
+{% endfor %}
+
+// </h>
+
 // </h>
 
 // <h>BLE Configuration

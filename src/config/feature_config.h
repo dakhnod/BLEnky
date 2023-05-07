@@ -23,6 +23,948 @@
 #ifndef GPIO_DEBOUNCE_TIMEOUT_MS
 #define GPIO_DEBOUNCE_TIMEOUT_MS 100
 #endif
+
+// <h>Pin configurations
+
+#define GPIO_CONFIGURATION_PIN_MODE_DISABLED 0
+#define GPIO_CONFIGURATION_PIN_MODE_INPUT    1
+#define GPIO_CONFIGURATION_PIN_MODE_OUTPUT   2
+
+#define GPIO_CONFIGURATION_PIN_PULL_DISABLED 0
+#define GPIO_CONFIGURATION_PIN_PULL_UP       1
+#define GPIO_CONFIGURATION_PIN_PULL_DOWN     2
+
+// <h>Pin 0 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_0_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
+
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_0_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_0_PULL GPIO_CONFIGURATION_PIN_PULL_DISABLED
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_0_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 1 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_1_MODE 1
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_1_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_1_PULL 1
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_1_INVERT 1
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 2 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_2_MODE 1
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_2_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_2_PULL 1
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_2_INVERT 1
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 3 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_3_MODE 1
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_3_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_3_PULL 1
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_3_INVERT 1
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 4 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_4_MODE 1
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_4_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_4_PULL 1
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_4_INVERT 1
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 5 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_5_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_5_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_5_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_5_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 6 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_6_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_6_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_6_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_6_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 7 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_7_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_7_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_7_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_7_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 8 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_8_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_8_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_8_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_8_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 9 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_9_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_9_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_9_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_9_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 10 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_10_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_10_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_10_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_10_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 11 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_11_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_11_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_11_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_11_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 12 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_12_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_12_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_12_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_12_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 13 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_13_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_13_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_13_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_13_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 14 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_14_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_14_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_14_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_14_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 15 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_15_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_15_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_15_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_15_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 16 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_16_MODE 1
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_16_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_16_PULL 1
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_16_INVERT 1
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 17 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_17_MODE 1
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_17_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_17_PULL 1
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_17_INVERT 1
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 18 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_18_MODE 2
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_18_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_18_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_18_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 19 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_19_MODE 2
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_19_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_19_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_19_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 20 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_20_MODE 2
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_20_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_20_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_20_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 21 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_21_MODE 2
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_21_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_21_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_21_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 22 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_22_MODE 2
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_22_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_22_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_22_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 23 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_23_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_23_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_23_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_23_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 24 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_24_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_24_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_24_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_24_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 25 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_25_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_25_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_25_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_25_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 26 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_26_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_26_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_26_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_26_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 27 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_27_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_27_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_27_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_27_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 28 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_28_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_28_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_28_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_28_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 29 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_29_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_29_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_29_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_29_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 30 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_30_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_30_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_30_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_30_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// <h>Pin 31 configuration
+
+// <o> Mode
+// <0=> Disabled
+// <1=> Input
+// <2=> Output
+#define GPIO_CONFIGURATION_PIN_31_MODE 0
+
+// <o> Default output (Only applies for output mode)
+// <i> Only applies for output mode
+// <0=> Low
+// <1=> High
+#define GPIO_CONFIGURATION_PIN_31_DEFAULT_OUTPUT 0
+
+// <o> Pull mode (Only applies for input mode)
+// <i> Only applies for input mode
+// <0=> Disabled
+// <1=> Pullup
+// <2=> Pulldown
+#define GPIO_CONFIGURATION_PIN_31_PULL 0
+
+// <e>Invert input / output
+#define GPIO_CONFIGURATION_PIN_31_INVERT 0
+// </e>
+
+// </h>
+
+
+
+// </h>
+
 // </h>
 
 // <h>BLE Configuration
@@ -144,6 +1086,7 @@
 #define HID_GAMEPAD_ENABLED 1
 #endif
 
+
 // <e> D-Pad up enabled
 #ifndef HID_D_PAD_UP_ENABLED
 #define HID_D_PAD_UP_ENABLED 1
@@ -184,13 +1127,15 @@
 #endif
 // </e>
 
+
+
 // <e> A button enabled
 #ifndef HID_BUTTON_A_ENABLED
 #define HID_BUTTON_A_ENABLED 0
 #endif
 // <o> A button pin <0-32> <f.d>
 #ifndef HID_BUTTON_A_PIN
-#define HID_BUTTON_A_PIN 16
+#define HID_BUTTON_A_PIN 0
 #endif
 // </e>
 
@@ -200,7 +1145,7 @@
 #endif
 // <o> B button pin <0-32> <f.d>
 #ifndef HID_BUTTON_B_PIN
-#define HID_BUTTON_B_PIN 17
+#define HID_BUTTON_B_PIN 0
 #endif
 // </e>
 
@@ -223,6 +1168,7 @@
 #define HID_BUTTON_SELECT_PIN 17
 #endif
 // </e>
+
 
 // </e>
 

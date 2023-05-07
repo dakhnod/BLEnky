@@ -134,7 +134,7 @@ void storage_init() {
     NRF_LOG_DEBUG("fstorage init failure\n");
     return;
   }
-  NRF_LOG_ERROR("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
+  NRF_LOG_DEBUG("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
 
   storage_checksum_check();
 

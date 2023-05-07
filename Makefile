@@ -2,6 +2,7 @@ TARGETS          := nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
 BLE_ROOT := ../..
+SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE := $(BLE_ROOT)/private.pem
@@ -12,7 +13,6 @@ SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_so
 
 SHELL := /bin/bash
 
-SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 PROJ_DIR := .
 CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET := pixel
@@ -301,7 +301,7 @@ flash: $(APPLICATION_HEX)
 
 # Flash softdevice
 flash_softdevice: $(SOFTDEVICE_HEX)
-	@echo Flashing: s130_nrf51_2.0.1_softdevice.hex
+	@echo Flashing: $(SOFTDEVICE_HEX)
 	nrfjprog --program $(SOFTDEVICE_HEX) -f nrf51
 	nrfjprog --reset -f nrf51
 
@@ -337,6 +337,9 @@ push: $(OUT_ZIP) $(OUT_ZIP_BLANK)
 
 config: src/config/sdk_config.h
 	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/sdk_config.h
+
+feature_config: src/config/feature_config.h
+	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/feature_config.h
 	
 reset:
 	nrfjprog --reset

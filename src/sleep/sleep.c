@@ -67,6 +67,7 @@ void sleep_timeout_handler(void *context){
 
 void sleep_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *input){
     inactivity_count = 0;
+    sleep_allow_advertise = true;
     // ensure that the watchdog is active
     sleep_timer_start();
 }

@@ -420,11 +420,11 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
 
     if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
         // disallow advertising if the sleep module forbids it
-        uint8_t reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
-        bool graceful_disconnect = (reason == BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
 
         bool can_advertise = true;
         #if FEATURE_ENABLED(SLEEP_MODE)
+        uint8_t reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
+        bool graceful_disconnect = (reason == BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
         if((SLEEP_AFTER_DISCONNECT == 1) && graceful_disconnect){
             can_advertise = false;
         }else{

@@ -181,6 +181,10 @@ void ble_hid_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
       ble_hid_connection_handle,
       &params
   );
+  if(err_code == 0x3401){
+    NRF_LOG_ERROR("hvx not enabled...\n");
+    return;
+  }
   APP_ERROR_CHECK(err_code);
 }
 

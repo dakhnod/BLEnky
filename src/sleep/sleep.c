@@ -1,6 +1,8 @@
+#include "feature_config.h"
+#if FEATURE_ENABLED(SLEEP_MODE)
+
 #include "sleep.h"
 #include "app_timer.h"
-#include "feature_config.h"
 #include "nrf_log.h"
 #include "ble_advertising.h"
 #include "ble_hci.h"
@@ -90,3 +92,5 @@ void sleep_init(sleep_enter_handler_t sleep_enter_handler_){
 
     sleep_timer_start();
 }
+
+#endif

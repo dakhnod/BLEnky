@@ -26,6 +26,10 @@
 
 // <h>Pin configurations
 
+#define GPIO_CONFIGURATION_PIN_MODE_DISABLED 0
+#define GPIO_CONFIGURATION_PIN_MODE_INPUT 1
+#define GPIO_CONFIGURATION_PIN_MODE_OUTPUT 2
+
 {% for index in range(0, 32) %}
 
 // <h>Pin {{ index }} configuration
@@ -34,7 +38,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_{{ index }}_MODE 0
+#define GPIO_CONFIGURATION_PIN_{{ index }}_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode

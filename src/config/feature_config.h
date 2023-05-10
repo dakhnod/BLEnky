@@ -27,12 +27,10 @@
 // <h>Pin configurations
 
 #define GPIO_CONFIGURATION_PIN_MODE_DISABLED 0
-#define GPIO_CONFIGURATION_PIN_MODE_INPUT    1
-#define GPIO_CONFIGURATION_PIN_MODE_OUTPUT   2
+#define GPIO_CONFIGURATION_PIN_MODE_INPUT 1
+#define GPIO_CONFIGURATION_PIN_MODE_OUTPUT 2
 
-#define GPIO_CONFIGURATION_PIN_PULL_DISABLED 0
-#define GPIO_CONFIGURATION_PIN_PULL_UP       1
-#define GPIO_CONFIGURATION_PIN_PULL_DOWN     2
+
 
 // <h>Pin 0 configuration
 
@@ -41,7 +39,6 @@
 // <1=> Input
 // <2=> Output
 #define GPIO_CONFIGURATION_PIN_0_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
-
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -54,7 +51,7 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_0_PULL GPIO_CONFIGURATION_PIN_PULL_DISABLED
+#define GPIO_CONFIGURATION_PIN_0_PULL 0
 
 // <e>Invert input / output
 #define GPIO_CONFIGURATION_PIN_0_INVERT 0
@@ -70,7 +67,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_1_MODE 1
+#define GPIO_CONFIGURATION_PIN_1_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -83,10 +80,10 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_1_PULL 1
+#define GPIO_CONFIGURATION_PIN_1_PULL 0
 
 // <e>Invert input / output
-#define GPIO_CONFIGURATION_PIN_1_INVERT 1
+#define GPIO_CONFIGURATION_PIN_1_INVERT 0
 // </e>
 
 // </h>
@@ -99,7 +96,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_2_MODE 1
+#define GPIO_CONFIGURATION_PIN_2_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -112,10 +109,10 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_2_PULL 1
+#define GPIO_CONFIGURATION_PIN_2_PULL 0
 
 // <e>Invert input / output
-#define GPIO_CONFIGURATION_PIN_2_INVERT 1
+#define GPIO_CONFIGURATION_PIN_2_INVERT 0
 // </e>
 
 // </h>
@@ -128,7 +125,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_3_MODE 1
+#define GPIO_CONFIGURATION_PIN_3_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -141,10 +138,10 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_3_PULL 1
+#define GPIO_CONFIGURATION_PIN_3_PULL 0
 
 // <e>Invert input / output
-#define GPIO_CONFIGURATION_PIN_3_INVERT 1
+#define GPIO_CONFIGURATION_PIN_3_INVERT 0
 // </e>
 
 // </h>
@@ -157,7 +154,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_4_MODE 1
+#define GPIO_CONFIGURATION_PIN_4_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -170,10 +167,10 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_4_PULL 1
+#define GPIO_CONFIGURATION_PIN_4_PULL 0
 
 // <e>Invert input / output
-#define GPIO_CONFIGURATION_PIN_4_INVERT 1
+#define GPIO_CONFIGURATION_PIN_4_INVERT 0
 // </e>
 
 // </h>
@@ -186,7 +183,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_5_MODE 0
+#define GPIO_CONFIGURATION_PIN_5_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -215,7 +212,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_6_MODE 0
+#define GPIO_CONFIGURATION_PIN_6_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -244,7 +241,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_7_MODE 0
+#define GPIO_CONFIGURATION_PIN_7_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -273,7 +270,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_8_MODE 0
+#define GPIO_CONFIGURATION_PIN_8_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -302,7 +299,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_9_MODE 0
+#define GPIO_CONFIGURATION_PIN_9_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -331,7 +328,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_10_MODE 0
+#define GPIO_CONFIGURATION_PIN_10_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -360,7 +357,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_11_MODE 0
+#define GPIO_CONFIGURATION_PIN_11_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -389,7 +386,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_12_MODE 0
+#define GPIO_CONFIGURATION_PIN_12_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -418,7 +415,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_13_MODE 0
+#define GPIO_CONFIGURATION_PIN_13_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -447,7 +444,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_14_MODE 0
+#define GPIO_CONFIGURATION_PIN_14_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -476,7 +473,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_15_MODE 0
+#define GPIO_CONFIGURATION_PIN_15_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -505,7 +502,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_16_MODE 1
+#define GPIO_CONFIGURATION_PIN_16_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -518,10 +515,10 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_16_PULL 1
+#define GPIO_CONFIGURATION_PIN_16_PULL 0
 
 // <e>Invert input / output
-#define GPIO_CONFIGURATION_PIN_16_INVERT 1
+#define GPIO_CONFIGURATION_PIN_16_INVERT 0
 // </e>
 
 // </h>
@@ -534,7 +531,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_17_MODE 1
+#define GPIO_CONFIGURATION_PIN_17_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -547,10 +544,10 @@
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
-#define GPIO_CONFIGURATION_PIN_17_PULL 1
+#define GPIO_CONFIGURATION_PIN_17_PULL 0
 
 // <e>Invert input / output
-#define GPIO_CONFIGURATION_PIN_17_INVERT 1
+#define GPIO_CONFIGURATION_PIN_17_INVERT 0
 // </e>
 
 // </h>
@@ -563,7 +560,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_18_MODE 2
+#define GPIO_CONFIGURATION_PIN_18_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -592,7 +589,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_19_MODE 2
+#define GPIO_CONFIGURATION_PIN_19_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -621,7 +618,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_20_MODE 2
+#define GPIO_CONFIGURATION_PIN_20_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -650,7 +647,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_21_MODE 2
+#define GPIO_CONFIGURATION_PIN_21_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -679,7 +676,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_22_MODE 2
+#define GPIO_CONFIGURATION_PIN_22_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -708,7 +705,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_23_MODE 0
+#define GPIO_CONFIGURATION_PIN_23_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -737,7 +734,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_24_MODE 0
+#define GPIO_CONFIGURATION_PIN_24_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -766,7 +763,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_25_MODE 0
+#define GPIO_CONFIGURATION_PIN_25_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -795,7 +792,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_26_MODE 0
+#define GPIO_CONFIGURATION_PIN_26_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -824,7 +821,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_27_MODE 0
+#define GPIO_CONFIGURATION_PIN_27_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -853,7 +850,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_28_MODE 0
+#define GPIO_CONFIGURATION_PIN_28_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -882,7 +879,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_29_MODE 0
+#define GPIO_CONFIGURATION_PIN_29_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -911,7 +908,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_30_MODE 0
+#define GPIO_CONFIGURATION_PIN_30_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -940,7 +937,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_31_MODE 0
+#define GPIO_CONFIGURATION_PIN_31_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -1089,41 +1086,41 @@
 
 // <e> D-Pad up enabled
 #ifndef HID_D_PAD_UP_ENABLED
-#define HID_D_PAD_UP_ENABLED 1
+#define HID_D_PAD_UP_ENABLED 0
 #endif
 // <o> D-Pad up pin <0-32> <f.d>
 #ifndef HID_D_PAD_UP_PIN
-#define HID_D_PAD_UP_PIN 2
+#define HID_D_PAD_UP_PIN 0
 #endif
 // </e>
 
 // <e> D-Pad down enabled
 #ifndef HID_D_PAD_DOWN_ENABLED
-#define HID_D_PAD_DOWN_ENABLED 1
+#define HID_D_PAD_DOWN_ENABLED 0
 #endif
 // <o> D-Pad down pin <0-32> <f.d>
 #ifndef HID_D_PAD_DOWN_PIN
-#define HID_D_PAD_DOWN_PIN 4
+#define HID_D_PAD_DOWN_PIN 0
 #endif
 // </e>
 
 // <e> D-Pad left enabled
 #ifndef HID_D_PAD_LEFT_ENABLED
-#define HID_D_PAD_LEFT_ENABLED 1
+#define HID_D_PAD_LEFT_ENABLED 0
 #endif
 // <o> D-Pad left pin <0-32> <f.d>
 #ifndef HID_D_PAD_LEFT_PIN
-#define HID_D_PAD_LEFT_PIN 1
+#define HID_D_PAD_LEFT_PIN 0
 #endif
 // </e>
 
 // <e> D-Pad right enabled
 #ifndef HID_D_PAD_RIGHT_ENABLED
-#define HID_D_PAD_RIGHT_ENABLED 1
+#define HID_D_PAD_RIGHT_ENABLED 0
 #endif
 // <o> D-Pad right pin <0-32> <f.d>
 #ifndef HID_D_PAD_RIGHT_PIN
-#define HID_D_PAD_RIGHT_PIN 3
+#define HID_D_PAD_RIGHT_PIN 0
 #endif
 // </e>
 
@@ -1151,21 +1148,21 @@
 
 // <e> Start button enabled
 #ifndef HID_BUTTON_START_ENABLED
-#define HID_BUTTON_START_ENABLED 1
+#define HID_BUTTON_START_ENABLED 0
 #endif
 // <o> Start button pin <0-32> <f.d>
 #ifndef HID_BUTTON_START_PIN
-#define HID_BUTTON_START_PIN 16
+#define HID_BUTTON_START_PIN 0
 #endif
 // </e>
 
 // <e> Select button enabled
 #ifndef HID_BUTTON_SELECT_ENABLED
-#define HID_BUTTON_SELECT_ENABLED 1
+#define HID_BUTTON_SELECT_ENABLED 0
 #endif
 // <o> Select button pin <0-32> <f.d>
 #ifndef HID_BUTTON_SELECT_PIN
-#define HID_BUTTON_SELECT_PIN 17
+#define HID_BUTTON_SELECT_PIN 0
 #endif
 // </e>
 

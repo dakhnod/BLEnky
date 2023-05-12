@@ -38,7 +38,7 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
-#define GPIO_CONFIGURATION_PIN_{{ index }}_MODE GPIO_CONFIGURATION_PIN_MODE_DISABLED
+#define GPIO_CONFIGURATION_PIN_{{ index }}_MODE 0
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
@@ -110,7 +110,7 @@
 
 // <o>Connection supervision timeout (ms) <100-32000>
 #ifndef BLE_CONN_SUP_TIMEOUT
-#define BLE_CONN_SUP_TIMEOUT 5000
+#define BLE_CONN_SUP_TIMEOUT 6100
 #endif
 
 // <e>BLE bonding enabled

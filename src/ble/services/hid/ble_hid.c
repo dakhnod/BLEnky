@@ -81,13 +81,6 @@ void ble_hid_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
     uint8_t gamepad_right_pressed : 1;
   } gamepad = {0};
 
-  /*
-  static bool gamepad_up_pressed = false;
-  static bool gamepad_down_pressed = false;
-  static bool gamepad_left_pressed = false;
-  static bool gamepad_right_pressed = false;
-  */
-
   if(false){} // this is just the starting point for the following cases
   #if (HID_D_PAD_UP_ENABLED == 1)
   else if(HID_D_PAD_UP_PIN == config->pin) gamepad.gamepad_up_pressed = config->state;

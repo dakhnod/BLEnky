@@ -15,6 +15,7 @@ uint16_t ble_csc_measurement_write_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_csc_measurement_cccd_handle = BLE_GATT_HANDLE_INVALID;
 
 uint32_t last_revolution_count = 0;
+uint32_t last_reported_revolution_count = 0xFFFFFFFF;
 uint16_t last_revolution_time = 0;
 
 APP_TIMER_DEF(measurement_report_timer);
@@ -61,9 +62,13 @@ void ble_csc_measurement_report(){
 }
 
 void measurement_timer_timeout_handler(void *context){
-    NRF_LOG_DEBUG("timeout %i!\n", last_revolution_time);
+    // no change in revolution count, no report needed
+    if(last_revolution_count == last_reported_revolution_count){
+        return;
+    }
 
     ble_csc_measurement_report();
+    last_reported_revolution_count = last_revolution_count;
 }
 
 void ble_csc_timer_init(){
@@ -171,8 +176,6 @@ void ble_csc_on_ble_evt(ble_evt_t *p_ble_evt)
 void ble_csc_handle_sensor_trigger(uint32_t trigger_count){
     last_revolution_count = trigger_count;
     last_revolution_time = get_time_units();
-
-    NRF_LOG_DEBUG("revolutions: %d\n", trigger_count);
 }
 
 void ble_csc_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)

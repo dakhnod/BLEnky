@@ -173,10 +173,8 @@ void peer_manager_init()
     err_code = pm_sec_params_set(&sec_param);
     APP_ERROR_CHECK(err_code);
 
-    #if FEATURE_ENABLED(BLE_BONDING)
     err_code = pm_register(peer_manager_event_handler);
     APP_ERROR_CHECK(err_code);
-    #endif
 }
 
 

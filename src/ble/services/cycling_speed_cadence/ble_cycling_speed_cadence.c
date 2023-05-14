@@ -6,6 +6,7 @@
 #include "ble_helpers.h"
 #include "sensor_gpio.h"
 #include "nrf_log.h"
+#include "feature_config.h"
 
 uint16_t ble_csc_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -180,7 +181,7 @@ void ble_csc_handle_sensor_trigger(uint32_t trigger_count){
 
 void ble_csc_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    if (config->input.pin != CSC_WHEEL_SENSOR_PIN)
+    if (config->pin != CSC_WHEEL_SENSOR_PIN)
     {
         return;
     }

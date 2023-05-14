@@ -4,6 +4,8 @@
 #include "ble_l2cap.h"
 #include "ble_srv_common.h"
 #include "app_error.h"
+#include "sensor_gpio.h"
+#include "feature_config.h"
 
 uint16_t ble_bss_connection_handle = BLE_CONN_HANDLE_INVALID;
 uint16_t ble_bss_service_handle;
@@ -258,7 +260,7 @@ void ble_bss_set_state(enum opening_closing_state_t state, uint16_t count) {
 
 void ble_bss_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    if (config->input.pin != BINARY_SENSOR_PIN)
+    if (config->pin != BINARY_SENSOR_PIN)
     {
         return;
     }

@@ -256,6 +256,15 @@ void ble_bss_set_state(enum opening_closing_state_t state, uint16_t count) {
     }
 }
 
+void ble_bss_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+{
+    if (config->input.pin != BINARY_SENSOR_PIN)
+    {
+        return;
+    }
+    ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
+}
+
 void ble_bss_on_ble_evt(ble_evt_t *p_ble_evt) {
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED:

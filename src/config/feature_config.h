@@ -1047,6 +1047,11 @@
 #ifndef FEATURE_BINARY_SENSOR_ENABLED
 #define FEATURE_BINARY_SENSOR_ENABLED 0
 #endif
+
+// <o> Binary sensor pin <0-32> <f.d>
+#ifndef BINARY_SENSOR_PIN
+#define BINARY_SENSOR_PIN 0
+#endif
 // </e>
 
 // <e>Automation IO profile enabled
@@ -1064,6 +1069,11 @@
 // <e>Cycling speed/cadence profile and engine enabled
 #ifndef FEATURE_CYCLING_SPEED_CADENCE_ENABLED
 #define FEATURE_CYCLING_SPEED_CADENCE_ENABLED 0
+#endif
+
+// <o> Wheel sensor pin <0-32> <f.d>
+#ifndef CSC_WHEEL_SENSOR_PIN
+#define CSC_WHEEL_SENSOR_PIN 0
 #endif
 // </e>
 

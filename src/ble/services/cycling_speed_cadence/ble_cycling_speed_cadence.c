@@ -180,7 +180,7 @@ void ble_csc_handle_sensor_trigger(uint32_t trigger_count){
 
 void ble_csc_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    if (index != 0)
+    if (config->input.pin != CSC_WHEEL_SENSOR_PIN)
     {
         return;
     }

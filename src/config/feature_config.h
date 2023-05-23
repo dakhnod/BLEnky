@@ -1048,7 +1048,7 @@
 #define FEATURE_BINARY_SENSOR_ENABLED 0
 #endif
 
-// <o> Binary sensor pin <0-32> <f.d>
+// <o> Binary sensor pin <0-31> <f.d>
 #ifndef BINARY_SENSOR_PIN
 #define BINARY_SENSOR_PIN 0
 #endif
@@ -1071,7 +1071,7 @@
 #define FEATURE_CYCLING_SPEED_CADENCE_ENABLED 0
 #endif
 
-// <o> Wheel sensor pin <0-32> <f.d>
+// <o> Wheel sensor pin <0-31> <f.d>
 #ifndef CSC_WHEEL_SENSOR_PIN
 #define CSC_WHEEL_SENSOR_PIN 0
 #endif
@@ -1098,7 +1098,7 @@
 #ifndef HID_D_PAD_UP_ENABLED
 #define HID_D_PAD_UP_ENABLED 0
 #endif
-// <o> D-Pad up pin <0-32> <f.d>
+// <o> D-Pad up pin <0-31> <f.d>
 #ifndef HID_D_PAD_UP_PIN
 #define HID_D_PAD_UP_PIN 0
 #endif
@@ -1108,7 +1108,7 @@
 #ifndef HID_D_PAD_DOWN_ENABLED
 #define HID_D_PAD_DOWN_ENABLED 0
 #endif
-// <o> D-Pad down pin <0-32> <f.d>
+// <o> D-Pad down pin <0-31> <f.d>
 #ifndef HID_D_PAD_DOWN_PIN
 #define HID_D_PAD_DOWN_PIN 0
 #endif
@@ -1118,7 +1118,7 @@
 #ifndef HID_D_PAD_LEFT_ENABLED
 #define HID_D_PAD_LEFT_ENABLED 0
 #endif
-// <o> D-Pad left pin <0-32> <f.d>
+// <o> D-Pad left pin <0-31> <f.d>
 #ifndef HID_D_PAD_LEFT_PIN
 #define HID_D_PAD_LEFT_PIN 0
 #endif
@@ -1128,7 +1128,7 @@
 #ifndef HID_D_PAD_RIGHT_ENABLED
 #define HID_D_PAD_RIGHT_ENABLED 0
 #endif
-// <o> D-Pad right pin <0-32> <f.d>
+// <o> D-Pad right pin <0-31> <f.d>
 #ifndef HID_D_PAD_RIGHT_PIN
 #define HID_D_PAD_RIGHT_PIN 0
 #endif
@@ -1140,7 +1140,7 @@
 #ifndef HID_BUTTON_A_ENABLED
 #define HID_BUTTON_A_ENABLED 0
 #endif
-// <o> A button pin <0-32> <f.d>
+// <o> A button pin <0-31> <f.d>
 #ifndef HID_BUTTON_A_PIN
 #define HID_BUTTON_A_PIN 0
 #endif
@@ -1150,7 +1150,7 @@
 #ifndef HID_BUTTON_B_ENABLED
 #define HID_BUTTON_B_ENABLED 0
 #endif
-// <o> B button pin <0-32> <f.d>
+// <o> B button pin <0-31> <f.d>
 #ifndef HID_BUTTON_B_PIN
 #define HID_BUTTON_B_PIN 0
 #endif
@@ -1160,7 +1160,7 @@
 #ifndef HID_BUTTON_START_ENABLED
 #define HID_BUTTON_START_ENABLED 0
 #endif
-// <o> Start button pin <0-32> <f.d>
+// <o> Start button pin <0-31> <f.d>
 #ifndef HID_BUTTON_START_PIN
 #define HID_BUTTON_START_PIN 0
 #endif
@@ -1170,7 +1170,7 @@
 #ifndef HID_BUTTON_SELECT_ENABLED
 #define HID_BUTTON_SELECT_ENABLED 0
 #endif
-// <o> Select button pin <0-32> <f.d>
+// <o> Select button pin <0-31> <f.d>
 #ifndef HID_BUTTON_SELECT_PIN
 #define HID_BUTTON_SELECT_PIN 0
 #endif

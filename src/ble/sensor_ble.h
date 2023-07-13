@@ -14,7 +14,6 @@
 #include "ble_advertising.h"
 #include "ble_binary_sensor_service.h"
 #include "ble_automation_io_service.h"
-#include "ble_configuration.h"
 #include "storage.h"
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
@@ -44,6 +43,7 @@ void services_init(void);
 void advertising_stop(void);
 void ble_init(void);
 void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);
+void ble_disable_rf();
 
 
 #endif

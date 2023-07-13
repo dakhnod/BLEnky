@@ -13,19 +13,17 @@ uint8_t ble_gpio_asm_custom_uuid_type;
 
 ret_code_t ble_gpio_asm_characteristic_asm_data_add()
 {
-    return ble_helper_characteristic_add(
-        ble_gpio_asm_service_handle,
-        UUID_GPIO_ASM_DATA,
-        ble_gpio_asm_custom_uuid_type,
-        "gpioASM data",
-        true,
-        false,
-        false,
-        false,
-        true,
-        20,
-        &ble_gpio_asm_characteristic_data_handle,
-        NULL);
+  ble_helper_characteristic_init_t init = {
+    .service_handle = ble_gpio_asm_service_handle,
+    .uuid = UUID_GPIO_ASM_DATA,
+    .uuid_type = ble_gpio_asm_custom_uuid_type,
+    .description_str = "gpioASM data",
+    .is_writable = true,
+    .authorize_write = true,
+    .max_length = 20,
+    .value_handle = &ble_gpio_asm_characteristic_data_handle,
+  };
+  return ble_helper_characteristic_add(&init);
 }
 
 

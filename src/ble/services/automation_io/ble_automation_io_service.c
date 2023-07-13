@@ -9,6 +9,7 @@
 #include "ble_configuration_service.h"
 #include "ble_helpers.h"
 #include "encoding.h"
+#include "feature_config.h"
 
 uint16_t ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
 
@@ -148,59 +149,55 @@ void ble_aio_authorize_digital_out()
 
 ret_code_t ble_aio_characteristic_digital_output_add()
 {
-    return ble_helper_characteristic_digital_add(
-        ble_aio_service_handle,
-        UUID_DIGITAL_CHARACTERISTIC,
-        BLE_UUID_TYPE_BLE,
-        "Digital output",
-        gpio_get_output_digital_pin_count(),
-        0x01,
-        true,
-        true,
-        false,
-        true,
-        false,
-        encoding_get_byte_count_from_pins(gpio_get_output_digital_pin_count()),
-        &ble_aio_digital_out_write_handle,
-        &ble_aio_digital_out_cccd_handle);
+    ble_helper_characteristic_init_t init = {
+        .service_handle = ble_aio_service_handle,
+        .uuid = UUID_DIGITAL_CHARACTERISTIC,
+        .description_str = "Digital output",
+        .number_of_digitals = gpio_get_output_digital_pin_count(),
+        .description = 0x01,
+        .is_writable = true,
+        .is_readable = true,
+        .authorize_read = true,
+        .max_length = encoding_get_byte_count_from_pins(gpio_get_output_digital_pin_count()),
+        .value_handle = &ble_aio_digital_out_write_handle,
+        .cccd_handle = &ble_aio_digital_out_cccd_handle
+    };
+    return ble_helper_characteristic_add(&init);
 }
 
 ret_code_t ble_aio_characteristic_analog_output_add(uint32_t index)
 {
-    return ble_helper_characteristic_digital_add(
-        ble_aio_service_handle,
-        UUID_ANALOG_CHARACTERISTIC,
-        BLE_UUID_TYPE_BLE,
-        "Analog output",
-        0x00,
-        (uint8_t)(index + 1),
-        true,
-        true,
-        false,
-        false,
-        false,
-        2,
-        ble_aio_analog_out_write_handles + index,
-        &ble_aio_digital_out_cccd_handle);
+    ble_helper_characteristic_init_t init = {
+        .service_handle = ble_aio_service_handle,
+        .uuid = UUID_ANALOG_CHARACTERISTIC,
+        .description_str = "Analog output",
+        .number_of_digitals = 0x00,
+        .description = (uint8_t)(index + 1),
+        .is_writable = true,
+        .is_readable = true,
+        .max_length = 2,
+        .value_handle = ble_aio_analog_out_write_handles + index,
+        .cccd_handle = &ble_aio_digital_out_cccd_handle
+    };
+    return ble_helper_characteristic_add(&init);
 }
 
 ret_code_t ble_aio_characteristic_digital_input_add()
 {
-    return ble_helper_characteristic_digital_add(
-        ble_aio_service_handle,
-        UUID_DIGITAL_CHARACTERISTIC,
-        BLE_UUID_TYPE_BLE,
-        "Digital input",
-        gpio_get_input_digital_pin_count(),
-        0x02,
-        false,
-        true,
-        true,
-        true,
-        false,
-        encoding_get_byte_count_from_pins(gpio_get_input_digital_pin_count()),
-        &ble_aio_digital_in_write_handle,
-        &ble_aio_digital_in_cccd_handle);
+    ble_helper_characteristic_init_t init = {
+        .service_handle = ble_aio_service_handle,
+        .uuid = UUID_DIGITAL_CHARACTERISTIC,
+        .description_str = "Digital input",
+        .number_of_digitals = gpio_get_input_digital_pin_count(),
+        .description = 0x02,
+        .is_readable = true,
+        .is_notifiable = true,
+        .authorize_read = true,
+        .max_length = encoding_get_byte_count_from_pins(gpio_get_input_digital_pin_count()),
+        .value_handle = &ble_aio_digital_in_write_handle,
+        .cccd_handle = &ble_aio_digital_in_cccd_handle
+    };
+    return ble_helper_characteristic_add(&init);
 }
 
 void ble_aio_on_write(ble_evt_t *p_ble_evt)
@@ -390,11 +387,6 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
 void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
     ble_aio_update_digital_in_states();
-
-    if (index == 0)
-    {
-        ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
-    }
 }
 
 ret_code_t ble_aio_init()
@@ -435,11 +427,13 @@ ret_code_t ble_aio_init()
         ble_aio_update_digital_in_states();
     }
     
+    #if FEATURE_ENABLED(BINARY_SENSOR)
     if (input_digital_pin_count > 0)
     {
         err_code = ble_bss_init();
         APP_ERROR_CHECK(err_code);
     }
+    #endif
 
     return NRF_SUCCESS;
 }

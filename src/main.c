@@ -11,9 +11,14 @@
 #include "sensor_gpio.h"
 #include "sensor_timer.h"
 #include "ble_configuration_service.h"
+#include "sleep.h"
+#include "feature_config.h"
 
 void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
+    #if FEATURE_ENABLED(SLEEP_MODE)
+        sleep_handle_gpio_event(index, config);
+    #endif
     ble_handle_input_change(index, config);
 }
 
@@ -30,6 +35,10 @@ int main(void) {
     fs_init();
 
     timer_init();
+
+    #if FEATURE_ENABLED(SLEEP_MODE)
+    sleep_init(ble_disable_rf);
+    #endif
 
     gpio_init(main_handle_input_change);
 

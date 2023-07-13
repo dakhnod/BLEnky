@@ -1,8 +1,11 @@
 #include "sensor_gpio.h"
 #include "pin_configuration.h"
 #include "app_timer.h"
-#include "ble_configuration.h"
+#include "sensor_timer.h"
 #include "app_pwm.h"
+#include "feature_config.h"
+
+#define TOTAL_PIN_COUNT_MAX (GPIO_INPUT_COUNT_MAX + GPIO_OUTPUT_COUNT_MAX)
 
 uint32_t gpio_output_digital_pin_count = 0;
 uint32_t gpio_output_analog_pin_count = 0;
@@ -21,7 +24,7 @@ typedef struct {
   direction_t direction;
 } gpio_config_t;
 
-gpio_config_t gpio_configs[MAX_PIN_COUNT];
+gpio_config_t gpio_configs[TOTAL_PIN_COUNT_MAX];
 
 gpio_input_change_handler_t gpio_input_change_handler = NULL;
 
@@ -29,7 +32,7 @@ app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, 
 APP_PWM_INSTANCE(pwm0, 1);
 
 gpio_config_t *find_gpio_config_by_index(uint32_t index, direction_t direction){
-  for(uint32_t i = 0; i < MAX_PIN_COUNT; i++){
+  for(uint32_t i = 0; i < TOTAL_PIN_COUNT_MAX; i++){
     gpio_config_t *current = gpio_configs + i;
     if(current->direction == direction){
       if(index == 0){
@@ -196,7 +199,7 @@ void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t act
   uint32_t pin_index = 0;
   gpio_config_input_digital_t *config = NULL;
 
-  for (uint32_t i = 0; i < MAX_PIN_COUNT; i++) {
+  for (uint32_t i = 0; i < TOTAL_PIN_COUNT_MAX; i++) {
     gpio_config_t *cfg = gpio_configs + i;
     // ignore output configs
     if(cfg->direction != INPUT){
@@ -285,20 +288,75 @@ void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull,
 }
 
 void gpio_init(gpio_input_change_handler_t input_change_handler) {
-  // ret_code_t err_code;
-
   ret_code_t err_code;
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
+  uint32_t current_index;
+
+  // this is in a macro instead of a function
+  // to make it usable with the configuration macros
+  #define GPIO_CONFIGURATION_CHECK(pin_index) \
+  do{ \
+    current_index = gpio_input_digital_pin_count + gpio_output_digital_pin_count; \
+    if(GPIO_CONFIGURATION_PIN_##pin_index##_MODE == GPIO_CONFIGURATION_PIN_MODE_INPUT){ \
+      gpio_input_digital_pin_count++; \
+      gpio_configs[current_index].direction = INPUT; \
+      gpio_configs[current_index].pin.input.pin = pin_index; \
+      gpio_configs[current_index].pin.input.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
+      gpio_configs[current_index].pin.input.pull = GPIO_CONFIGURATION_PIN_##pin_index##_PULL; \
+    }else if(GPIO_CONFIGURATION_PIN_##pin_index##_MODE == GPIO_CONFIGURATION_PIN_MODE_OUTPUT){ \
+      gpio_output_digital_pin_count++; \
+      gpio_configs[current_index].direction = OUTPUT; \
+      gpio_configs[current_index].pin.output.pin = pin_index; \
+      gpio_configs[current_index].pin.output.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
+      gpio_configs[current_index].pin.output.default_state = GPIO_CONFIGURATION_PIN_##pin_index##_DEFAULT_OUTPUT; \
+    } \
+  }while (false)
+
+  // is this neccessary?
+  // well, i see no other way of dealing with preprocessor-based configuration...
+  GPIO_CONFIGURATION_CHECK(0);
+  GPIO_CONFIGURATION_CHECK(1);
+  GPIO_CONFIGURATION_CHECK(2);
+  GPIO_CONFIGURATION_CHECK(3);
+  GPIO_CONFIGURATION_CHECK(4);
+  GPIO_CONFIGURATION_CHECK(5);
+  GPIO_CONFIGURATION_CHECK(6);
+  GPIO_CONFIGURATION_CHECK(7);
+  GPIO_CONFIGURATION_CHECK(8);
+  GPIO_CONFIGURATION_CHECK(9);
+  GPIO_CONFIGURATION_CHECK(10);
+  GPIO_CONFIGURATION_CHECK(11);
+  GPIO_CONFIGURATION_CHECK(12);
+  GPIO_CONFIGURATION_CHECK(13);
+  GPIO_CONFIGURATION_CHECK(14);
+  GPIO_CONFIGURATION_CHECK(15);
+  GPIO_CONFIGURATION_CHECK(16);
+  GPIO_CONFIGURATION_CHECK(17);
+  GPIO_CONFIGURATION_CHECK(18);
+  GPIO_CONFIGURATION_CHECK(19);
+  GPIO_CONFIGURATION_CHECK(20);
+  GPIO_CONFIGURATION_CHECK(21);
+  GPIO_CONFIGURATION_CHECK(22);
+  GPIO_CONFIGURATION_CHECK(23);
+  GPIO_CONFIGURATION_CHECK(24);
+  GPIO_CONFIGURATION_CHECK(25);
+  GPIO_CONFIGURATION_CHECK(26);
+  GPIO_CONFIGURATION_CHECK(27);
+  GPIO_CONFIGURATION_CHECK(28);
+  GPIO_CONFIGURATION_CHECK(29);
+  GPIO_CONFIGURATION_CHECK(30);
+  GPIO_CONFIGURATION_CHECK(31);
+
   pin_configuration_init();
 
-  gpio_output_digital_pin_count = get_pin_count_output_digital();
-  gpio_output_analog_pin_count = get_pin_count_output_analog();
-  gpio_input_digital_pin_count = get_pin_count_input_digital();
+  gpio_output_digital_pin_count += get_pin_count_output_digital();
+  gpio_output_analog_pin_count += get_pin_count_output_analog();
+  gpio_input_digital_pin_count += get_pin_count_input_digital();
 
-  gpio_output_digital_pin_count = MIN(gpio_output_digital_pin_count, MAX_PIN_COUNT);
-  gpio_input_digital_pin_count = MIN(gpio_input_digital_pin_count, MAX_PIN_COUNT - gpio_output_digital_pin_count);
+  gpio_output_digital_pin_count = MIN(gpio_output_digital_pin_count, GPIO_OUTPUT_COUNT_MAX);
+  gpio_input_digital_pin_count = MIN(gpio_input_digital_pin_count, GPIO_INPUT_COUNT_MAX);
 
   if (gpio_input_digital_pin_count > 0) {
     sensor_timer_initialize_debounce_timers(gpio_input_digital_pin_count, gpio_debounce_timeout_handler);

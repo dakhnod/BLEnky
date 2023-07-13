@@ -2,25 +2,23 @@ TARGETS          := nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
 BLE_ROOT := ../..
+SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE := $(BLE_ROOT)/private.pem
 PROJECT_ID := $(shell basename `pwd`)
-OUT_ZIP = $(PROJECT_ID).zip
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
+OUT_ZIP := $(PROJECT_ID).zip
+OUT_ZIP_BLANK := $(PROJECT_ID)-bond-blank.zip
+SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 SHELL := /bin/bash
 
-SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 PROJ_DIR := .
 CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET := pixel
 ADB_DIRECTORY := /sdcard/dfu
 
 BOARD := BEACON_BIG
-
-MAX_PIN_COUNT := 32
-MAX_INPUT_PIN_COUNT := 8
 
 FIRMWARE_VERSION := \"0.6.1\"
 
@@ -29,6 +27,19 @@ $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
 
 # Source files common to all targets
 SRC_FILES += \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_data_storage.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_database.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c \
+  $(SDK_ROOT)/components/ble/peer_manager/id_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatt_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatts_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_id.c \
+  $(SDK_ROOT)/components/ble/peer_manager/pm_buffer.c \
+  $(SDK_ROOT)/components/ble/peer_manager/pm_mutex.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
+  $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/button/app_button.c \
@@ -75,6 +86,8 @@ SRC_FILES += \
   $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
   $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
   $(PROJ_DIR)/src/ble/services/ble_gpio_asm/ble_gpio_asm.c \
+  $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ble_cycling_speed_cadence.c \
+  $(PROJ_DIR)/src/ble/services/hid/ble_hid.c \
   $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
@@ -84,6 +97,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/sequence/sequence.c \
   $(PROJ_DIR)/src/storage/storage.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
+  $(PROJ_DIR)/src/sleep/sleep.c \
   $(PROJ_DIR)/src/main.c \
 
 # Include folders common to all targets
@@ -195,6 +209,8 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ \
   $(PROJ_DIR)/src/ble/services/configuration/ \
   $(PROJ_DIR)/src/ble/services/ble_gpio_asm/ \
+  $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ \
+  $(PROJ_DIR)/src/ble/services/hid/ \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/helpers/ \
@@ -204,6 +220,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/sequence/ \
   $(PROJ_DIR)/src/timer/ \
   $(PROJ_DIR)/src/persistence/ \
+  $(PROJ_DIR)/src/sleep/ \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service \
   $(CUSTOM_INCLUDES_DIR)/boards \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service \
@@ -212,8 +229,6 @@ INC_FOLDERS += \
 LIB_FILES += \
 
 # C flags common to all targets
-CFLAGS += -DMAX_INPUT_PIN_COUNT=$(MAX_INPUT_PIN_COUNT)
-CFLAGS += -DMAX_PIN_COUNT=$(MAX_PIN_COUNT)
 CFLAGS += -DBOARD_$(BOARD)
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DNRF51
@@ -224,7 +239,7 @@ CFLAGS += -DNRF51822
 CFLAGS += -DNRF_SD_BLE_API_VERSION=2
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS +=  -Wall -Werror -O3 -g3
+CFLAGS += -Wall -Werror -O1 -g3
 CFLAGS += -mfloat-abi=soft
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
@@ -286,7 +301,7 @@ flash: $(APPLICATION_HEX)
 
 # Flash softdevice
 flash_softdevice: $(SOFTDEVICE_HEX)
-	@echo Flashing: s130_nrf51_2.0.1_softdevice.hex
+	@echo Flashing: $(SOFTDEVICE_HEX)
 	nrfjprog --program $(SOFTDEVICE_HEX) -f nrf51
 	nrfjprog --reset -f nrf51
 
@@ -299,20 +314,32 @@ merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 		$(SOFTDEVICE_HEX) \
 	-o application_with_softdevice.hex
 
-sign: $(APPLICATION_HEX)
+$(OUT_ZIP): $(APPLICATION_HEX)
 	rm -f $(OUT_ZIP)
 	ls -lh $(APPLICATION_HEX)
 	nrfutil pkg generate --application $(APPLICATION_HEX) --debug-mode $(OUT_ZIP) --key-file $(KEY_FILE)
 
-$(OUT_ZIP): sign
+$(OUT_ZIP_BLANK): $(APPLICATION_HEX)
+	rm -f $(OUT_ZIP_BLANK)
+	ls -lh $(APPLICATION_HEX)
 
-push: $(OUT_ZIP)
+	mergehex -m $(APPLICATION_HEX) blank.hex -o $(PROJECT_ID)-bond-blank.hex
+
+	nrfutil pkg generate --application $(PROJECT_ID)-bond-blank.hex --debug-mode $(OUT_ZIP_BLANK) --key-file $(KEY_FILE)
+
+sign: $(OUT_ZIP) $(OUT_ZIP_BLANK)
+
+push: $(OUT_ZIP) $(OUT_ZIP_BLANK)
 	adb connect $(ADB_TARGET)
 	adb shell mkdir -p $(ADB_DIRECTORY)
 	adb push $(OUT_ZIP) $(ADB_DIRECTORY)
+	adb push $(OUT_ZIP_BLANK) $(ADB_DIRECTORY)
 
 config: src/config/sdk_config.h
 	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/sdk_config.h
+
+feature_config: src/config/feature_config.h
+	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/feature_config.h
 	
 reset:
 	nrfjprog --reset

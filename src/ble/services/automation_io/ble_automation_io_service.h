@@ -24,7 +24,6 @@ extern "C" {
 
 
     void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt);
-    void ble_aio_authorize_digital_out();
 
     void ble_aio_on_authorize(ble_evt_t *p_ble_evt);
     void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer);

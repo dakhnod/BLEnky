@@ -23,7 +23,7 @@ BOARD := BEACON_BIG
 FIRMWARE_VERSION := \"0.6.1\"
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
+  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
 
 # Source files common to all targets
 SRC_FILES += \

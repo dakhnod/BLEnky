@@ -2,9 +2,20 @@
 
 ## TOC
 
+1. [Saving space](#saving-space)
 1. [Configuring output pins](#output-pins)
 2. [Configuring input pins](#input-pins)
 3. [Configuring connection parameters](#connection-parameters-configuration)
+
+## While most of this should still work, the recommendet method for configuring the firmware is using `make feature_config`.
+
+## Saving space
+
+In order to save space, for example to flash to a nrf51822_qfaa, a few features need to be turned off:
+
+1. Lower the input and output pin count as much as possible
+2. Set NRF_LOG_ENABLED to 0 using `make config` or in src/config/sdk_config.h
+3. Disable BLE_BONDING via `make feature_config` or in src/feature_config.h
 
 ## Pin configuration
 

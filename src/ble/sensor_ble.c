@@ -408,7 +408,10 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
 
 void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_conn_state_on_ble_evt(p_ble_evt);
+
+    #if FEATURE_ENABLED(BLE_BONDING)
     pm_on_ble_evt(p_ble_evt);
+    #endif
 
     on_ble_evt(p_ble_evt);
 

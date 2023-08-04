@@ -989,22 +989,22 @@
 
 // <s.13>Default device name
 #ifndef DEVICE_NAME
-#define DEVICE_NAME "BLE400"
+#define DEVICE_NAME "Binary sensor"
 #endif 
 
 // <o>Minimal connection interval (ms) <8-4000>
 #ifndef BLE_MIN_CONN_INTERVAL
-#define BLE_MIN_CONN_INTERVAL 10
+#define BLE_MIN_CONN_INTERVAL 100
 #endif
 
 // <o>Maximal connection interval (ms) <8-4000>
 #ifndef BLE_MAX_CONN_INTERVAL
-#define BLE_MAX_CONN_INTERVAL 20
+#define BLE_MAX_CONN_INTERVAL 200
 #endif
 
 // <o>Slave latency (connection event count) <0-100>
 #ifndef BLE_SLAVE_LATENCY
-#define BLE_SLAVE_LATENCY 100
+#define BLE_SLAVE_LATENCY 10
 #endif
 
 // <o>Connection supervision timeout (ms) <100-32000>
@@ -1014,7 +1014,7 @@
 
 // <e>BLE bonding enabled
 #ifndef FEATURE_BLE_BONDING_ENABLED
-#define FEATURE_BLE_BONDING_ENABLED 1
+#define FEATURE_BLE_BONDING_ENABLED 0
 #endif
 
 #if FEATURE_ENABLED(BLE_BONDING)
@@ -1062,7 +1062,7 @@
 
 // <e>gpioASM profile and engine enabled
 #ifndef FEATURE_GPIO_ASM_ENABLED
-#define FEATURE_GPIO_ASM_ENABLED 0
+#define FEATURE_GPIO_ASM_ENABLED 1
 #endif
 // </e>
 
@@ -1079,7 +1079,7 @@
 
 // <e>HID service enabled (experimental)
 #ifndef FEATURE_HID_ENABLED
-#define FEATURE_HID_ENABLED 1
+#define FEATURE_HID_ENABLED 0
 #endif
 
 #if FEATURE_ENABLED(HID)
@@ -1183,7 +1183,7 @@
 
 // <e>Sleep mode enabled
 #ifndef FEATURE_SLEEP_MODE_ENABLED
-#define FEATURE_SLEEP_MODE_ENABLED 1
+#define FEATURE_SLEEP_MODE_ENABLED 0
 #endif
 
 #if FEATURE_ENABLED(SLEEP_MODE)
@@ -1198,7 +1198,7 @@
 
 //<e>Go to light sleep after graceful disconnect
 #ifndef SLEEP_AFTER_DISCONNECT
-#define SLEEP_AFTER_DISCONNECT 1
+#define SLEEP_AFTER_DISCONNECT 0
 #endif
 //</e>
 

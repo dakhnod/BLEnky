@@ -6,6 +6,7 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "nrf_log.h"
+#include "sensor_gpio.h"
 // #include "nrf_ble_gatt.h"
 
 #ifdef __cplusplus
@@ -100,6 +101,7 @@ void respond_set_sensor(enum message_id_t message_id, enum result_code_t result_
 void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_code, enum opening_closing_state_t state, uint16_t count);
 ret_code_t ble_bss_response_send(uint8_t *data, uint8_t data_length);
 void ble_bss_set_state(enum opening_closing_state_t, uint16_t);
+void ble_bss_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);
 
 
 uint32_t ble_bss_init();

@@ -4,7 +4,6 @@
 #include "ble_l2cap.h"
 #include "ble_srv_common.h"
 #include "app_error.h"
-#include "sensor_gpio.h"
 #include "feature_config.h"
 
 uint16_t ble_bss_connection_handle = BLE_CONN_HANDLE_INVALID;

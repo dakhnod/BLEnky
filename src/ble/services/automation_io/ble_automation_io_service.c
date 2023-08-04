@@ -131,7 +131,7 @@ void ble_aio_authorize_digital_out()
 
     gpio_encode_output_states(output_states);
 
-    encode_states_to_bytes(output_states, output_count, data);
+    encode_states_to_bytes(output_states, output_count, data, data_length);
 
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
@@ -240,7 +240,7 @@ void ble_aio_authorize_digital_in()
 
     gpio_encode_input_states(input_states);
 
-    encode_states_to_bytes(input_states, input_count, data);
+    encode_states_to_bytes(input_states, input_count, data, data_length);
 
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
@@ -258,8 +258,6 @@ void ble_aio_authorize_digital_in()
 
 void ble_aio_update_digital_in_states()
 {
-
-
     if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates))
     {
         return;
@@ -273,7 +271,7 @@ void ble_aio_update_digital_in_states()
 
     gpio_encode_input_states(input_states);
 
-    encode_states_to_bytes(input_states, input_count, data);
+    encode_states_to_bytes(input_states, input_count, data, data_length);
 
     ret_code_t err_code;
 
@@ -305,7 +303,7 @@ void write_bit(uint8_t *byte, uint32_t position, uint8_t value)
     }
 }
 
-void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer)
+void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer, uint16_t buffer_len)
 {
     uint32_t byte_index = 0;
     uint32_t bit_index = 0;
@@ -313,16 +311,17 @@ void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buff
 
     for (uint32_t i = 0; i < state_count; i++)
     {
-        byte_index = i / 4;
+        byte_index = buffer_len - (i / 4) - 1;
         bit_index = (i % 4) * 2;
 
         uint8_t state = states[i];
         current_byte = buffer + byte_index;
 
-        write_bit(current_byte, bit_index + 0, state);
-        write_bit(current_byte, bit_index + 1, 0);
+        write_bit(current_byte, bit_index + 0, (state & 0b01) >> 0);
+        write_bit(current_byte, bit_index + 1, (state & 0b10) >> 1);
     }
 
+    // set remaining bits of last byte to 0b11
     for (uint32_t i = bit_index + 2; i < 8; i++)
     {
         write_bit(current_byte, i, 1);
@@ -386,7 +385,42 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
 
 void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    ble_aio_update_digital_in_states();
+    if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates))
+    {
+        return;
+    }
+
+    // only need this many bytes since we only report the changed pin
+    uint32_t input_count = index + 1;
+
+    uint16_t data_length = encoding_get_byte_count_from_pins(index + 1);
+
+    uint8_t data[data_length];
+    uint8_t input_states[input_count];
+
+    // set every state before out changed index to undefined
+    for(uint8_t i = 0; i < (input_count - 1); i++){
+        input_states[i] = 0b11;
+    }
+
+    input_states[index] = config->state;
+
+    encode_states_to_bytes(input_states, input_count, data, data_length);
+
+    ret_code_t err_code;
+
+    ble_gatts_hvx_params_t params = {
+        .handle = ble_aio_digital_in_write_handle,
+        .type = BLE_GATT_HVX_NOTIFICATION,
+        .offset = 0,
+        .p_len = &data_length,
+        .p_data = data
+    };
+
+    err_code = sd_ble_gatts_hvx(
+        ble_aio_connection_handle,
+        &params);
+    APP_ERROR_CHECK(err_code);
 }
 
 ret_code_t ble_aio_init()

@@ -8,7 +8,7 @@ uint8_t encoding_get_pin_bits(uint8_t *pin_data, uint32_t pin_data_length, uint3
         uint32_t byte_index = bit_index_full / 8;
         uint8_t bit_index = bit_index_full % 8;
 
-        uint8_t current_byte = pin_data[byte_index];
+        uint8_t current_byte = pin_data[pin_data_length - byte_index - 1];
 
         uint8_t output_bits = (current_byte >> bit_index) & 0b00000011;
 

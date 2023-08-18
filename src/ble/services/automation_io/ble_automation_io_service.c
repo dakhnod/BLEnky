@@ -151,7 +151,11 @@ ret_code_t ble_aio_characteristic_digital_output_add()
 {
     ble_helper_characteristic_init_t init = {
         .service_handle = ble_aio_service_handle,
+        #if AUTOMATION_IO_DIFFERENT_UUIDS == 1
+        .uuid = UUID_DIGITAL_CHARACTERISTIC_OUTPUT,
+        #else
         .uuid = UUID_DIGITAL_CHARACTERISTIC,
+        #endif
         .description_str = "Digital output",
         .number_of_digitals = gpio_get_output_digital_pin_count(),
         .description = 0x01,

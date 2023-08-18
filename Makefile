@@ -19,7 +19,7 @@ ADB_DIRECTORY := /sdcard/dfu
 
 BOARD := BEACON_BIG
 
-FIRMWARE_VERSION := \"0.7.0\"
+FIRMWARE_VERSION := \"0.8.0\"
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld

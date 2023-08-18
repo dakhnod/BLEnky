@@ -1058,6 +1058,12 @@
 #ifndef FEATURE_AUTOMATION_IO_ENABLED
 #define FEATURE_AUTOMATION_IO_ENABLED 1
 #endif
+
+// <e>Use a different UUID (2A57) for AIO output characteristics
+#ifndef AUTOMATION_IO_DIFFERENT_UUIDS
+#define AUTOMATION_IO_DIFFERENT_UUIDS 1
+#endif
+// </e>
 // </e>
 
 // <e>gpioASM profile and engine enabled

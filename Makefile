@@ -8,7 +8,6 @@ APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE := $(BLE_ROOT)/private.pem
 PROJECT_ID := $(shell basename `pwd`)
 OUT_ZIP := $(PROJECT_ID).zip
-SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 SHELL := /bin/bash
 
@@ -17,12 +16,7 @@ CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET := Pixel-5
 ADB_DIRECTORY := /sdcard/dfu
 
-BOARD := BEACON_BIG
-
 FIRMWARE_VERSION := \"0.8.0\"
-
-$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -66,8 +60,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
-  $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
-  $(SDK_ROOT)/components/toolchain/system_nrf51.c \
   $(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_flash.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings.c \
@@ -105,7 +97,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/drivers_nrf/twi_master \
   $(SDK_ROOT)/components/ble/ble_services/ble_ancs_c \
   $(SDK_ROOT)/components/ble/ble_services/ble_ias_c \
-  $(SDK_ROOT)/components/softdevice/s130/headers \
   $(SDK_ROOT)/components/libraries/pwm \
   $(SDK_ROOT)/components/libraries/usbd/class/cdc/acm \
   $(SDK_ROOT)/components/libraries/usbd/class/hid/generic \
@@ -122,7 +113,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/drivers_nrf/common \
   $(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/drivers_nrf/adc \
-  $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
   $(SDK_ROOT)/components/ble/ble_services/ble_bas_c \
   $(SDK_ROOT)/components/ble/ble_services/ble_hrs_c \
   $(SDK_ROOT)/components/libraries/queue \
@@ -224,22 +214,79 @@ INC_FOLDERS += \
   $(CUSTOM_INCLUDES_DIR)/boards \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service \
 
+ifeq ($(FAMILY), NRF51)
+$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
+  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
+
+SRC_FILES += \
+  $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
+  $(SDK_ROOT)/components/toolchain/system_nrf51.c
+
+INC_FOLDERS += \
+  $(SDK_ROOT)/components/softdevice/s130/headers \
+  $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
+
+BOARD := BEACON_BIG
+SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
+
+CFLAGS += -DNRF51
+CFLAGS += -DS130
+CFLAGS += -DNRF51822
+CFLAGS += -DNRF_SD_BLE_API_VERSION=2
+CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=256
+CFLAGS += -mcpu=cortex-m0
+CFLAGS += -mfloat-abi=soft
+
+ASMFLAGS += -DNRF51
+ASMFLAGS += -DS130
+ASMFLAGS += -DNRF51822
+ASMFLAGS += -DNRF_SD_BLE_API_VERSION=2
+
+LDFLAGS += -mcpu=cortex-m0
+else ifeq ($(FAMILY), NRF52)
+$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
+  LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
+
+SRC_FILES += \
+  $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S \
+  $(SDK_ROOT)/components/toolchain/system_nrf52.c
+
+INC_FOLDERS += \
+  $(SDK_ROOT)/components/softdevice/s132/headers \
+  $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
+
+BOARD := HOLYIOT_17095
+SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_3.0.0_softdevice.hex
+
+CFLAGS += -DNRF52
+CFLAGS += -DS132
+CFLAGS += -DNRF52832
+CFLAGS += -DNRF_SD_BLE_API_VERSION=3
+CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=1024
+CFLAGS += -mcpu=cortex-m4
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+
+ASMFLAGS += -DNRF52
+ASMFLAGS += -DS132
+ASMFLAGS += -DNRF52832
+ASMFLAGS += -DNRF_SD_BLE_API_VERSION=3
+
+LDFLAGS += -mcpu=cortex-m4
+LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+else
+$(error please specify FAMILY=NRF51 / NRF52)
+endif
+
 # Libraries common to all targets
 LIB_FILES += \
 
 # C flags common to all targets
 CFLAGS += -DBOARD_$(BOARD)
 CFLAGS += -DSOFTDEVICE_PRESENT
-CFLAGS += -DNRF51
-CFLAGS += -DS130
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DSWI_DISABLE0
-CFLAGS += -DNRF51822
-CFLAGS += -DNRF_SD_BLE_API_VERSION=2
-CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror -O3 -g3
-CFLAGS += -mfloat-abi=soft
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
@@ -260,16 +307,11 @@ CXXFLAGS += \
 ASMFLAGS += -x assembler-with-cpp
 ASMFLAGS += -DBOARD_$(BOARD)
 ASMFLAGS += -DSOFTDEVICE_PRESENT
-ASMFLAGS += -DNRF51
-ASMFLAGS += -DS130
 ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DSWI_DISABLE0
-ASMFLAGS += -DNRF51822
-ASMFLAGS += -DNRF_SD_BLE_API_VERSION=2
 
 # Linker flags
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
-LDFLAGS += -mcpu=cortex-m0
 # let linker to dump unused sections
 LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
@@ -295,17 +337,17 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 # Flash the program
 flash: $(APPLICATION_HEX)
 	@echo Flashing: $<
-	nrfjprog --program $< -f nrf51 --sectorerase
-	nrfjprog --reset -f nrf51
+	nrfjprog --program $< -f $(FAMILY) --sectorerase
+	nrfjprog --reset -f $(FAMILY)
 
 # Flash softdevice
 flash_softdevice: $(SOFTDEVICE_HEX)
 	@echo Flashing: $(SOFTDEVICE_HEX)
-	nrfjprog --program $(SOFTDEVICE_HEX) -f nrf51
-	nrfjprog --reset -f nrf51
+	nrfjprog --program $(SOFTDEVICE_HEX) -f $(FAMILY) --verify
+	nrfjprog --reset -f $(FAMILY)
 
 erase:
-	nrfjprog --eraseall -f nrf51
+	nrfjprog --eraseall -f $(FAMILY)
 
 merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 	mergehex -m \

@@ -38,23 +38,31 @@
 // <0=> Disabled
 // <1=> Input
 // <2=> Output
+#ifndef GPIO_CONFIGURATION_PIN_{{ index }}_MODE
 #define GPIO_CONFIGURATION_PIN_{{ index }}_MODE 0
+#endif
 
 // <o> Default output (Only applies for output mode)
 // <i> Only applies for output mode
 // <0=> Low
 // <1=> High
+#ifndef GPIO_CONFIGURATION_PIN_{{ index }}_DEFAULT_OUTPUT
 #define GPIO_CONFIGURATION_PIN_{{ index }}_DEFAULT_OUTPUT 0
+#endif
 
 // <o> Pull mode (Only applies for input mode)
 // <i> Only applies for input mode
 // <0=> Disabled
 // <1=> Pullup
 // <2=> Pulldown
+#ifndef GPIO_CONFIGURATION_PIN_{{ index }}_PULL
 #define GPIO_CONFIGURATION_PIN_{{ index }}_PULL 0
+#endif
 
 // <e>Invert input / output
+#ifndef GPIO_CONFIGURATION_PIN_{{ index }}_INVERT
 #define GPIO_CONFIGURATION_PIN_{{ index }}_INVERT 0
+#endif
 // </e>
 
 // </h>

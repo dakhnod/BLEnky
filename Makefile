@@ -7,7 +7,7 @@ SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE := $(BLE_ROOT)/private.pem
 PROJECT_ID := $(shell basename `pwd`)
-OUT_ZIP := $(PROJECT_ID).zip
+OUT_ZIP := $(PROJECT_ID)_$(FAMILY).zip
 
 SHELL := /bin/bash
 
@@ -216,7 +216,7 @@ INC_FOLDERS += \
 
 ifeq ($(FAMILY), NRF51)
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
+  LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
 SRC_FILES += \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
@@ -371,7 +371,7 @@ config: src/config/sdk_config.h
 	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/sdk_config.h
 
 feature_config: src/config/feature_config.h
-	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/feature_config.h
+	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/feature_config.template.h
 	
 reset:
 	nrfjprog --reset

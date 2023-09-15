@@ -5,12 +5,18 @@ GROUP(-lgcc -lc -lnosys)
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x1f000, LENGTH = 0x75000 - 0x1f000
+  FLASH (rx) : ORIGIN = 0x1f000, LENGTH = 0x75000 - 0x1f000 - (4 * 0x1000)
   RAM (rwx) :  ORIGIN = 0x20002148, LENGTH = 0xdeb8
+  BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0007F000, LENGTH = 0x1000
 }
 
 SECTIONS
 {
+  /* Ensures the bootloader settings are placed at the last flash page. */
+  .bootloaderSettings(NOLOAD) :
+  {
+
+  } > BOOTLOADER_SETTINGS
   .fs_data :
   {
     PROVIDE(__start_fs_data = .);

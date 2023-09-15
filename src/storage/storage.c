@@ -22,8 +22,13 @@ FS_REGISTER_CFG(fs_config_t fs_config) =
     // automatic assignment would move the data depending on the presence of a bootloader
     // if we know that this data cannot be in the following three pages, we can just nuke them to delete bonding data
     // without nuking the pin data
-    .p_start_addr = (uint32_t *)0x00034C00, // start four pages before the bootloader
-    .p_end_addr = (uint32_t *)0x00035000, // end three pages before the bootloader
+#ifdef NRF51
+    .p_start_addr = (uint32_t *)(0x00035C00 - (4 * 0x0400)), // start four pages before the bootloader
+    .p_end_addr = (uint32_t *)(0x00035C00 - (3 * 0x0400)), // end three pages before the bootloader
+#else
+    .p_start_addr = (uint32_t *)(0x00075000 - (4 * 0x1000)), // start four pages before the bootloader
+    .p_end_addr = (uint32_t *)(0x00075000 - (3 * 0x1000)), // end three pages before the bootloader
+#endif
     // remaining three pages are reserved for bonding data
 };
 

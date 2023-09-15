@@ -5,6 +5,14 @@
 
 #define DEAD_BEEF 0xDEADBEEF /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
+void HardFault_Handler(){
+  NRF_LOG_ERROR("HardFault\n");
+#ifdef DEBUG
+  for (;;);
+#endif
+  NVIC_SystemReset();
+}
+
 void
 app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
   unsigned int tmp = id;

@@ -1,7 +1,7 @@
 TARGETS          := nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
-BLE_ROOT := ../..
+BLE_ROOT := ..
 SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
@@ -368,10 +368,10 @@ push: $(OUT_ZIP)
 	adb push $(OUT_ZIP) $(ADB_DIRECTORY)
 
 config: src/config/sdk_config.h
-	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/sdk_config.h
+	java -jar $(BLE_ROOT)/CMSIS_Configuration_Wizard.jar src/config/sdk_config.h
 
 feature_config: src/config/feature_config.h
-	java -jar ../../CMSIS_Configuration_Wizard.jar src/config/feature_config.template.h
+	java -jar $(BLE_ROOT)/CMSIS_Configuration_Wizard.jar src/config/feature_config.template.h
 	
 reset:
 	nrfjprog --reset

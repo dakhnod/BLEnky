@@ -23,10 +23,7 @@ void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *confi
 }
 
 int main(void) {
-    ret_code_t err_code;
-
-    err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
+    (void) NRF_LOG_INIT(NULL);
 
     NRF_LOG_INFO("starting\n");
 
@@ -50,9 +47,9 @@ int main(void) {
 
     // Enter main loop.
     for (;;) {
-        if (NRF_LOG_PROCESS() == false) {
+        // if (NRF_LOG_PROCESS() == false) {
             power_manage();
             app_sched_execute();
-        }
+        // }
     }
 }

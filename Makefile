@@ -216,7 +216,7 @@ INC_FOLDERS += \
 
 ifeq ($(FAMILY), NRF51)
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
+  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
 
 SRC_FILES += \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
@@ -226,7 +226,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s130/headers \
   $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
 
-BOARD := BEACON_BIG
+BOARD := WT51822_S4AT
 SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 CFLAGS += -DNRF51
@@ -292,8 +292,8 @@ CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
 CFLAGS += -DNRF_DFU_SETTINGS_VERSION=1
 CFLAGS += -DUSE_DFU
-CFLAGS += -DUSE_SPI
-CFLAGS += -DUSE_UART
+#CFLAGS += -DUSE_SPI
+#CFLAGS += -DUSE_UART
 ifeq ($(BOARD), WT51822-S4AT)
 CFLAGS += -DDEBUG
 endif
@@ -337,7 +337,7 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 # Flash the program
 flash: $(APPLICATION_HEX)
 	@echo Flashing: $<
-	nrfjprog --program $< -f $(FAMILY) --sectorerase
+	nrfjprog --program $< -f $(FAMILY) --sectorerase --verify
 	nrfjprog --reset -f $(FAMILY)
 
 # Flash softdevice

@@ -1,7 +1,7 @@
 TARGETS          := nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
-BLE_ROOT := ..
+BLE_ROOT := ../..
 SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex

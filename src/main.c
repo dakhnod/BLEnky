@@ -13,6 +13,7 @@
 #include "ble_configuration_service.h"
 #include "sleep.h"
 #include "feature_config.h"
+#include "watchdog.h"
 
 void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
@@ -41,6 +42,8 @@ int main(void) {
 
     ble_init();
 
+    watchdog_init();
+
     advertising_start();
 
     NRF_LOG_INFO("setup done\n");
@@ -49,6 +52,7 @@ int main(void) {
     for (;;) {
         // if (NRF_LOG_PROCESS() == false) {
             power_manage();
+            watchdog_feed();
             app_sched_execute();
         // }
     }

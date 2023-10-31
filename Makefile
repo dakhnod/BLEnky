@@ -69,6 +69,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
   $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
+  $(SDK_ROOT)/components/drivers_nrf/wdt/nrf_drv_wdt.c \
   $(SDK_ROOT)/components/ble/ble_services/ble_dis/ble_dis.c \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service/battery.c \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service/ble_dfu.c \
@@ -89,6 +90,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/storage/storage.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
   $(PROJ_DIR)/src/sleep/sleep.c \
+  $(PROJ_DIR)/src/watchdog/watchdog.c \
   $(PROJ_DIR)/src/main.c \
 
 # Include folders common to all targets
@@ -209,6 +211,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/sequence/ \
   $(PROJ_DIR)/src/timer/ \
   $(PROJ_DIR)/src/persistence/ \
+  $(PROJ_DIR)/src/watchdog/ \
   $(PROJ_DIR)/src/sleep/ \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service \
   $(CUSTOM_INCLUDES_DIR)/boards \

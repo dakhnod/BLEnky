@@ -34,5 +34,5 @@ Here are a few things I have planned for the future
 
 - [x] Add analog (PWM) outputs for servo control
 - [ ] Add analog inputs to read out voltage(s)
-- [ ] Add debounce settings to allow for quicker button presses
+- [x] Add debounce settings to allow for quicker button presses
 - [x] Add selection of common boards to website

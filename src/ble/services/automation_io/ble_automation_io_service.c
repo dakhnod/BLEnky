@@ -62,20 +62,15 @@ void ble_aio_handle_pin_digital_data(
 
         if (output_bits == 0b11)
         {
-            // don't touch state, 0b11 meand ignore
+            // don't touch state, 0b11 means ignore
             continue;
         }
-        if (output_bits == 0b10)
+        if (output_bits == gpio_get_output_digital_state(index))
         {
-            // tri-state not supported
+            // unchanged
             continue;
         }
-        uint8_t new_state = (output_bits == 0b01);
-        if (new_state == gpio_get_output_digital_state(index))
-        {
-            continue;
-        }
-        gpio_write_output_digital_pin(index, new_state);
+        gpio_write_output_digital_pin(index, output_bits, gpio_get_output_digital_state(index));
     }
 }
 
@@ -116,6 +111,7 @@ void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_ev
     if (value == 0xffff)
     {
         NRF_LOG_DEBUG("ignoring analog %i value\n", index);
+        return;
     }
 
     gpio_write_output_analog_pin_us(index, value);

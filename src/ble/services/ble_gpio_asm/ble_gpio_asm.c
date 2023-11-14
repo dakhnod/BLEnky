@@ -2,7 +2,7 @@
 #include "ble_helpers.h"
 #include "encoding.h"
 #include "app_error.h"
-
+#include "ble_automation_io_service.h"
 #include "sequence.h"
 
 uint16_t ble_gpio_asm_connection_handle;
@@ -135,57 +135,6 @@ void ble_gpio_asm_on_authorize(ble_evt_t *p_ble_evt)
     }
 }
 
-
-void ble_gpio_asm_handle_pin_digital_data(
-    uint8_t *pin_data,
-    uint32_t pin_data_length)
-{
-
-    uint32_t available_output_count = gpio_get_output_digital_pin_count();
-    uint32_t sent_output_count = pin_data_length * 4;
-
-    uint32_t parsed_output_count = MIN(available_output_count, sent_output_count);
-
-    for (int index = 0; index < parsed_output_count; index++)
-    {
-        uint8_t output_bits = encoding_get_pin_bits(pin_data, pin_data_length, index);
-
-        if (output_bits == 0b11)
-        {
-            // don't touch state, 0b11 meand ignore
-            continue;
-        }
-        if (output_bits == 0b10)
-        {
-            // tri-state not supported
-            continue;
-        }
-        uint8_t new_state = (output_bits == 0b01);
-        if (new_state == gpio_get_output_digital_state(index))
-        {
-            continue;
-        }
-        gpio_write_output_digital_pin(index, new_state);
-    }
-}
-
-
-
-void ble_gpio_asm_handle_pin_analog_data(
-    uint32_t index,
-    uint16_t duty_cycle
-    )
-{
-    if(duty_cycle == 0xffff){
-        return;
-    }
-    if(index > gpio_get_output_analog_pin_count()){
-        NRF_LOG_ERROR("writing to unconfigured analog channel %i\n", index);
-        return;
-    }
-    gpio_write_output_analog_pin_us(index, duty_cycle);
-}
-
 void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
@@ -245,6 +194,6 @@ void ble_gpio_asm_init(){
         encoding_get_byte_count_from_pins(output_digital_pin_count),
         encoding_get_byte_count_from_pins(input_digital_pin_count),
         output_analog_pin_count,
-        ble_gpio_asm_handle_pin_digital_data,
-        ble_gpio_asm_handle_pin_analog_data);
+        ble_aio_handle_pin_digital_data,
+        ble_aio_handle_pin_analog_data);
 }

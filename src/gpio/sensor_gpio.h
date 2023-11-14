@@ -35,7 +35,7 @@ typedef void (*gpio_input_change_handler_t)(uint32_t pin_index, gpio_config_inpu
 
 void gpio_init(gpio_input_change_handler_t input_change_handler);
 void gpio_configure_aio_outputs();
-void gpio_write_output_digital_pin(uint32_t index, uint8_t value);
+void gpio_write_output_digital_pin(uint32_t index, uint8_t new_state, uint8_t old_state);
 void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value);
 void gpio_write_output_analog_pin_us(uint32_t index, uint16_t us);
 uint32_t gpio_get_output_digital_pin_count();

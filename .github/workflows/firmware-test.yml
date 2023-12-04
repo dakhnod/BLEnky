@@ -1,0 +1,38 @@
+name: Automated firmware test
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: [self-hosted, firmware-builder]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: parse feature template
+      uses: cuchi/jinja2-action@v1.2.2
+      with:
+        template: src/config/feature_config.template.h.jinja
+        output_file: src/config/feature_config.template.h
+    - name: build firmware
+      run: |
+        make BLE_ROOT=../../../../ FAMILY=NRF51
+    - name: store firmware
+      uses: actions/upload-artifact@v3
+      with:
+        name: firmware-file
+        path: _build/nrf51822_xxac.hex
+  flash:
+    runs-on: [self-hosted, firmware-flasher]
+    needs: build
+
+    steps:
+    - name: download firmware
+      uses: actions/download-artifact@v3
+      with:
+        name: firmware-file
+        path: /tmp/nrf51_firmware
+    - name: flash firmware
+      working-directory: /home/home/Projects/BLEnky/openocd
+      run: src/openocd -s tcl -f raspi-bcm2385.tcl -f nrf51.cfg -c "program /tmp/nrf51_firmware/nrf51822_xxac.hex verify reset exit"

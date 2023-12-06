@@ -346,6 +346,7 @@ uint8_t sequence_instruction_filter_bits(uint8_t instruction) {
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY_TIMEOUT:
         case INSTRUCTION_JUMP_MATCH_PINS_ALL:
         case INSTRUCTION_JUMP_MATCH_PINS_ANY:
+        case INSTRUCTION_WRITE_OUTPUT_ANALOG_CHANNEL:
             return instruction_without_last_bits;
     }
 
@@ -387,10 +388,7 @@ void sequence_execute_instruction(uint8_t instruction, bool *should_run_next) {
         case INSTRUCTION_SLEEP_MATCH_INPUTS_ANY_TIMEOUT:
             sequence_execute_instruction_sleep_match_timeout(instruction_filtered == INSTRUCTION_SLEEP_MATCH_INPUTS_ALL_TIMEOUT, should_run_next);
             break;
-        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_0:
-        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_1:
-        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_2:
-        case INSTRUCTION_WRITE_OUTPUT_ANALOG_PIN_3:
+        case INSTRUCTION_WRITE_OUTPUT_ANALOG_CHANNEL:
             sequence_execute_instruction_write_analog_output(instruction & 0b00001111);
             break;
         case INSTRUCTION_JUMP_UNCONDITIONALLY:

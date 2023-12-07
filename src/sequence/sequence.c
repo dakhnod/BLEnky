@@ -5,20 +5,6 @@
 #include "sensor_gpio.h"
 #include "sensor_timer.h"
 
-#define BUFFER_SIZE 200
-
-uint8_t sequence_buffer[BUFFER_SIZE];  // 127 packets, each 19 bytes
-uint32_t sequence_buffer_write_index = 0;
-uint8_t sequence_current_write_seq_num = 0;
-
-uint32_t sequence_buffer_read_index = 0;
-
-uint32_t sequence_pin_digital_output_data_length;
-uint32_t sequence_pin_digital_input_data_length;
-uint32_t sequence_pin_analog_output_data_length;
-
-pin_digital_data_handler_t sequence_pin_digital_data_handler;
-pin_analog_data_handler_t sequence_pin_analog_data_handler;
 
 uint8_t sequence_is_running_ = false;
 uint32_t sequence_packet_index = 0;

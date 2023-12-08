@@ -1,7 +1,7 @@
 TARGETS          := nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
-BLE_ROOT := ../..
+BLE_ROOT := ..
 SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
 APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
@@ -86,7 +86,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/helpers/encoding.c \
   $(PROJ_DIR)/src/timer/sensor_timer.c \
   $(PROJ_DIR)/src/error_handler/error_handler.c \
-  $(PROJ_DIR)/src/sequence/sequence.c \
+  $(PROJ_DIR)/src/sequence/gpioasm.c \
   $(PROJ_DIR)/src/storage/storage.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
   $(PROJ_DIR)/src/sleep/sleep.c \

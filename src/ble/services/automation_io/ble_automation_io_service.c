@@ -50,7 +50,6 @@ void ble_aio_handle_pin_digital_data(
     uint8_t *pin_data,
     uint32_t pin_data_length)
 {
-
     uint32_t available_output_count = gpio_get_output_digital_pin_count();
     uint32_t sent_output_count = pin_data_length * 4;
 
@@ -59,18 +58,7 @@ void ble_aio_handle_pin_digital_data(
     for (int index = 0; index < parsed_output_count; index++)
     {
         uint8_t output_bits = encoding_get_pin_bits(pin_data, pin_data_length, index);
-
-        if (output_bits == 0b11)
-        {
-            // don't touch state, 0b11 means ignore
-            continue;
-        }
-        if (output_bits == gpio_get_output_digital_state(index))
-        {
-            // unchanged
-            continue;
-        }
-        gpio_write_output_digital_pin(index, output_bits, gpio_get_output_digital_state(index));
+        gpio_write_output_digital_pin(index, output_bits);
     }
 }
 

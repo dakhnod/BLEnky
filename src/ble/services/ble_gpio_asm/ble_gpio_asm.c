@@ -3,7 +3,8 @@
 #include "encoding.h"
 #include "app_error.h"
 #include "ble_automation_io_service.h"
-#include "sequence.h"
+#include "gpioasm.h"
+#include "sensor_timer.h"
 
 uint16_t ble_gpio_asm_connection_handle;
 uint16_t ble_gpio_asm_service_handle;
@@ -163,6 +164,18 @@ void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt)
     }
 }
 
+void ble_gpioasm_timer_handler(uint64_t timeout, bool start){
+    if(start){
+        timer_gpioasm_start(timeout);
+    }else{
+        timer_gpioasm_stop();
+    }
+}
+
+void ble_gpioasm_timer_timeout_handler(){
+    gpioasm_handle_timer_timeout(&engine);
+}
+
 void ble_gpio_asm_init(){
     ret_code_t err_code;
 
@@ -188,5 +201,13 @@ void ble_gpio_asm_init(){
     err_code = ble_gpio_asm_characteristic_asm_data_add();
     APP_ERROR_CHECK(err_code);
 
-    gpioasm_init(&engine, NULL);
+    gpioasm_engine_init_t engine_init = {
+        .timer_handler = ble_gpioasm_timer_handler,
+        .pin_digital_output_handler = gpio_write_output_digital_pin,
+        .pin_analog_output_handler = ble_aio_handle_pin_analog_data,
+        .pin_digital_input_provider = gpio_get_input_digital_state
+    };
+
+    gpioasm_init(&engine, &engine_init);
+    timer_sequence_set_timeout_handler(ble_gpioasm_timer_timeout_handler);
 }

@@ -1,30 +1,35 @@
 #include <stdint.h>
 #include <string.h>
-#include "nrf_log.h"
+#include <stdbool.h>
 
 #ifndef GPIOASM_BUFFER_SIZE
 #define GPIOASM_BUFFER_SIZE 64
 #endif
 
 typedef void (*pin_digital_output_handler_t)(
-    uint8_t *pin_digital_data, 
-    uint32_t pin_digital_data_length
+    uint32_t index, 
+    uint8_t state
 );
 
 typedef void (*pin_analog_output_handler_t)(
-    uint32_t pin_analog_index,
-    uint16_t pin_analog_duty_cycle
+    uint32_t index,
+    uint16_t duty_cycle
 );
 
-typedef void (*pin_digital_input_provider_t)(
-    uint8_t **pin_digital_data, 
-    uint32_t *pin_digital_data_length
+typedef bool (*pin_digital_input_provider_t)(
+    uint32_t index
+);
+
+typedef void (*timer_handler_t)(
+    uint64_t timeout,
+    bool start
 );
 
 typedef struct {
     pin_digital_output_handler_t pin_digital_output_handler;
     pin_analog_output_handler_t pin_analog_output_handler;
     pin_digital_input_provider_t pin_digital_input_provider;
+    timer_handler_t timer_handler;
 } gpioasm_engine_init_t;
 
 typedef struct {
@@ -75,3 +80,4 @@ void gpioasm_step(gpioasm_engine_t *engine);
 uint8_t gpioasm_is_running(gpioasm_engine_t *engine);
 GPIOASM_PACKET_PUSH_RESULT gpioasm_push_packet(gpioasm_engine_t *engine, uint8_t *data, uint32_t length);
 void gpioasm_handle_digital_input_update(gpioasm_engine_t *engine, uint32_t index, bool is_high);
+void gpioasm_handle_timer_timeout(gpioasm_engine_t *engine);

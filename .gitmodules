@@ -1,3 +1,6 @@
 [submodule "src/common"]
 	path = src/common
 	url = git@github.com:dakhnod/nRF51-common.git
+[submodule "src/gpioasm"]
+	path = src/gpioasm
+	url = git@github.com:dakhnod/gpioASM-C-runtime.git

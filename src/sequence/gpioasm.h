@@ -1,9 +1,24 @@
+#ifndef GPIOASM_H
+#define GPIOASM_H
+
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
 
 #ifndef GPIOASM_BUFFER_SIZE
 #define GPIOASM_BUFFER_SIZE 64
+#endif
+
+#ifndef GPIOASM_LOG_DEBUG
+#define GPIOASM_LOG_DEBUG(...)
+#endif
+
+#ifndef GPIOASM_LOG_ERROR
+#define GPIOASM_LOG_ERROR(...)
+#endif
+
+#ifndef MIN
+#define MIN(a, b) a < b ? a : b
 #endif
 
 typedef void (*pin_digital_output_handler_t)(
@@ -54,7 +69,7 @@ typedef struct {
         SLEEP_MATCH_PINS_ANY,
         SLEEP_MATCH_PINS_ALL_TIMEOUT,
         SLEEP_MATCH_PINS_ANY_TIMEOUT,
-    } sequence_sleep_condition;
+    } sleep_condition;
 
     // handlers
     gpioasm_engine_init_t init;
@@ -81,3 +96,6 @@ uint8_t gpioasm_is_running(gpioasm_engine_t *engine);
 GPIOASM_PACKET_PUSH_RESULT gpioasm_push_packet(gpioasm_engine_t *engine, uint8_t *data, uint32_t length);
 void gpioasm_handle_digital_input_update(gpioasm_engine_t *engine, uint32_t index, bool is_high);
 void gpioasm_handle_timer_timeout(gpioasm_engine_t *engine);
+bool gpioasm_read_has_reached_end(gpioasm_engine_t *engine);
+
+#endif

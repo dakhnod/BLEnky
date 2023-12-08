@@ -1,9 +1,13 @@
 #include "gpioasm.h"
 #include "instructions.h"
-#include <nrf_log.h>
+
+#ifdef GPIOASM_LOG_IMPORT
+#include GPIOASM_LOG_IMPORT
+#endif
 
 void gpioasm_stop(gpioasm_engine_t *engine) {
     if(engine->init.timer_handler == NULL){
+        GPIOASM_LOG_ERROR("timer_handler not set in init\n");
         return;
     }
     engine->init.timer_handler(0, false);
@@ -27,6 +31,8 @@ GPIOASM_PACKET_PUSH_RESULT gpioasm_push_packet(gpioasm_engine_t *engine, uint8_t
         engine->packet_index = 0;
 
         result = PUSH_FIRST_PACKET;
+
+        GPIOASM_LOG_DEBUG("received final packet\n");
     } else if (sequence_number != (engine->packet_index + 1)) {
         return PUSH_MISSED_PACKET;
     }
@@ -91,7 +97,7 @@ void gpioasm_read_bytes(gpioasm_engine_t *engine, uint8_t **buffer, uint32_t *le
     engine->instruction_index += *length;
 }
 
-uint8_t gpioasm_read_has_reached_end(gpioasm_engine_t *engine) {
+bool gpioasm_read_has_reached_end(gpioasm_engine_t *engine) {
     return engine->instruction_index >= engine->write_index;
 }
 
@@ -110,16 +116,17 @@ uint8_t gpioasm_get_argument_count(gpioasm_engine_t *engine){
 }
 
 void gpioasm_execute_instruction_write_digital_outputs(gpioasm_engine_t *engine) {
-    if(engine->init.pin_digital_output_handler == NULL){
-        return;
-    }
+    GPIOASM_LOG_DEBUG("instruction write digital\n");
 
     uint32_t pin_data_length = gpioasm_get_argument_count(engine);
     uint8_t *pin_data_digital;
 
-    NRF_LOG_DEBUG("instruction write digital\n");
-
     gpioasm_read_bytes(engine, &pin_data_digital, &pin_data_length);
+
+    if(engine->init.pin_digital_output_handler == NULL){
+        GPIOASM_LOG_ERROR("pin_digital_output_handler not set in init\n");
+        return;
+    }
 
     for(uint32_t index = 0; index < (pin_data_length * 4); index++){
         uint8_t pin_bits = gpioasm_decode_pin_bits(pin_data_digital, pin_data_length, index);
@@ -131,30 +138,35 @@ void gpioasm_execute_instruction_write_digital_outputs(gpioasm_engine_t *engine)
 }
 
 void gpioasm_execute_instruction_write_analog_output(gpioasm_engine_t *engine) {
-    if(engine->init.pin_analog_output_handler == NULL){
-        return;
-    }
-
     uint32_t channel = gpioasm_get_argument_count(engine);
     uint16_t duty_cycle = gpioasm_read_uint16(engine);
 
-    NRF_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t)duty_cycle);
+    GPIOASM_LOG_DEBUG("instruction write analog %i %i\n", channel, (uint32_t)duty_cycle);
 
+    if(engine->init.pin_analog_output_handler == NULL){
+        GPIOASM_LOG_ERROR("pin_analog_output_handler not set in init\n");
+        return;
+    }
     engine->init.pin_analog_output_handler(channel, duty_cycle);
 }
 
 void gpioasm_execute_instruction_sleep_ms(gpioasm_engine_t *engine) {
+    uint64_t delay = gpioasm_read_varint(engine);
+    GPIOASM_LOG_DEBUG("instruction sleep: %i\n", delay);
+    
+    engine->sleep_condition = SLEEP_NO_CONDITION;
+
     if(engine->init.timer_handler == NULL){
+        GPIOASM_LOG_ERROR("timer_handler not set in init\n");
         return;
     }
-    uint64_t delay = gpioasm_read_varint(engine);
-    NRF_LOG_DEBUG("instruction sleep: %i\n", delay);
     engine->init.timer_handler(delay, true);
 }
 
 bool gpioasm_filter_matches_digital_input_pins(gpioasm_engine_t *engine, uint8_t *pin_filter_data, uint32_t pin_filter_length, bool match_all) {
     if(engine->init.pin_digital_input_provider == NULL){
-        return;
+        GPIOASM_LOG_ERROR("pin_digital_input_provider not set in init\n");
+        return false;
     }
     
     bool result = false;
@@ -162,11 +174,11 @@ bool gpioasm_filter_matches_digital_input_pins(gpioasm_engine_t *engine, uint8_t
     for (uint32_t index = 0; index < pin_count; index++) {
         uint8_t pin_bits = gpioasm_decode_pin_bits(pin_filter_data, pin_filter_length, index);
         if (pin_bits == 0b11) {
-            NRF_LOG_DEBUG("ignoring pin %i\n", index);
+            GPIOASM_LOG_DEBUG("ignoring pin %i\n", index);
             continue;
         }
         if (pin_bits == 0b10) {
-            NRF_LOG_ERROR("tri-state not supported on pin %i\n", index);
+            GPIOASM_LOG_ERROR("tri-state not supported on pin %i\n", index);
             continue;
         }
         bool pin_should_be_high = (pin_bits == 0b01);
@@ -196,7 +208,7 @@ void gpioasm_execute_instruction_sleep_match(gpioasm_engine_t *engine, bool matc
 
     bool match_condition_fulfilled = gpioasm_filter_matches_digital_input_pins(engine, pin_data_digital, pin_data_length, match_all);
 
-    NRF_LOG_DEBUG("init condition %i\n", match_condition_fulfilled);
+    GPIOASM_LOG_DEBUG("init condition %i\n", match_condition_fulfilled);
 
     // we are not continuing the execution when pins don't match
     // we wait for a gpio notification to continue
@@ -204,18 +216,14 @@ void gpioasm_execute_instruction_sleep_match(gpioasm_engine_t *engine, bool matc
 
     if (!match_condition_fulfilled) {
         if (match_all) {
-            engine->sequence_sleep_condition = SLEEP_MATCH_PINS_ALL;
+            engine->sleep_condition = SLEEP_MATCH_PINS_ALL;
         } else {
-            engine->sequence_sleep_condition = SLEEP_MATCH_PINS_ANY;
+            engine->sleep_condition = SLEEP_MATCH_PINS_ANY;
         }
     }
 }
 
 void gpioasm_execute_instruction_sleep_match_timeout(gpioasm_engine_t *engine, bool match_all, bool *should_run_next) {
-    if(engine->init.timer_handler == NULL){
-        return;
-    }
-
     bool match_condition_fulfilled;
 
     gpioasm_execute_instruction_sleep_match(engine, match_all, &match_condition_fulfilled);
@@ -224,32 +232,38 @@ void gpioasm_execute_instruction_sleep_match_timeout(gpioasm_engine_t *engine, b
 
     uint64_t timeout = gpioasm_read_varint(engine);
 
+    if(engine->init.timer_handler == NULL){
+        GPIOASM_LOG_ERROR("timer_handler not set in init\n");
+        return;
+    }
+
     if (match_condition_fulfilled) {
         return;
     }
 
-    bool already_waiting = (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
+    bool already_waiting = (engine->sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (engine->sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
 
     if (already_waiting) {
         return;
     }
 
     if (match_all) {
-        engine->sequence_sleep_condition = SLEEP_MATCH_PINS_ALL_TIMEOUT;
+        engine->sleep_condition = SLEEP_MATCH_PINS_ALL_TIMEOUT;
     } else {
-        engine->sequence_sleep_condition = SLEEP_MATCH_PINS_ANY_TIMEOUT;
+        engine->sleep_condition = SLEEP_MATCH_PINS_ANY_TIMEOUT;
     }
 
-    NRF_LOG_DEBUG("instruction sleep timeout: %i\n", timeout);
+    GPIOASM_LOG_DEBUG("instruction sleep timeout: %i\n", timeout);
     engine->init.timer_handler(timeout, true);
 }
 
 void gpioasm_handle_digital_input_update(gpioasm_engine_t *engine, uint32_t index, bool is_high) {
     if(engine->init.timer_handler == NULL){
+        GPIOASM_LOG_ERROR("timer_handler not set in init\n");
         return;
     }
 
-    if (engine->sequence_sleep_condition == SLEEP_NO_CONDITION) {
+    if (engine->sleep_condition == SLEEP_NO_CONDITION) {
         return;
     }
     // rewind read head to previous sleep command
@@ -258,8 +272,8 @@ void gpioasm_handle_digital_input_update(gpioasm_engine_t *engine, uint32_t inde
 
     bool execute_next_instruction;
 
-    bool match_all = (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ALL) || (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT);
-    bool has_timeout = (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
+    bool match_all = (engine->sleep_condition == SLEEP_MATCH_PINS_ALL) || (engine->sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT);
+    bool has_timeout = (engine->sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT) || (engine->sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT);
 
     if (has_timeout) {
         gpioasm_execute_instruction_sleep_match_timeout(engine, match_all, &execute_next_instruction);
@@ -268,11 +282,11 @@ void gpioasm_handle_digital_input_update(gpioasm_engine_t *engine, uint32_t inde
     }
 
     if (execute_next_instruction) {
-        if (engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT || engine->sequence_sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT) {
+        if (engine->sleep_condition == SLEEP_MATCH_PINS_ALL_TIMEOUT || engine->sleep_condition == SLEEP_MATCH_PINS_ANY_TIMEOUT) {
             engine->init.timer_handler(0, false);
         }
 
-        engine->sequence_sleep_condition = SLEEP_NO_CONDITION;
+        engine->sleep_condition = SLEEP_NO_CONDITION;
         gpioasm_step(engine);
     }
 }
@@ -281,7 +295,7 @@ void gpioasm_execute_instruction_jump_unconditionally(gpioasm_engine_t *engine) 
     uint32_t target = gpioasm_read_varint(engine);
     target = MIN(target, engine->write_index);
 
-    NRF_LOG_DEBUG("instruction jump to %i\n", target);
+    GPIOASM_LOG_DEBUG("instruction jump to %i\n", target);
 
     // disable jump counter
     engine->jump_target = 0xffffffff;
@@ -292,6 +306,8 @@ void gpioasm_execute_instruction_jump_unconditionally(gpioasm_engine_t *engine) 
 void gpioasm_execute_instruction_check_bytecode_version(gpioasm_engine_t *engine, bool *should_run_next) {
     uint64_t bytecode_version = gpioasm_read_varint(engine);
     *should_run_next = (bytecode_version == 0);
+
+    GPIOASM_LOG_DEBUG("bytecode matches: %d\n", *should_run_next);
 }
 
 void gpioasm_execute_instruction_jump_match(gpioasm_engine_t *engine, bool match_all) {
@@ -304,7 +320,7 @@ void gpioasm_execute_instruction_jump_match(gpioasm_engine_t *engine, bool match
 
     bool match_condition_fulfilled = gpioasm_filter_matches_digital_input_pins(engine, pin_data_digital, pin_data_length, match_all);
 
-    NRF_LOG_DEBUG("jump match condition fulfilled: %i\n", match_condition_fulfilled);
+    GPIOASM_LOG_DEBUG("jump match condition fulfilled: %i\n", match_condition_fulfilled);
 
     if (match_condition_fulfilled) {
         // disable jump counter
@@ -397,7 +413,7 @@ void gpioasm_execute_instruction(gpioasm_engine_t *engine, uint8_t instruction, 
             *should_run_next = false;
             break;
         default:
-            NRF_LOG_DEBUG("instruction %i unknown\n", instruction);
+            GPIOASM_LOG_DEBUG("instruction %i unknown\n", instruction);
             *should_run_next = false;
             break;
     }
@@ -410,7 +426,7 @@ void gpioasm_buffer_next_packet(gpioasm_engine_t *engine) {
         gpioasm_execute_instruction(engine, instruction, &should_run_next);
 
         if(gpioasm_read_has_reached_end(engine)){
-            NRF_LOG_DEBUG("instructions end.\n");
+            GPIOASM_LOG_DEBUG("instructions end.\n");
             break;
         }
     } while (should_run_next);
@@ -428,7 +444,7 @@ void gpioasm_handle_timer_timeout(gpioasm_engine_t *engine) {
 }
 
 void gpioasm_start(gpioasm_engine_t *engine) {
-    NRF_LOG_DEBUG("starting sequence\n");
+    GPIOASM_LOG_DEBUG("starting sequence\n");
 
     gpioasm_reset(engine);
 

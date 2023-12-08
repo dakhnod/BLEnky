@@ -86,7 +86,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/helpers/encoding.c \
   $(PROJ_DIR)/src/timer/sensor_timer.c \
   $(PROJ_DIR)/src/error_handler/error_handler.c \
-  $(PROJ_DIR)/src/sequence/gpioasm.c \
+  $(PROJ_DIR)/src/gpioasm/gpioasm.c \
   $(PROJ_DIR)/src/storage/storage.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
   $(PROJ_DIR)/src/sleep/sleep.c \
@@ -208,7 +208,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/config/ \
   $(PROJ_DIR)/src/gpio/ \
   $(PROJ_DIR)/src/storage/ \
-  $(PROJ_DIR)/src/sequence/ \
+  $(PROJ_DIR)/src/gpioasm/ \
   $(PROJ_DIR)/src/timer/ \
   $(PROJ_DIR)/src/persistence/ \
   $(PROJ_DIR)/src/watchdog/ \

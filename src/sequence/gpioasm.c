@@ -3,6 +3,9 @@
 #include <nrf_log.h>
 
 void gpioasm_stop(gpioasm_engine_t *engine) {
+    if(engine->init.timer_handler == NULL){
+        return;
+    }
     engine->init.timer_handler(0, false);
     engine->is_running = false;
 }
@@ -107,6 +110,10 @@ uint8_t gpioasm_get_argument_count(gpioasm_engine_t *engine){
 }
 
 void gpioasm_execute_instruction_write_digital_outputs(gpioasm_engine_t *engine) {
+    if(engine->init.pin_digital_output_handler == NULL){
+        return;
+    }
+
     uint32_t pin_data_length = gpioasm_get_argument_count(engine);
     uint8_t *pin_data_digital;
 
@@ -124,6 +131,10 @@ void gpioasm_execute_instruction_write_digital_outputs(gpioasm_engine_t *engine)
 }
 
 void gpioasm_execute_instruction_write_analog_output(gpioasm_engine_t *engine) {
+    if(engine->init.pin_analog_output_handler == NULL){
+        return;
+    }
+
     uint32_t channel = gpioasm_get_argument_count(engine);
     uint16_t duty_cycle = gpioasm_read_uint16(engine);
 
@@ -133,12 +144,19 @@ void gpioasm_execute_instruction_write_analog_output(gpioasm_engine_t *engine) {
 }
 
 void gpioasm_execute_instruction_sleep_ms(gpioasm_engine_t *engine) {
+    if(engine->init.timer_handler == NULL){
+        return;
+    }
     uint64_t delay = gpioasm_read_varint(engine);
     NRF_LOG_DEBUG("instruction sleep: %i\n", delay);
     engine->init.timer_handler(delay, true);
 }
 
 bool gpioasm_filter_matches_digital_input_pins(gpioasm_engine_t *engine, uint8_t *pin_filter_data, uint32_t pin_filter_length, bool match_all) {
+    if(engine->init.pin_digital_input_provider == NULL){
+        return;
+    }
+    
     bool result = false;
     uint32_t pin_count = pin_filter_length * 4;
     for (uint32_t index = 0; index < pin_count; index++) {
@@ -194,6 +212,10 @@ void gpioasm_execute_instruction_sleep_match(gpioasm_engine_t *engine, bool matc
 }
 
 void gpioasm_execute_instruction_sleep_match_timeout(gpioasm_engine_t *engine, bool match_all, bool *should_run_next) {
+    if(engine->init.timer_handler == NULL){
+        return;
+    }
+
     bool match_condition_fulfilled;
 
     gpioasm_execute_instruction_sleep_match(engine, match_all, &match_condition_fulfilled);
@@ -223,6 +245,10 @@ void gpioasm_execute_instruction_sleep_match_timeout(gpioasm_engine_t *engine, b
 }
 
 void gpioasm_handle_digital_input_update(gpioasm_engine_t *engine, uint32_t index, bool is_high) {
+    if(engine->init.timer_handler == NULL){
+        return;
+    }
+
     if (engine->sequence_sleep_condition == SLEEP_NO_CONDITION) {
         return;
     }

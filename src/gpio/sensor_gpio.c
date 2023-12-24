@@ -61,11 +61,21 @@ gpio_config_input_digital_t *find_gpio_input_by_index(uint32_t index){
   return &(config->pin.input);
 }
 
-void gpio_write_output_digital_pin(uint32_t index, uint8_t new_state, uint8_t old_state) {
+void gpio_write_output_digital_pin(uint32_t index, uint8_t new_state) {
+  if(new_state == 0b11){
+    // 0b11 means ignore
+    return;
+  }
+  
   gpio_config_output_digital_t *config = find_gpio_output_by_index(index);
   if(config == NULL){
     return;
   }
+
+  if(config->state == new_state){
+    return;
+  }
+
   uint32_t pin = config->pin;
 
   if (new_state == 0b10){
@@ -73,7 +83,7 @@ void gpio_write_output_digital_pin(uint32_t index, uint8_t new_state, uint8_t ol
     nrf_gpio_cfg_input(config->pin, NRF_GPIO_PIN_NOPULL);
   }
   else{
-    if (old_state == 0b10){
+    if (config->state == 0b10){
       // was in high-impedance, need to reconfigure as output
       nrf_gpio_cfg_output(config->pin);
     }
@@ -151,7 +161,7 @@ void gpio_configure_aio_outputs_digital() {
       continue;
     }
     nrf_gpio_cfg_output(config->pin.output.pin);
-    gpio_write_output_digital_pin(i, config->pin.output.default_state, 0xFF);
+    gpio_write_output_digital_pin(i, config->pin.output.default_state);
     current_index++;
   };
 }

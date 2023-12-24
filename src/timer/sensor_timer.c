@@ -43,11 +43,11 @@ void sensor_timer_initialize_debounce_timers(uint32_t input_count, debounce_time
     debounce_timer_timeout_handler = timeout_handler;
 }
 
-void timer_sequence_stop() {
+void timer_gpioasm_stop() {
     app_timer_stop(sequence_timer);
 }
 
-void timer_sequence_start_ticks(uint64_t total_ticks, uint64_t *remaining_ticks) {
+void timer_gpioasm_start_ticks(uint64_t total_ticks, uint64_t *remaining_ticks) {
     uint32_t actual_ticks = MIN(total_ticks, MAX_TICKS);
     *remaining_ticks = total_ticks - actual_ticks;
 
@@ -61,7 +61,7 @@ void timer_sequence_start_ticks(uint64_t total_ticks, uint64_t *remaining_ticks)
 
 void timer_sequence_timeout_handler(void *context) {
     if (sequence_timer_remaining_ticks > 0) {
-        timer_sequence_start_ticks(sequence_timer_remaining_ticks, &sequence_timer_remaining_ticks);
+        timer_gpioasm_start_ticks(sequence_timer_remaining_ticks, &sequence_timer_remaining_ticks);
         return;
     }
     if (sequence_timer_handler == NULL) {
@@ -74,9 +74,9 @@ void timer_sequence_set_timeout_handler(sequence_timer_handler_t timeout_handler
     sequence_timer_handler = timeout_handler;
 }
 
-void timer_sequence_start(uint64_t millis) {
+void timer_gpioasm_start(uint64_t millis) {
     uint64_t total_ticks = APP_TIMER_TICKS(millis, APP_TIMER_PRESCALER);
-    timer_sequence_start_ticks(total_ticks, &sequence_timer_remaining_ticks);
+    timer_gpioasm_start_ticks(total_ticks, &sequence_timer_remaining_ticks);
 }
 
 void timer_init() {

@@ -3,13 +3,16 @@
 #include "encoding.h"
 #include "app_error.h"
 #include "ble_automation_io_service.h"
-#include "sequence.h"
+#include "gpioasm.h"
+#include "sensor_timer.h"
 
 uint16_t ble_gpio_asm_connection_handle;
 uint16_t ble_gpio_asm_service_handle;
 uint16_t ble_gpio_asm_characteristic_data_handle;
 
 uint8_t ble_gpio_asm_custom_uuid_type;
+
+gpioasm_engine_t engine;
 
 ret_code_t ble_gpio_asm_characteristic_asm_data_add()
 {
@@ -33,11 +36,11 @@ uint8_t ble_gpio_asm_handle_data_write(uint8_t *data, uint32_t length)
 
     if (length == 0)
     {
-        sequence_stop(true);
+        gpioasm_stop(&engine);
         return is_overflown;
     }
 
-    uint8_t result = sequence_push_packet(data, length);
+    uint8_t result = gpioasm_push_packet(&engine, data, length);
     if (result == PUSH_OVERFLOW)
     {
         NRF_LOG_ERROR("buffer overflown\n");
@@ -58,14 +61,14 @@ uint8_t ble_gpio_asm_handle_data_write(uint8_t *data, uint32_t length)
             return is_overflown;
         }
         NRF_LOG_DEBUG("last packet\n");
-        sequence_start();
+        gpioasm_start(&engine);
     }
     return is_overflown;
 }
 
 void ble_gpio_asm_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
 {
-    sequence_handle_digital_input_update(index, config->state);
+    gpioasm_handle_digital_input_update(&engine, index, config->state);
 }
 
 void ble_gpio_asm_on_connect(ble_evt_t *p_ble_evt)
@@ -161,6 +164,18 @@ void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt)
     }
 }
 
+void ble_gpioasm_timer_handler(uint64_t timeout, bool start){
+    if(start){
+        timer_gpioasm_start(timeout);
+    }else{
+        timer_gpioasm_stop();
+    }
+}
+
+void ble_gpioasm_timer_timeout_handler(){
+    gpioasm_handle_timer_timeout(&engine);
+}
+
 void ble_gpio_asm_init(){
     ret_code_t err_code;
 
@@ -186,14 +201,13 @@ void ble_gpio_asm_init(){
     err_code = ble_gpio_asm_characteristic_asm_data_add();
     APP_ERROR_CHECK(err_code);
 
-    uint32_t output_digital_pin_count = gpio_get_output_digital_pin_count();
-    uint32_t output_analog_pin_count = gpio_get_output_analog_pin_count();
-    uint32_t input_digital_pin_count = gpio_get_input_digital_pin_count();
+    gpioasm_engine_init_t engine_init = {
+        .timer_handler = ble_gpioasm_timer_handler,
+        .pin_digital_output_handler = gpio_write_output_digital_pin,
+        .pin_analog_output_handler = ble_aio_handle_pin_analog_data,
+        .pin_digital_input_provider = gpio_get_input_digital_state
+    };
 
-    sequence_init(
-        encoding_get_byte_count_from_pins(output_digital_pin_count),
-        encoding_get_byte_count_from_pins(input_digital_pin_count),
-        output_analog_pin_count,
-        ble_aio_handle_pin_digital_data,
-        ble_aio_handle_pin_analog_data);
+    gpioasm_init(&engine, &engine_init);
+    timer_sequence_set_timeout_handler(ble_gpioasm_timer_timeout_handler);
 }

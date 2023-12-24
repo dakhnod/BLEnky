@@ -15,7 +15,7 @@ typedef void (*sequence_timer_handler_t)(void);
 void timer_init(void);
 void sensor_timer_debounce_timer_start(uint32_t timer_index);
 void sensor_timer_initialize_debounce_timers(uint32_t input_count, debounce_timer_timeout_handler_t timeout_handler);
-void timer_sequence_start(uint64_t millis);
-void timer_sequence_stop();
+void timer_gpioasm_start(uint64_t millis);
+void timer_gpioasm_stop();
 void timer_sequence_set_timeout_handler(sequence_timer_handler_t timeout_handler);
 #endif

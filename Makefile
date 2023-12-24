@@ -231,7 +231,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s130/headers \
   $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
 
-BOARD := WT51822_S4AT
+BOARD ?= WT51822_S4AT
 SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 CFLAGS += -DNRF51
@@ -260,7 +260,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
   $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
 
-BOARD := HOLYIOT_17095
+BOARD ?= HOLYIOT_17095
 SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_3.0.0_softdevice.hex
 
 CFLAGS += -DNRF52
@@ -299,7 +299,7 @@ CFLAGS += -DNRF_DFU_SETTINGS_VERSION=1
 CFLAGS += -DUSE_DFU
 #CFLAGS += -DUSE_SPI
 #CFLAGS += -DUSE_UART
-ifeq ($(BOARD), WT51822-S4AT)
+ifeq ($(BOARD), BLE400)
 CFLAGS += -DDEBUG
 endif
 CFLAGS += -DBUTTON_PIN=BUTTON_0

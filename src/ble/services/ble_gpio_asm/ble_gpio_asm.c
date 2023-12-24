@@ -164,7 +164,7 @@ void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_gpioasm_timer_handler(uint64_t timeout, bool start){
+void ble_gpioasm_timer_handler(void *engine, uint64_t timeout, bool start){
     if(start){
         timer_gpioasm_start(timeout);
     }else{

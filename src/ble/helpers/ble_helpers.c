@@ -59,11 +59,12 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
   };
 
   ble_gatts_attr_md_t attr_md = {
-      .vloc = BLE_GATTS_VLOC_STACK,
+      .vloc = init->location_user ? BLE_GATTS_VLOC_USER : BLE_GATTS_VLOC_STACK,
       .rd_auth = init->authorize_read,
       .wr_auth = init->authorize_write,
       .vlen = 1,
   };
+
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
 
@@ -97,7 +98,8 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
         .vlen = 0x00,
         .vloc = BLE_GATTS_VLOC_STACK,
         .rd_auth = 0,
-        .wr_auth = 0 };
+        .wr_auth = 0
+    };
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&number_of_digitals_metadata.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&number_of_digitals_metadata.write_perm);
 

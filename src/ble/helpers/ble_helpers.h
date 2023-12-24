@@ -18,6 +18,7 @@ typedef struct {
   uint16_t *cccd_handle;
   uint8_t *initial_value;
   uint16_t initial_value_length;
+  bool location_user;
 } ble_helper_characteristic_init_t;
 
 ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t*);

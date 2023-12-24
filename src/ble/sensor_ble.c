@@ -12,6 +12,7 @@
 #include "ble_conn_state.h"
 #include "fds.h"
 #include "sleep.h"
+#include "ble_temperature_service.h"
 
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
@@ -465,6 +466,8 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     #if FEATURE_ENABLED(HID)
     ble_hid_on_ble_evt(p_ble_evt);
     #endif
+
+    ble_temperature_on_ble_evt(p_ble_evt);
 }
 
 
@@ -814,6 +817,9 @@ void services_init(void) {
     err_code = ble_csc_init();
     APP_ERROR_CHECK(err_code);
     #endif
+
+    err_code = ble_temperature_init();
+    APP_ERROR_CHECK(err_code);
 
     // TODO: add BSS init here
 }

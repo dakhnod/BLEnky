@@ -1,20 +1,20 @@
-TARGETS          := nrf51822_xxac
+TARGETS          ?= nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
 BLE_ROOT ?= ../..
-SDK_ROOT := $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
+SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
-APPLICATION_HEX := $(OUTPUT_DIRECTORY)/$(TARGETS).hex
-KEY_FILE := $(BLE_ROOT)/private.pem
-PROJECT_ID := $(shell basename `pwd`)
-OUT_ZIP := $(PROJECT_ID)_$(FAMILY).zip
+APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
+KEY_FILE ?= $(BLE_ROOT)/private.pem
+PROJECT_ID ?= $(shell basename `pwd`)
+OUT_ZIP ?= $(PROJECT_ID)_$(FAMILY).zip
 
 SHELL := /bin/bash
 
 PROJ_DIR := .
 CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
-ADB_TARGET := Pixel-5
-ADB_DIRECTORY := /sdcard/dfu
+ADB_TARGET ?= Pixel-5
+ADB_DIRECTORY ?= /sdcard/dfu
 
 FIRMWARE_VERSION := \"0.8.0\"
 

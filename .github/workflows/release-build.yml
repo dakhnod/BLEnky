@@ -1,0 +1,64 @@
+name: Automated firmware build for release
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  build:
+    runs-on: [self-hosted, firmware-builder]
+    env:
+      BLE_ROOT: ../../../../
+
+    steps:
+    - name: extract code version
+      id: code-version
+      run: echo "VERSION=$(echo ${{ github.ref }} | cut -c 12-)" >> $GITHUB_OUTPUT
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: check code version
+      run: grep ${{ steps.code-version.outputs.VERSION }} Makefile
+    - name: parse feature template
+      uses: cuchi/jinja2-action@v1.2.2
+      with:
+        template: src/config/feature_config.template.h.jinja
+        output_file: src/config/feature_config.template.h
+    - name: set PATH
+      run: echo "../../../../" >> $GITHUB_PATH
+    - name: build firmware for nRF51 (no crystal)
+      run: make clean sign
+      env:
+        FAMILY: NRF51
+        OUT_ZIP: nrf51_no_crystal.zip
+        BOARD: WT51822_S4AT
+    - name: build firmware for nRF51 (crystal)
+      run: make clean sign
+      env:
+        FAMILY: NRF51
+        OUT_ZIP: nrf51_crystal.zip
+        BOARD: BEACON_SMALL
+    - name: build firmware for nRF52 (no crystal)
+      run: make clean sign
+      env:
+        FAMILY: NRF52
+        OUT_ZIP: nrf52_no_crystal.zip
+        BOARD: HOLYIOT_17095
+    - name: Upload nRF51 (no crystal) firmware to latest release
+      uses: svenstaro/upload-release-action@2.7.0
+      with:
+        file: nrf51_no_crystal.zip
+        asset_name: nrf51_no_crystal_${{ steps.code-version.outputs.VERSION }}.zip
+        overwrite: true
+    - name: Upload nRF51 (crystal) firmware to latest release
+      uses: svenstaro/upload-release-action@2.7.0
+      with:
+        file: nrf51_crystal.zip
+        asset_name: nrf51_crystal_${{ steps.code-version.outputs.VERSION }}.zip
+        overwrite: true
+    - name: Upload nRF52 (no crystal) firmware to latest release
+      uses: svenstaro/upload-release-action@2.7.0
+      with:
+        file: nrf52_no_crystal.zip
+        asset_name: nrf52_no_crystal_${{ steps.code-version.outputs.VERSION }}.zip
+        overwrite: true

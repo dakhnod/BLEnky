@@ -1,6 +1,9 @@
 name: Automated firmware test
 
-on: workflow_dispatch
+on: [workflow_dispatch, push]
+
+concurrency:
+  group: firmware-test
 
 jobs:
   build:
@@ -23,6 +26,7 @@ jobs:
       with:
         name: firmware-file
         path: _build/nrf51822_xxac.hex
+
   flash:
     runs-on: [self-hosted, firmware-flasher]
     needs: build
@@ -36,3 +40,17 @@ jobs:
     - name: flash firmware
       working-directory: /home/home/Projects/BLEnky/openocd
       run: src/openocd -s tcl -f raspi-bcm2385.tcl -f nrf51.cfg -c "program /tmp/nrf51_firmware/nrf51822_xxac.hex verify reset exit"
+
+  test:
+    runs-on: [self-hosted, firmware-flasher]
+    needs: flash
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: dakhnod/BLEnky-testing-kit
+        submodules: true
+        path: testing-kit
+    - name: run test script
+      run: python -u main.py -a "F2:B4:78:83:18:E1" -o 6 13 19 26 -i 12 16 20 21
+      working-directory: testing-kit

@@ -245,10 +245,14 @@
 //<o>Sleep mode
 //<0=> Light sleep (RAM retention)
 //<1=> Deep sleep (no RAM retention)
+#ifndef SLEEP_MODE
 #define SLEEP_MODE 0x1
+#endif
 
 //<o>Sleep timeout in minutes <0-180>
+#ifndef SLEEP_TIMEOUT_MINUTES
 #define SLEEP_TIMEOUT_MINUTES 5
+#endif
 #endif
 
 //<e>Go to light sleep after graceful disconnect

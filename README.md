@@ -1,6 +1,7 @@
 # BLEnky
 
-![Firmware test badge](https://github.com/dakhnod/blenky/actions/workflows/firmware-test.yml/badge.svg)
+[![Firmware test badge](https://github.com/dakhnod/blenky/actions/workflows/firmware-test.yml/badge.svg 'Firmware test badge')](https://github.com/dakhnod/BLEnky/actions/workflows/firmware-test.yml)
+
 
 ![Running sequence](https://user-images.githubusercontent.com/26143255/189000402-cf582116-7096-429b-8a44-aa2442ba5524.gif)
 

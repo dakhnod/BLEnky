@@ -227,9 +227,20 @@ void ble_init() {
 
     if(device_name_length == 0){
         // set default device name
+        ble_gap_addr_t addr;
+
+        #ifdef S130
+        APP_ERROR_CHECK(sd_ble_gap_address_get(&addr));
+        #else
+        APP_ERROR_CHECK(sd_ble_gap_addr_get(&addr));
+        #endif
+        
+
+        snprintf((char*) device_name, LENGTH_DEVICE_NAME, DEVICE_NAME " %02X:%02X:%02X", addr.addr[2], addr.addr[1], addr.addr[0]);
+
         gap_params_init(
-            (uint8_t*) DEVICE_NAME,
-            strlen(DEVICE_NAME)
+            device_name,
+            strlen((char*) device_name)
         );
     }else {
         gap_params_init(

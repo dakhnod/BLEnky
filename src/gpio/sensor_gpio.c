@@ -11,6 +11,8 @@ uint32_t gpio_output_digital_pin_count = 0;
 uint32_t gpio_output_analog_pin_count = 0;
 uint32_t gpio_input_digital_pin_count = 0;
 
+uint16_t analog_output_values[2] = {0};
+
 typedef enum {
   OUTPUT,
   INPUT
@@ -30,6 +32,7 @@ gpio_input_change_handler_t gpio_input_change_handler = NULL;
 
 app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, APP_PWM_NOPIN, APP_PWM_NOPIN);
 APP_PWM_INSTANCE(pwm0, 1);
+// don't forget to update analog_output_values
 
 gpio_config_t *find_gpio_config_by_index(uint32_t index, direction_t direction){
   for(uint32_t i = 0; i < TOTAL_PIN_COUNT_MAX; i++){
@@ -167,6 +170,25 @@ void gpio_configure_aio_outputs_digital() {
 }
 
 void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value){
+  // value unchanged
+  if(analog_output_values[index] == value){
+    return;
+  }
+
+  analog_output_values[index] = value;
+
+  // where does 40000 come from? not sure, probably that's how the PWM is configured
+  // so that 40000 == 100%
+  if((value == 0) || (value >= 40000)){
+    app_pwm_disable(&pwm0);
+    uint8_t disabled_state = (value != 0);
+    // flip pin state if pin is active low
+    disabled_state ^= gpio_output_analog_config.pin_polarity[index] == APP_PWM_POLARITY_ACTIVE_LOW;
+    nrf_gpio_pin_write(gpio_output_analog_config.pins[index], disabled_state);
+    return;
+  }
+
+  app_pwm_enable(&pwm0);
   while (app_pwm_channel_duty_ticks_set(&pwm0, index, value) == NRF_ERROR_BUSY);
 }
 
@@ -179,7 +201,7 @@ void gpio_configure_aio_outputs_analog(){
   err_code = app_pwm_init(&pwm0, &gpio_output_analog_config, NULL);
   APP_ERROR_CHECK(err_code);
 
-  app_pwm_enable(&pwm0);
+  // did enable here, but moved to conditional enable in gpio_write_output_analog_pin_ticks()
 }
 
 void on_pin_changed(uint32_t index) {

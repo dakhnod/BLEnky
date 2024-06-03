@@ -99,25 +99,25 @@
 
 // <e>Custom advertisement data enabled
 #ifndef FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED
-#define FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED 1
+#define FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED 0
 #endif
 
 #if FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED == 1
 
 // <o>Custom data advertisement interval (ms) <500-5000>
 #ifndef ADVERTISEMENT_INTERVAL_CUSTOM_DATA
-#define ADVERTISEMENT_INTERVAL_CUSTOM_DATA 500
+#define ADVERTISEMENT_INTERVAL_CUSTOM_DATA 1000
 #endif
 
-// <o>Slow advertisement duration (s) <0-1440>
+// <o>Custom data advertisement duration (s) <0-1440>
 // <i>Set to 0 for infinite
 #ifndef ADVERTISEMENT_TIMEOUT_CUSTOM_DATA
-#define ADVERTISEMENT_TIMEOUT_CUSTOM_DATA 5
+#define ADVERTISEMENT_TIMEOUT_CUSTOM_DATA 300
 #endif
 
 // <o>Custom advertisement data
 #ifndef ADVERTISEMENT_CUSTOM_DATA
-#define ADVERTISEMENT_CUSTOM_DATA 0x3c, 0x37, 0xc2, 0xb8, 0x20, 0xe2, 0x1e, 0xff, 0x4c, 0x0, 0x12, 0x19, 0x0, 0x58, 0xd5, 0x7e, 0xd4, 0x84, 0xf9, 0x4c, 0xdc, 0x29, 0xbe, 0x42, 0x29, 0xda, 0x39, 0xe8, 0xbc, 0xf4, 0x50, 0xfa, 0xed, 0x9d, 0xbc, 0x3, 0x0
+#define ADVERTISEMENT_CUSTOM_DATA 0xhex, 0xstring, 0xhere
 #endif
 
 #endif

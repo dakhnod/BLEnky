@@ -21,9 +21,15 @@
 #define APP_ADV_INTERVAL_FAST           MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_FAST, UNIT_0_625_MS)
 #define APP_ADV_INTERVAL_SLOW           MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_SLOW, UNIT_0_625_MS)
 
-#define BLE_DEFAULT_MIN_CONN_INTERVAL   MSEC_TO_UNITS(BLE_MIN_CONN_INTERVAL, UNIT_1_25_MS)
-#define BLE_DEFAULT_MAX_CONN_INTERVAL   MSEC_TO_UNITS(BLE_MAX_CONN_INTERVAL, UNIT_1_25_MS)
-#define BLE_DEFAULT_CONN_SUP_TIMEOUT    MSEC_TO_UNITS(BLE_CONN_SUP_TIMEOUT, UNIT_10_MS)
+#define BLE_NO_OUTPUTS_DEFAULT_MIN_CONN_INTERVAL   MSEC_TO_UNITS(100, UNIT_1_25_MS)
+#define BLE_NO_OUTPUTS_DEFAULT_MAX_CONN_INTERVAL   MSEC_TO_UNITS(300, UNIT_1_25_MS)
+#define BLE_NO_OUTPUTS_DEFAULT_SLAVE_LATENCY       15
+#define BLE_NO_OUTPUTS_DEFAULT_CONN_SUP_TIMEOUT    MSEC_TO_UNITS(31000, UNIT_10_MS)
+
+#define BLE_OUTPUTS_DEFAULT_MIN_CONN_INTERVAL      MSEC_TO_UNITS(100, UNIT_1_25_MS)
+#define BLE_OUTPUTS_DEFAULT_MAX_CONN_INTERVAL      MSEC_TO_UNITS(300, UNIT_1_25_MS)
+#define BLE_OUTPUTS_DEFAULT_SLAVE_LATENCY          0
+#define BLE_OUTPUTS_DEFAULT_CONN_SUP_TIMEOUT       MSEC_TO_UNITS(6100, UNIT_10_MS)
 
 #define NRF_BLE_MAX_MTU_SIZE    GATT_MTU_SIZE_DEFAULT
 
@@ -706,10 +712,18 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
         NRF_LOG_WARNING("Connection params not configured\n");
     }
 
-    gap_conn_params.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
-    gap_conn_params.max_conn_interval = BLE_DEFAULT_MAX_CONN_INTERVAL;
-    gap_conn_params.slave_latency = BLE_SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT;
+    // if we have no outputs, we can sleep a lot more since we don't have to receive any data
+    if(gpio_get_output_digital_pin_count() == 0){
+        gap_conn_params.min_conn_interval = BLE_NO_OUTPUTS_DEFAULT_MIN_CONN_INTERVAL;
+        gap_conn_params.max_conn_interval = BLE_NO_OUTPUTS_DEFAULT_MAX_CONN_INTERVAL;
+        gap_conn_params.slave_latency     = BLE_NO_OUTPUTS_DEFAULT_SLAVE_LATENCY;
+        gap_conn_params.conn_sup_timeout  = BLE_NO_OUTPUTS_DEFAULT_CONN_SUP_TIMEOUT;
+    }else{
+        gap_conn_params.min_conn_interval = BLE_OUTPUTS_DEFAULT_MIN_CONN_INTERVAL;
+        gap_conn_params.max_conn_interval = BLE_OUTPUTS_DEFAULT_MAX_CONN_INTERVAL;
+        gap_conn_params.slave_latency     = BLE_OUTPUTS_DEFAULT_SLAVE_LATENCY;
+        gap_conn_params.conn_sup_timeout  = BLE_OUTPUTS_DEFAULT_CONN_SUP_TIMEOUT;
+    }
     err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
     APP_ERROR_CHECK(err_code);
 

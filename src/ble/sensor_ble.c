@@ -713,7 +713,8 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     }
 
     // if we have no outputs, we can sleep a lot more since we don't have to receive any data
-    if(gpio_get_output_digital_pin_count() == 0){
+    // if no pins are configured at all though we should stay latent for configuration
+    if(gpio_get_output_digital_pin_count() == 0 && gpio_get_input_digital_pin_count() > 0){
         gap_conn_params.min_conn_interval = BLE_NO_OUTPUTS_DEFAULT_MIN_CONN_INTERVAL;
         gap_conn_params.max_conn_interval = BLE_NO_OUTPUTS_DEFAULT_MAX_CONN_INTERVAL;
         gap_conn_params.slave_latency     = BLE_NO_OUTPUTS_DEFAULT_SLAVE_LATENCY;

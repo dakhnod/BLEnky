@@ -300,10 +300,12 @@ void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config
     ble_bss_handle_input_change(index, config);
     #endif
 
+    #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
     if(custom_advertisement_running){
         // currently in custom data advertisement mode
         custom_data_advertisement_stop();
     }
+    #endif
 
     bool is_connected = (connection_handle != BLE_CONN_HANDLE_INVALID);
     if(!is_connected && !is_advertising){
@@ -476,14 +478,18 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
             ble_advertising_on_ble_evt(p_ble_evt);
         }
     }else if(p_ble_evt->header.evt_id == BLE_GAP_EVT_TIMEOUT){
-        if(FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA) && custom_advertisement_running){
-            NRF_LOG_DEBUG("returning to slow advertising\n");
-            custom_data_advertisement_stop();
-            ret_code_t err_code = ble_advertising_start(BLE_ADV_MODE_SLOW);
-            APP_ERROR_CHECK(err_code);
-        }else{
+        #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+            if(custom_advertisement_running){
+                NRF_LOG_DEBUG("returning to slow advertising\n");
+                custom_data_advertisement_stop();
+                ret_code_t err_code = ble_advertising_start(BLE_ADV_MODE_SLOW);
+                APP_ERROR_CHECK(err_code);
+            }else{
+                ble_advertising_on_ble_evt(p_ble_evt);
+            }
+        #else
             ble_advertising_on_ble_evt(p_ble_evt);
-        }
+        #endif
     }else{
         ble_advertising_on_ble_evt(p_ble_evt);
     }
@@ -566,6 +572,7 @@ void set_addr_from_data(uint8_t *key) {
     APP_ERROR_CHECK(ret_code);
 }
 
+#if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
 void custom_data_advertisement_start(){
     if(custom_advertisement_running){
         return;
@@ -612,7 +619,9 @@ void custom_data_advertisement_start(){
     custom_advertisement_running = true;
     is_advertising = true;
 }
+#endif
 
+#if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
 void custom_data_advertisement_stop(){
     if(!custom_advertisement_running){
         return;
@@ -632,6 +641,7 @@ void custom_data_advertisement_stop(){
     custom_advertisement_running = false;
     is_advertising = false;
 }
+#endif
 
 void advertising_event_handler(ble_adv_evt_t event) {
     is_advertising = event != BLE_ADV_EVT_IDLE;

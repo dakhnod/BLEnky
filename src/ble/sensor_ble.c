@@ -31,6 +31,12 @@
 #define BLE_OUTPUTS_DEFAULT_SLAVE_LATENCY          0
 #define BLE_OUTPUTS_DEFAULT_CONN_SUP_TIMEOUT       MSEC_TO_UNITS(6100, UNIT_10_MS)
 
+#define STATUS_BATTERY_POSITION          6
+#define STATUS_BATTERY_LEVEL_FULL     0b00
+#define STATUS_BATTERY_LEVEL_MEDIUM   0b01
+#define STATUS_BATTERY_LEVEL_LOW      0b10
+#define STATUS_BATTERY_LEVEL_CRITICAL 0b11
+
 #define NRF_BLE_MAX_MTU_SIZE    GATT_MTU_SIZE_DEFAULT
 
 ble_dfu_t dfu;
@@ -565,6 +571,20 @@ void custom_data_advertisement_start(){
         return;
     }
     uint8_t data[] = { ADVERTISEMENT_CUSTOM_DATA };
+
+    uint8_t battery_level = battery_level_get();
+
+    uint8_t status_battery = STATUS_BATTERY_LEVEL_FULL;
+
+    if(battery_level < 25){
+        status_battery = STATUS_BATTERY_LEVEL_CRITICAL;
+    }else if(battery_level < 50){
+        status_battery = STATUS_BATTERY_LEVEL_LOW;
+    }else if(battery_level < 75){
+        status_battery = STATUS_BATTERY_LEVEL_MEDIUM;
+    }
+
+    data[12] |= status_battery << STATUS_BATTERY_POSITION;
 
     set_addr_from_data(data);
 

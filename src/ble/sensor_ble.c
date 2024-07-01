@@ -606,6 +606,9 @@ void custom_data_advertisement_start(){
     NRF_LOG_DEBUG("after advdata\n");
 
     static ble_gap_adv_params_t m_adv_params = {
+        #if CUSTOM_ADVERTISEMENT_CONNECTABLE == 1
+        .type        = BLE_GAP_ADV_TYPE_ADV_IND,
+        #else
         .type        = BLE_GAP_ADV_TYPE_ADV_NONCONN_IND,
         #endif
         .p_peer_addr = NULL,

@@ -607,6 +607,7 @@ void custom_data_advertisement_start(){
 
     static ble_gap_adv_params_t m_adv_params = {
         .type        = BLE_GAP_ADV_TYPE_ADV_NONCONN_IND,
+        #endif
         .p_peer_addr = NULL,
         .fp          = BLE_GAP_ADV_FP_ANY,
         .interval    = ADVERTISEMENT_INTERVAL_CUSTOM_DATA,

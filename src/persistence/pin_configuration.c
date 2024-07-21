@@ -23,7 +23,7 @@ uint8_t is_output_pin_analog(uint8_t pin_byte) {
 }
 
 uint8_t get_output_digital_pin_default_state(uint8_t pin_byte) {
-  return (pin_byte & 0b0010) & 0b0010;
+  return (pin_byte & 0b0010) == 0b0010;
 }
 
 uint8_t is_input_pin_enabled(uint8_t pin_byte) {
@@ -35,7 +35,7 @@ uint8_t get_input_digital_pin_pull(uint8_t pin_byte) {
 }
 
 uint8_t get_pin_invert(uint8_t pin_byte) {
-  return (pin_byte & 0b0001) & 0b0001;
+  return (pin_byte & 0b0001) == 0b0001;
 }
 
 void parse_pin_byte(uint32_t pin_index, uint8_t pin_data) {

@@ -163,8 +163,7 @@ void gpio_configure_aio_outputs_digital() {
     if(config->direction != OUTPUT){
       continue;
     }
-    nrf_gpio_cfg_output(config->pin.output.pin);
-    gpio_write_output_digital_pin(i, config->pin.output.default_state);
+    gpio_write_output_digital_pin(current_index, config->pin.output.default_state);
     current_index++;
   };
 }
@@ -309,7 +308,8 @@ void gpio_handle_parse_output_digital(uint32_t index, uint32_t pin, uint8_t defa
   config->direction = OUTPUT;
   config->pin.output.pin = pin;
   config->pin.output.default_state = default_state;
-  config->pin.output.invert = invert;
+  config->pin.output.invert = invert; 
+  config->pin.output.state = 0b10; // force output pin configuration
 }
 
 void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t invert) {
@@ -355,6 +355,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
       gpio_configs[current_index].pin.output.pin = pin_index; \
       gpio_configs[current_index].pin.output.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
       gpio_configs[current_index].pin.output.default_state = GPIO_CONFIGURATION_PIN_##pin_index##_DEFAULT_OUTPUT; \
+      gpio_configs[current_index].pin.output.state = 0b10; \
     } \
   }while (false)
 

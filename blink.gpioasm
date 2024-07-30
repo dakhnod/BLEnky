@@ -1,0 +1,10 @@
+label start
+
+write_digital 1
+sleep_ms 100
+write_digital 0
+sleep_ms 100
+
+jump_count start 9
+
+write_digital i

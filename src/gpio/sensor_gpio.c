@@ -86,8 +86,8 @@ void gpio_write_output_digital_pin(uint32_t index, uint8_t new_state) {
     nrf_gpio_cfg_input(config->pin, NRF_GPIO_PIN_NOPULL);
   }
   else{
-    if (config->state == 0b10){
-      // was in high-impedance, need to reconfigure as output
+    if ((config->state == 0b10) || (config->state == 0xff)){
+      // was in high-impedance or unconfigured, need to reconfigure as output
       nrf_gpio_cfg_output(config->pin);
     }
 
@@ -309,7 +309,7 @@ void gpio_handle_parse_output_digital(uint32_t index, uint32_t pin, uint8_t defa
   config->pin.output.pin = pin;
   config->pin.output.default_state = default_state;
   config->pin.output.invert = invert; 
-  config->pin.output.state = 0b11; // force output pin configuration
+  config->pin.output.state = 0xff; // force output pin configuration
 }
 
 void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t invert) {
@@ -355,7 +355,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
       gpio_configs[current_index].pin.output.pin = pin_index; \
       gpio_configs[current_index].pin.output.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
       gpio_configs[current_index].pin.output.default_state = GPIO_CONFIGURATION_PIN_##pin_index##_DEFAULT_OUTPUT; \
-      gpio_configs[current_index].pin.output.state = 0b11; \
+      gpio_configs[current_index].pin.output.state = 0xff; \
     } \
   }while (false)
 

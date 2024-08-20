@@ -30,6 +30,16 @@ uint16_t get_time_units(){
     return (get_rtc1_ticks() / 32) % 65536;
 }
 
+void csc_encode(uint8_t buffer[7]){
+    buffer[0] = CSC_MEAS_FLAG_MASK_WHEEL_REV_DATA_PRESENT;
+
+    // copy wheel revolutions
+    memcpy(buffer + 1, &last_revolution_count, 4);
+
+    // copy lasst wheel revolution time
+    memcpy(buffer + 5, &last_revolution_time, 2);
+}
+
 void ble_csc_measurement_report(){
     ret_code_t err_code;
 
@@ -40,13 +50,8 @@ void ble_csc_measurement_report(){
 
     uint16_t len = 7;
     static uint8_t buffer[7];
-    buffer[0] = CSC_MEAS_FLAG_MASK_WHEEL_REV_DATA_PRESENT;
 
-    // copy wheel revolutions
-    memcpy(buffer + 1, &last_revolution_count, 4);
-
-    // copy lasst wheel revolution time
-    memcpy(buffer + 5, &last_revolution_time, 2);
+    csc_encode(buffer);
 
     ble_gatts_hvx_params_t params = {
         .handle = ble_csc_measurement_write_handle,
@@ -125,7 +130,9 @@ ret_code_t ble_csc_characteristic_measurement_add()
   ble_helper_characteristic_init_t init = {
     .service_handle = ble_csc_service_handle,
     .uuid = UUID_CSC_CHARACTERISTIC_SPEED_MEASUREMENT,
+    .is_readable = true,
     .is_notifiable = true,
+    .authorize_read = true,
     .max_length = 7,
     .value_handle = &ble_csc_measurement_write_handle,
     .cccd_handle = &ble_csc_measurement_cccd_handle
@@ -152,6 +159,52 @@ void ble_csc_on_write(ble_evt_t *p_ble_evt)
     }
 }
 
+void ble_csc_on_authroize_measurement()
+{
+    uint8_t buffer[7];
+
+    csc_encode(buffer);
+
+    ble_gatts_rw_authorize_reply_params_t authorize_params = {
+        .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
+        .params.read = {
+            .gatt_status = BLE_GATT_STATUS_SUCCESS,
+            .update = 1,
+            .offset = 0,
+            .len = 7,
+            .p_data = buffer
+        }
+    };
+
+    sd_ble_gatts_rw_authorize_reply(
+        ble_csc_connection_handle,
+        &authorize_params
+    );
+}
+
+void ble_csc_on_authorize(ble_evt_t *p_ble_evt)
+{
+    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+                                                      ->evt.gatts_evt
+                                                      .params
+                                                      .authorize_request);
+
+    if (req->type == BLE_GATTS_AUTHORIZE_TYPE_READ)
+    {
+        uint16_t handle = req
+                              ->request
+                              .read
+                              .handle;
+
+        if (handle == ble_csc_measurement_write_handle)
+        {
+            ble_csc_on_authroize_measurement();
+            return;
+        }
+        return;
+    }
+}
+
 void ble_csc_on_ble_evt(ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
@@ -166,6 +219,10 @@ void ble_csc_on_ble_evt(ble_evt_t *p_ble_evt)
 
     case BLE_GATTS_EVT_WRITE:
         ble_csc_on_write(p_ble_evt);
+        break;
+
+    case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+        ble_csc_on_authorize(p_ble_evt);
         break;
 
     default:

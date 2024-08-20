@@ -8,6 +8,9 @@
 #include "nrf_log.h"
 #include "feature_config.h"
 
+// a CSC measurement that is unchanged (bike standing still) will be re-reported this amount of times
+#define STANDSTILL_REPORT_COUNT_LIMIT 1
+
 uint16_t ble_csc_connection_handle = BLE_CONN_HANDLE_INVALID;
 
 uint16_t ble_csc_service_handle = BLE_GATT_HANDLE_INVALID;
@@ -18,6 +21,7 @@ uint16_t ble_csc_measurement_cccd_handle = BLE_GATT_HANDLE_INVALID;
 uint32_t last_revolution_count = 0;
 uint32_t last_reported_revolution_count = 0xFFFFFFFF;
 uint16_t last_revolution_time = 0;
+uint8_t standstill_report_count = 0xFF;
 
 APP_TIMER_DEF(measurement_report_timer);
 
@@ -70,11 +74,14 @@ void ble_csc_measurement_report(){
 void measurement_timer_timeout_handler(void *context){
     // no change in revolution count, no report needed
     if(last_revolution_count == last_reported_revolution_count){
-        return;
+        if(standstill_report_count >= STANDSTILL_REPORT_COUNT_LIMIT){
+            return;
+        }
+        standstill_report_count++;
     }
 
-    ble_csc_measurement_report();
     last_reported_revolution_count = last_revolution_count;
+    ble_csc_measurement_report();
 }
 
 void ble_csc_timer_init(){
@@ -233,6 +240,7 @@ void ble_csc_on_ble_evt(ble_evt_t *p_ble_evt)
 
 void ble_csc_handle_sensor_trigger(uint32_t trigger_count){
     last_revolution_count = trigger_count;
+    standstill_report_count = 0;
     last_revolution_time = get_time_units();
 }
 

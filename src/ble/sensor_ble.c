@@ -271,7 +271,11 @@ void ble_init() {
     peer_manager_init();
     #endif
 
-    sd_ble_gap_address_get(&ble_address);
+    #ifdef S130
+    APP_ERROR_CHECK(sd_ble_gap_address_get(&ble_address));
+    #else
+    APP_ERROR_CHECK(sd_ble_gap_addr_get(&ble_address));
+    #endif
 
     // allow flash operation to complete. 
     // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
@@ -568,8 +572,11 @@ void set_addr_from_data(uint8_t *key) {
 
     memcpy(address.addr, key, 6);
 
-    ret_code_t ret_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &address);
-    APP_ERROR_CHECK(ret_code);
+    #ifdef S130
+    APP_ERROR_CHECK(sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &address));
+    #else
+    APP_ERROR_CHECK(sd_ble_gap_addr_set(&address));
+    #endif
 }
 
 #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)

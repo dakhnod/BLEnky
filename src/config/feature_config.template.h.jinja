@@ -96,6 +96,39 @@
 #define ADVERTISEMENT_TIMEOUT_SLOW 0
 #endif
 
+
+// <e>Custom advertisement data enabled
+#ifndef FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED
+#define FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED 0
+#endif
+
+#if FEATURE_CUSTOM_ADVERTISEMENT_DATA_ENABLED == 1
+
+// <o>Custom data advertisement interval (ms) <500-5000>
+#ifndef ADVERTISEMENT_INTERVAL_CUSTOM_DATA
+#define ADVERTISEMENT_INTERVAL_CUSTOM_DATA 5000
+#endif
+
+// <o>Custom data advertisement duration (s) <0-1440>
+// <i>Set to 0 for infinite
+#ifndef ADVERTISEMENT_TIMEOUT_CUSTOM_DATA
+#define ADVERTISEMENT_TIMEOUT_CUSTOM_DATA 0
+#endif
+
+// <o>Custom advertisement data
+#ifndef ADVERTISEMENT_CUSTOM_DATA
+#define ADVERTISEMENT_CUSTOM_DATA 0xhex, 0xstring, 0xhere
+#endif
+
+// <e>Connectable in custom advertisement mode
+#ifndef CUSTOM_ADVERTISEMENT_CONNECTABLE
+#define CUSTOM_ADVERTISEMENT_CONNECTABLE 0
+#endif
+// </e>
+
+#endif
+// </e>
+
 // <s.13>Default device name
 #ifndef DEVICE_NAME
 #define DEVICE_NAME "BLEnky"

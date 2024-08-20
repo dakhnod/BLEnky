@@ -31,10 +31,13 @@
 #define BLE_OUTPUTS_DEFAULT_SLAVE_LATENCY          0
 #define BLE_OUTPUTS_DEFAULT_CONN_SUP_TIMEOUT       MSEC_TO_UNITS(6100, UNIT_10_MS)
 
-#define NRF_BLE_MAX_MTU_SIZE    GATT_MTU_SIZE_DEFAULT
+#define STATUS_BATTERY_POSITION          6
+#define STATUS_BATTERY_LEVEL_FULL     0b00
+#define STATUS_BATTERY_LEVEL_MEDIUM   0b01
+#define STATUS_BATTERY_LEVEL_LOW      0b10
+#define STATUS_BATTERY_LEVEL_CRITICAL 0b11
 
-ble_gap_adv_params_t m_adv_params;
-ble_advdata_t advdata;
+#define NRF_BLE_MAX_MTU_SIZE    GATT_MTU_SIZE_DEFAULT
 
 ble_dfu_t dfu;
 
@@ -44,6 +47,11 @@ uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the curr
 
 uint16_t advertising_interval = APP_ADV_INTERVAL_SLOW;
 
+#if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+bool custom_advertisement_running = false;
+void custom_data_advertisement_stop();
+#endif
+ble_gap_addr_t ble_address;
 
 void peer_manager_event_handler(pm_evt_t const *p_evt)
 {
@@ -263,6 +271,8 @@ void ble_init() {
     peer_manager_init();
     #endif
 
+    sd_ble_gap_address_get(&ble_address);
+
     // allow flash operation to complete. 
     // Shitty solution, but for some reason there is no sys_evt fired to indicate a finished flash operation
     nrf_delay_ms(3); 
@@ -290,9 +300,16 @@ void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config
     ble_bss_handle_input_change(index, config);
     #endif
 
+    #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+    if(custom_advertisement_running){
+        // currently in custom data advertisement mode
+        custom_data_advertisement_stop();
+    }
+    #endif
+
     bool is_connected = (connection_handle != BLE_CONN_HANDLE_INVALID);
     if(!is_connected && !is_advertising){
-        // awoke from light sleep mode
+        // awoke from light sleep mode or custom advertising mode
         advertising_start();
     }
 }
@@ -460,6 +477,19 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
         if(can_advertise){
             ble_advertising_on_ble_evt(p_ble_evt);
         }
+    }else if(p_ble_evt->header.evt_id == BLE_GAP_EVT_TIMEOUT){
+        #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+            if(custom_advertisement_running){
+                NRF_LOG_DEBUG("returning to slow advertising\n");
+                custom_data_advertisement_stop();
+                ret_code_t err_code = ble_advertising_start(BLE_ADV_MODE_SLOW);
+                APP_ERROR_CHECK(err_code);
+            }else{
+                ble_advertising_on_ble_evt(p_ble_evt);
+            }
+        #else
+            ble_advertising_on_ble_evt(p_ble_evt);
+        #endif
     }else{
         ble_advertising_on_ble_evt(p_ble_evt);
     }
@@ -529,6 +559,94 @@ void conn_params_init(void) {
     APP_ERROR_CHECK(err_code);
 }
 
+void set_addr_from_data(uint8_t *key) {
+	/* copy first 6 bytes */
+
+    ble_gap_addr_t address = {
+        .addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC
+    };
+
+    memcpy(address.addr, key, 6);
+
+    ret_code_t ret_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &address);
+    APP_ERROR_CHECK(ret_code);
+}
+
+#if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+void custom_data_advertisement_start(){
+    if(custom_advertisement_running){
+        return;
+    }
+    uint8_t data[] = { ADVERTISEMENT_CUSTOM_DATA };
+
+    uint8_t battery_level = battery_level_get();
+
+    uint8_t status_battery = STATUS_BATTERY_LEVEL_FULL;
+
+    if(battery_level < 25){
+        status_battery = STATUS_BATTERY_LEVEL_CRITICAL;
+    }else if(battery_level < 50){
+        status_battery = STATUS_BATTERY_LEVEL_LOW;
+    }else if(battery_level < 75){
+        status_battery = STATUS_BATTERY_LEVEL_MEDIUM;
+    }
+
+    data[12] |= status_battery << STATUS_BATTERY_POSITION;
+
+    set_addr_from_data(data);
+
+    ret_code_t err_code = sd_ble_gap_adv_data_set(
+        data + 6,
+        sizeof(data) - 6,
+        NULL,
+        0
+    );
+    APP_ERROR_CHECK(err_code);
+
+    NRF_LOG_DEBUG("after advdata\n");
+
+    static ble_gap_adv_params_t m_adv_params = {
+        #if CUSTOM_ADVERTISEMENT_CONNECTABLE == 1
+        .type        = BLE_GAP_ADV_TYPE_ADV_IND,
+        #else
+        .type        = BLE_GAP_ADV_TYPE_ADV_NONCONN_IND,
+        #endif
+        .p_peer_addr = NULL,
+        .fp          = BLE_GAP_ADV_FP_ANY,
+        .interval    = ADVERTISEMENT_INTERVAL_CUSTOM_DATA,
+        .timeout     = ADVERTISEMENT_TIMEOUT_CUSTOM_DATA
+    };
+
+    err_code = sd_ble_gap_adv_start(&m_adv_params);
+    APP_ERROR_CHECK(err_code);
+
+    custom_advertisement_running = true;
+    is_advertising = true;
+}
+#endif
+
+#if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+void custom_data_advertisement_stop(){
+    if(!custom_advertisement_running){
+        return;
+    }
+
+    ret_code_t err_code = sd_ble_gap_adv_stop();
+    // advertisement should not be running anyways, so we expect a INVALID_STATE error
+    // APP_ERROR_CHECK(err_code);
+
+    // restore real address
+    err_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &ble_address);
+    APP_ERROR_CHECK(err_code);
+
+    // calling this to restore old advertisement data
+    advertising_init();
+
+    custom_advertisement_running = false;
+    is_advertising = false;
+}
+#endif
+
 void advertising_event_handler(ble_adv_evt_t event) {
     is_advertising = event != BLE_ADV_EVT_IDLE;
     switch (event) {
@@ -540,6 +658,10 @@ void advertising_event_handler(ble_adv_evt_t event) {
             break;
         case BLE_ADV_EVT_IDLE:
             NRF_LOG_DEBUG("advertising mode BLE_ADV_EVT_IDLE\n");
+            #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
+            NRF_LOG_DEBUG("advertising mode custom\n");
+            custom_data_advertisement_start();
+            #endif
             break;
         default:
             NRF_LOG_DEBUG("advertising mode UNKNOWN\n");
@@ -564,7 +686,7 @@ void advertising_init() {
     };
 
     uint8_t uuid_len = 0;
-    ble_uuid_t uuids[4]; // size may be updated ini the future
+    ble_uuid_t uuids[4]; // size may be updated in the future
 
     #if FEATURE_ENABLED(BINARY_SENSOR)
         uuids[uuid_len].uuid = UUID_BINARY_SENSOR_SERVICE;

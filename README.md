@@ -5,6 +5,8 @@
 
 ![Running sequence](https://user-images.githubusercontent.com/26143255/189000402-cf582116-7096-429b-8a44-aa2442ba5524.gif)
 
+You can see this Project in action [here](https://youtu.be/jnUlXBZHBno), [here](https://youtu.be/GZ5C588gBdo) and [here](https://youtu.be/10ko1Ppw78A).
+
 Firmware for cheap, nRF51 or nRF52-based IO-modules to control LEDs, relays, servos, motors (and more) and read from buttons, sensors (etc.), build Cycling sensors and HID controlelrs via Bluetooth low energy.
 An IO module can have inputs and outputs that can be read from and written to.
 
@@ -19,6 +21,8 @@ This firmware allows for flashing an nRF51/nRF52 once and control and configurat
 without needing to reflash the chip.
 
 Furthermore, it gives you the oppurtunity to not only write and read bits to/from pins, but also to upload little [gpioASM](https://github.com/dakhnod/gpioASM) programms that run offline on the chip.
+
+Learn about my other projects [here](https://daniel.nullco.de).
 
 ## Table of contents
 

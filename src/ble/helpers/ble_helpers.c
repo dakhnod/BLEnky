@@ -2,6 +2,8 @@
 #include "ble.h"
 #include "app_error.h"
 #include "nrf_log.h"
+#include "feature_config.h"
+
 
 ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init) {
   ble_gatts_char_handles_t p_handles;
@@ -9,8 +11,9 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
   ble_gatts_attr_md_t cccd_md = {
       .vloc = BLE_GATTS_VLOC_STACK
   };
+
   BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-  BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+  SET_MODE_SECURE(&cccd_md.write_perm);
 
   ble_gatts_char_pf_t char_pf = {
       .unit = 0x2700,
@@ -37,7 +40,7 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
 
     char_md.p_user_desc_md = &user_description_metadata;
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&user_description_metadata.read_perm);
+    SET_MODE_SECURE(&user_description_metadata.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&user_description_metadata.write_perm);
 
     char_md.p_char_user_desc = (uint8_t *)init->description_str;
@@ -65,8 +68,8 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
       .vlen = 1,
   };
 
-  BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
-  BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
+  SET_MODE_SECURE(&attr_md.read_perm);
+  SET_MODE_SECURE(&attr_md.write_perm);
 
   ble_gatts_attr_t attr_char_value = {
       .p_uuid = &ble_uuid,
@@ -100,7 +103,9 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
         .rd_auth = 0,
         .wr_auth = 0
     };
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&number_of_digitals_metadata.read_perm);
+
+    SET_MODE_SECURE(&number_of_digitals_metadata.read_perm);
+
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&number_of_digitals_metadata.write_perm);
 
     ble_uuid_t number_of_digitals_uuid = {

@@ -13,6 +13,7 @@
 #include "fds.h"
 #include "sleep.h"
 #include "ble_temperature_service.h"
+#include "ble_helpers.h"
 
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
@@ -620,7 +621,7 @@ void custom_data_advertisement_start(){
         #endif
         .p_peer_addr = NULL,
         .fp          = BLE_GAP_ADV_FP_ANY,
-        .interval    = ADVERTISEMENT_INTERVAL_CUSTOM_DATA,
+        .interval    = MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_CUSTOM_DATA, UNIT_0_625_MS),
         .timeout     = ADVERTISEMENT_TIMEOUT_CUSTOM_DATA
     };
 
@@ -806,7 +807,7 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     uint32_t                err_code;
     ble_gap_conn_sec_mode_t sec_mode;
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
+    SET_MODE_SECURE(&sec_mode);
 
     err_code = sd_ble_gap_device_name_set(&sec_mode,
         device_name,
@@ -918,7 +919,7 @@ ret_code_t dis_init(){
     char *manufacturer = "https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge";
     char *version_fw = FIRMWARE_VERSION;
     ble_srv_security_mode_t sec_mode;
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode.read_perm);
+    SET_MODE_SECURE(&sec_mode.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode.write_perm);
     ble_dis_init_t init = {
         .dis_attr_md = sec_mode,

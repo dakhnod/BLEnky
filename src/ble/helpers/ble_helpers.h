@@ -1,5 +1,12 @@
 #include "sdk_common.h"
 #include "stdint.h"
+#include "feature_config.h"
+
+#if STATIC_PASSKEY_ENABLED == 1
+#define SET_MODE_SECURE BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM
+#else
+#define SET_MODE_SECURE BLE_GAP_CONN_SEC_MODE_SET_OPEN
+#endif
 
 typedef struct {
   uint16_t service_handle;

@@ -644,7 +644,11 @@ void custom_data_advertisement_stop(){
     // APP_ERROR_CHECK(err_code);
 
     // restore real address
-    err_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &ble_address);
+    #ifdef S130
+    APP_ERROR_CHECK(sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &ble_address));
+    #else
+    APP_ERROR_CHECK(sd_ble_gap_addr_set(&ble_address));
+    #endif
     APP_ERROR_CHECK(err_code);
 
     // calling this to restore old advertisement data

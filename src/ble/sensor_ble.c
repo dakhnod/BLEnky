@@ -519,6 +519,8 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_hid_on_ble_evt(p_ble_evt);
     #endif
 
+    ble_csc_on_ble_evt(p_ble_evt);
+
     ble_temperature_on_ble_evt(p_ble_evt);
 }
 
@@ -979,6 +981,9 @@ void services_init(void) {
     #endif
 
     err_code = ble_temperature_init();
+    APP_ERROR_CHECK(err_code);
+
+    err_code = ble_i2c_init();
     APP_ERROR_CHECK(err_code);
 
     // TODO: add BSS init here

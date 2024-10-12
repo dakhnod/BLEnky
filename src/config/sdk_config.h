@@ -2531,7 +2531,7 @@
 // <e> TWI_ENABLED - nrf_drv_twi - TWI/TWIM peripheral driver
 //==========================================================
 #ifndef TWI_ENABLED
-#define TWI_ENABLED 0
+#define TWI_ENABLED 1
 #endif
 #if  TWI_ENABLED
 // <o> TWI_DEFAULT_CONFIG_FREQUENCY  - Frequency
@@ -2574,7 +2574,7 @@
 // <e> TWI0_ENABLED - Enable TWI0 instance
 //==========================================================
 #ifndef TWI0_ENABLED
-#define TWI0_ENABLED 0
+#define TWI0_ENABLED 1
 #endif
 #if  TWI0_ENABLED
 // <q> TWI0_USE_EASY_DMA  - Use EasyDMA (if present)
@@ -2606,7 +2606,7 @@
 // <e> TWI_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
 #ifndef TWI_CONFIG_LOG_ENABLED
-#define TWI_CONFIG_LOG_ENABLED 0
+#define TWI_CONFIG_LOG_ENABLED 1
 #endif
 #if  TWI_CONFIG_LOG_ENABLED
 // <o> TWI_CONFIG_LOG_LEVEL  - Default Severity level
@@ -2996,7 +2996,7 @@
 
 
 #ifndef APP_TWI_ENABLED
-#define APP_TWI_ENABLED 0
+#define APP_TWI_ENABLED 1
 #endif
 
 // <e> APP_UART_ENABLED - app_uart - UART driver

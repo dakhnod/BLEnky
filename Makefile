@@ -49,10 +49,12 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/util/nrf_assert.c \
   $(SDK_ROOT)/components/libraries/uart/retarget.c \
   $(SDK_ROOT)/components/libraries/util/sdk_errors.c \
+  $(SDK_ROOT)/components/libraries/twi/app_twi.c \
   $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c \
   $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(SDK_ROOT)/components/drivers_nrf/spi_master/nrf_drv_spi.c \
+  $(SDK_ROOT)/components/drivers_nrf/twi_master/nrf_drv_twi.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -81,6 +83,7 @@ SRC_FILES += \
   $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ble_cycling_speed_cadence.c \
   $(PROJ_DIR)/src/ble/services/hid/ble_hid.c \
   $(PROJ_DIR)/src/ble/services/temperature/ble_temperature_service.c \
+  $(PROJ_DIR)/src/ble/services/i2c/i2c_service.c \
   $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
@@ -204,6 +207,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ \
   $(PROJ_DIR)/src/ble/services/hid/ \
   $(PROJ_DIR)/src/ble/services/temperature/ \
+  $(PROJ_DIR)/src/ble/services/i2c/ \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/helpers/ \

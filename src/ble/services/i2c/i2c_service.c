@@ -1,11 +1,14 @@
-#include "twi_app.h"
+#include "app_twi.h"
+#include "app_error.h"
+#include "ble_srv_common.h"
+#include "ble_helpers.h"
 
 #define TRANSACTION_QUEUE_SIZE 1
 
-#define UUID_I2C_BASE[] { 0x06, 0xC4, 0x44, 0x05, 0xD9, 0x7A, 0x45, 0x89, 0xBF, 0x5E, 0xF3, 0xE9, 0xA4, 0x37, 0x24, 0x2C } 
-#define UUID_I2C_SERVICE = 0x0000;
-#define UUID_I2C_TX_CHARACTERISTIC = 0x0001;
-#define UUID_I2C_RX_CHARACTERISTIC = 0x0002;
+#define UUID_I2C_BASE { 0x06, 0xC4, 0x44, 0x05, 0xD9, 0x7A, 0x45, 0x89, 0xBF, 0x5E, 0xF3, 0xE9, 0xA4, 0x37, 0x24, 0x2C } 
+#define UUID_I2C_SERVICE 0x0000
+#define UUID_I2C_TX_CHARACTERISTIC 0x0001
+#define UUID_I2C_RX_CHARACTERISTIC 0x0002
 
 app_twi_t twi_instance = APP_TWI_INSTANCE(0);
 
@@ -24,11 +27,11 @@ void i2c_add_service() {
         .uuid128 = UUID_I2C_BASE
     };
 
-    err_code = sd_ble_uuid_vs_add(&vs_uuid, &ble_gpio_asm_custom_uuid_type);
+    err_code = sd_ble_uuid_vs_add(&vs_uuid, &ble_i2c_custom_uuid_type);
     APP_ERROR_CHECK(err_code);
 
     ble_uuid_t uuid_service = {
-        .uuid = UUID_I2C_TX_SERVICE,
+        .uuid = UUID_I2C_SERVICE,
         .type = ble_i2c_custom_uuid_type
     };
 
@@ -41,7 +44,7 @@ void i2c_add_service() {
 
 void i2c_add_characteristics(){
   ble_helper_characteristic_init_t init_tx = {
-    .service_handle = ble_csc_service_handle,
+    .service_handle = ble_i2c_service_handle,
     .uuid = UUID_I2C_TX_CHARACTERISTIC,
     .is_writable = true,
     .authorize_write = true,
@@ -52,7 +55,7 @@ void i2c_add_characteristics(){
 
 
   ble_helper_characteristic_init_t init_rx = {
-    .service_handle = ble_csc_service_handle,
+    .service_handle = ble_i2c_service_handle,
     .uuid = UUID_I2C_RX_CHARACTERISTIC,
     .is_notifiable = true,
     .value_handle = &ble_i2c_rx_characteristic_handle,
@@ -61,12 +64,12 @@ void i2c_add_characteristics(){
   APP_ERROR_CHECK(ble_helper_characteristic_add(&init_rx));
 }
 
-void authorization_respond(success) {
+void authorization_respond(bool success) {
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
         .params.write = {
             .update = 0,
-            .gatt_status = (err_code != 0)
+            .gatt_status = success
         }
     };
 
@@ -79,11 +82,11 @@ void authorization_respond(success) {
 void i2c_write(uint8_t address, uint8_t *data, uint8_t length) {
     ret_code_t err_code;
     
-    app_twi_transfers transfer = APP_TWI_WRITE(address, data, length, 0);
+    app_twi_transfer_t transfer = APP_TWI_WRITE(address, data, length, 0);
 
     // TODO: this should be async
     err_code = app_twi_perform(
-        twi_instance,
+        &twi_instance,
         &transfer,
         1,
         NULL
@@ -95,14 +98,14 @@ void i2c_write(uint8_t address, uint8_t *data, uint8_t length) {
 void i2c_read(uint8_t address, uint8_t register_address, uint8_t *buffer, uint8_t length) {
     ret_code_t err_code;
     
-    app_twi_transfers transfers = {
+    app_twi_transfer_t transfers[] = {
         APP_TWI_WRITE(address, &register_address, 1, 0),
         APP_TWI_READ(address, buffer, length, 0)
     };
 
     // TODO: this should be async
     err_code = app_twi_perform(
-        twi_instance,
+        &twi_instance,
         transfers,
         2,
         NULL
@@ -111,8 +114,10 @@ void i2c_read(uint8_t address, uint8_t register_address, uint8_t *buffer, uint8_
     authorization_respond(err_code == 0);
 }
 
-void on_i2c_tx_authorize_write(p_ble_evt_t *ble_evt) {
-    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+void on_i2c_tx_authorize_write(ble_evt_t *ble_evt) {
+    ret_code_t err_code;
+
+    ble_gatts_evt_rw_authorize_request_t *req = &(ble_evt
                                                     ->evt.gatts_evt
                                                     .params
                                                     .authorize_request);
@@ -126,13 +131,13 @@ void on_i2c_tx_authorize_write(p_ble_evt_t *ble_evt) {
                         ->request
                         .write;
 
-    if (write_evt->handle != ble_i2c_tx_characteristic_handle)
+    if (write_evt.handle != ble_i2c_tx_characteristic_handle)
     {
         return;
     }
 
-    uint8_t *data = write_evt->p_data;
-    uint8_t len = write_evt->len;
+    uint8_t *data = write_evt.data;
+    uint8_t len = write_evt.len;
 
     if(len < 2) {
         return;
@@ -145,16 +150,17 @@ void on_i2c_tx_authorize_write(p_ble_evt_t *ble_evt) {
     if(is_write) {
         i2c_write(address, data, len);
         return;
+    }
 
     uint8_t buffer[19];
 
-    uint8_t read_len = 1;
+    uint16_t read_len = 1;
 
     if(len > 2) {
         read_len = data[2];
     }
 
-    i2c_read(address, write_evt->p_data[1], buffer, read_len);
+    i2c_read(address, data[1], buffer, read_len);
 
     ble_gatts_hvx_params_t params = {
         .handle = ble_i2c_rx_characteristic_handle,
@@ -194,16 +200,19 @@ void ble_i2c_on_ble_evt(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_i2c_init() {
+ret_code_t ble_i2c_init() {
     ret_code_t err_code;
 
-    p_twi_config config = {
-
+    nrf_drv_twi_config_t const config = {
+       .scl                = 1,
+       .sda                = 0
     };
 
-    APP_TWI_INIT(twi_instance, &config, TRANSACTION_QUEUE_SIZE, err_code);
+    APP_TWI_INIT(&twi_instance, &config, TRANSACTION_QUEUE_SIZE, err_code);
     APP_ERROR_CHECK(err_code);
 
     i2c_add_service();
     i2c_add_characteristics();
+
+    return NRF_SUCCESS;
 }

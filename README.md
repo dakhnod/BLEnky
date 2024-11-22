@@ -8,6 +8,7 @@
 Want to make a device smart and super low power withing minutes? Here you go!
 
 You can see this Project in action [here](https://youtu.be/jnUlXBZHBno), [here](https://youtu.be/GZ5C588gBdo) and [here](https://youtu.be/10ko1Ppw78A).
+An exhaustive list of Projects can be found [here](https://daniel.nullco.de/) under `Projects/Software/Automation/BLEnky`.
 
 Firmware for cheap, nRF51 or nRF52-based IO-modules to control LEDs, relays, servos, motors (and more) and read from buttons, sensors (etc.), build Cycling sensors and HID controlelrs via Bluetooth low energy.
 An IO module can have inputs and outputs that can be read from and written to.

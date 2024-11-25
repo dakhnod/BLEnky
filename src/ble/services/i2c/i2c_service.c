@@ -2,6 +2,7 @@
 #include "app_error.h"
 #include "ble_srv_common.h"
 #include "ble_helpers.h"
+#include "nrf_log.h"
 
 #define TRANSACTION_QUEUE_SIZE 1
 
@@ -19,6 +20,8 @@ uint16_t ble_i2c_rx_cccd_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_i2c_connection_handle = BLE_GATT_HANDLE_INVALID;
 
 uint8_t ble_i2c_custom_uuid_type;
+
+bool send_i2c_response = false;
 
 void i2c_add_service() {
     ret_code_t err_code;
@@ -58,6 +61,7 @@ void i2c_add_characteristics(){
     .service_handle = ble_i2c_service_handle,
     .uuid = UUID_I2C_RX_CHARACTERISTIC,
     .is_notifiable = true,
+    .max_length = 19,
     .value_handle = &ble_i2c_rx_characteristic_handle,
     .cccd_handle = &ble_i2c_rx_cccd_handle
   };
@@ -68,53 +72,68 @@ void authorization_respond(bool success) {
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
         .params.write = {
-            .update = 0,
-            .gatt_status = success
+            .update = 1,
+            .gatt_status = success ? BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_INVALID_ATT_VAL_LENGTH
         }
     };
 
-    sd_ble_gatts_rw_authorize_reply(
+    ret_code_t err_code = sd_ble_gatts_rw_authorize_reply(
         ble_i2c_connection_handle,
         &authorize_params
     );
+
+    NRF_LOG_DEBUG("auth: %d\n", err_code);
 }
 
-void i2c_write(uint8_t address, uint8_t *data, uint8_t length) {
-    ret_code_t err_code;
-    
+void i2c_enable(){
+    return nrf_drv_twi_enable(&twi_instance.twi);
+}
+
+void i2c_disable(){
+    return nrf_drv_twi_disable(&twi_instance.twi);
+}
+
+ret_code_t i2c_write(uint8_t address, uint8_t *data, uint8_t length) {    
     app_twi_transfer_t transfer = APP_TWI_WRITE(address, data, length, 0);
 
+    NRF_LOG_DEBUG("writing i2c\n");
+    NRF_LOG_HEXDUMP_INFO(data, length);
+
+    i2c_enable();
     // TODO: this should be async
-    err_code = app_twi_perform(
+    ret_code_t err_code = app_twi_perform(
         &twi_instance,
         &transfer,
         1,
         NULL
     );
+    i2c_disable();
 
-    authorization_respond(err_code == 0);
+    return err_code;
 }
 
-void i2c_read(uint8_t address, uint8_t register_address, uint8_t *buffer, uint8_t length) {
-    ret_code_t err_code;
-    
+ret_code_t i2c_read(uint8_t address, uint8_t register_address, uint8_t *buffer, uint8_t length) {
     app_twi_transfer_t transfers[] = {
-        APP_TWI_WRITE(address, &register_address, 1, 0),
+        APP_TWI_WRITE(address, &register_address, 1, APP_TWI_NO_STOP),
         APP_TWI_READ(address, buffer, length, 0)
     };
 
+    i2c_enable();
     // TODO: this should be async
-    err_code = app_twi_perform(
+    ret_code_t err_code = app_twi_perform(
         &twi_instance,
         transfers,
         2,
         NULL
     );
+    i2c_disable();
 
-    authorization_respond(err_code == 0);
+    return err_code;
 }
 
 void on_i2c_tx_authorize_write(ble_evt_t *ble_evt) {
+    NRF_LOG_INFO("auth\n");
+
     ret_code_t err_code;
 
     ble_gatts_evt_rw_authorize_request_t *req = &(ble_evt
@@ -127,17 +146,17 @@ void on_i2c_tx_authorize_write(ble_evt_t *ble_evt) {
         return;
     }
 
-    ble_gatts_evt_write_t write_evt = req
+    ble_gatts_evt_write_t *write_evt = &req
                         ->request
                         .write;
 
-    if (write_evt.handle != ble_i2c_tx_characteristic_handle)
+    if (write_evt->handle != ble_i2c_tx_characteristic_handle)
     {
         return;
     }
 
-    uint8_t *data = write_evt.data;
-    uint8_t len = write_evt.len;
+    uint8_t *data = write_evt->data;
+    uint8_t len = write_evt->len;
 
     if(len < 2) {
         return;
@@ -145,10 +164,21 @@ void on_i2c_tx_authorize_write(ble_evt_t *ble_evt) {
 
     uint8_t address = data[0];
 
-    uint8_t is_write = (address & 0b10000000) == 0b10000000;
+    uint8_t is_write = (address & 0b10000000) == 0;
+
+    // clear read bit
+    address &= (~0b10000000);
+
+    NRF_LOG_INFO("write: %x, addres: %x\n", is_write, address);
 
     if(is_write) {
-        i2c_write(address, data, len);
+        if(len < 3) {
+            return;
+        }
+
+        err_code = i2c_write(address, data + 1, len - 1);
+
+        authorization_respond(err_code == 0);
         return;
     }
 
@@ -160,7 +190,15 @@ void on_i2c_tx_authorize_write(ble_evt_t *ble_evt) {
         read_len = data[2];
     }
 
-    i2c_read(address, data[1], buffer, read_len);
+    for(int i = 0; i < len; i++) {
+        NRF_LOG_DEBUG("%x\n", data[i]);
+    }
+    NRF_LOG_DEBUG("reading %i bytes\n", read_len);
+
+    err_code = i2c_read(address, data[1], buffer, read_len);
+
+
+    authorization_respond(err_code == 0);
 
     ble_gatts_hvx_params_t params = {
         .handle = ble_i2c_rx_characteristic_handle,
@@ -170,10 +208,35 @@ void on_i2c_tx_authorize_write(ble_evt_t *ble_evt) {
         .p_data = buffer
     };
 
+    NRF_LOG_DEBUG("data: ");
+    NRF_LOG_HEXDUMP_INFO(buffer, read_len);
+
     err_code = sd_ble_gatts_hvx(
         ble_i2c_connection_handle,
-        &params);
+        &params
+    );
     APP_ERROR_CHECK(err_code);
+}
+
+void ble_i2c_rx_cccd_on_write(ble_evt_t *p_ble_evt)
+{
+    ble_gatts_evt_write_t *write_evt = &p_ble_evt
+                                            ->evt
+                                            .gatts_evt
+                                            .params
+                                            .write;
+
+    uint16_t handle = write_evt->handle;
+
+    if (handle == ble_i2c_rx_cccd_handle)
+    {
+        if (write_evt->len == 2)
+        {
+            send_i2c_response = ble_srv_is_notification_enabled(write_evt->data);
+            NRF_LOG_INFO("i2c response: %d\n", send_i2c_response);
+        }
+        return;
+    }
 }
 
 void ble_i2c_on_ble_evt(ble_evt_t *p_ble_evt)
@@ -194,6 +257,10 @@ void ble_i2c_on_ble_evt(ble_evt_t *p_ble_evt)
         on_i2c_tx_authorize_write(p_ble_evt);
         break;
 
+    case BLE_GATTS_EVT_WRITE:
+        ble_i2c_rx_cccd_on_write(p_ble_evt);
+        break;
+
     default:
         // No implementation needed.
         break;
@@ -201,17 +268,25 @@ void ble_i2c_on_ble_evt(ble_evt_t *p_ble_evt)
 }
 
 ret_code_t ble_i2c_init() {
+    NRF_LOG_INFO("init i2c\n");
     ret_code_t err_code;
 
     nrf_drv_twi_config_t const config = {
-       .scl                = 1,
-       .sda                = 0
+       .sda                = 0,
+       .scl                = 2,
+       .frequency          = NRF_TWI_FREQ_100K,
+       .clear_bus_init     = true
     };
+    UNUSED_PARAMETER(err_code);
+    UNUSED_PARAMETER(config);
 
-    APP_TWI_INIT(&twi_instance, &config, TRANSACTION_QUEUE_SIZE, err_code);
+    APP_TWI_INIT(&twi_instance, &config, 1, err_code);
     APP_ERROR_CHECK(err_code);
 
+    nrf_drv_twi_disable(&twi_instance.twi);
+
     i2c_add_service();
+
     i2c_add_characteristics();
 
     return NRF_SUCCESS;

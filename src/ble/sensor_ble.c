@@ -523,6 +523,8 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_csc_on_ble_evt(p_ble_evt);
 
     ble_temperature_on_ble_evt(p_ble_evt);
+
+    ble_i2c_on_ble_evt(p_ble_evt);
 }
 
 
@@ -784,7 +786,7 @@ void ble_stack_init(void) {
     err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
         PERIPHERAL_LINK_COUNT,
         &ble_enable_params);
-    ble_enable_params.common_enable_params.vs_uuid_count = 3;
+    ble_enable_params.common_enable_params.vs_uuid_count = 4;
     APP_ERROR_CHECK(err_code);
 
     //Check the ram settings against the used number of links
@@ -968,6 +970,9 @@ void services_init(void) {
     ble_gpio_asm_init();
     #endif
 
+    err_code = ble_i2c_init();
+    APP_ERROR_CHECK(err_code);
+
     #if FEATURE_ENABLED(HID)
     err_code = ble_hid_init();
     APP_ERROR_CHECK(err_code);
@@ -982,9 +987,6 @@ void services_init(void) {
     #endif
 
     err_code = ble_temperature_init();
-    APP_ERROR_CHECK(err_code);
-
-    err_code = ble_i2c_init();
     APP_ERROR_CHECK(err_code);
 
     // TODO: add BSS init here

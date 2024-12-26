@@ -1,13 +1,26 @@
 # Flashing
 
-## Flashing via bootloader
+## Flashing the nRF51 via bootloader
 
 This is the recommended way to flash the firmware since it allows for
 updates over the air (over BLE).
 
-### Flashing the bootloader
+### Flashing the bootloader using a Raspberry Pi
 
-If you don't already have abootloader installed, you can download it [here](https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge/releases/v0.1.0)
+Firstly, get openocd to run. I (cannot remember why) compiled the source from https://github.com/openocd-org/openocd myself on the RasPi.
+Feel free to try out https://github.com/raspberrypi/openocd aswell. Not sure what the difference is.
+
+Then download `bootloader_with_softdevice_delay.hex` [here](https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge/releases/v0.1.0)
+
+You can use this command to flash the hex (mind the references to the nrf51.cfg, change to nrf52.cfg if needed):
+```
+openocd -s ${OPENOCD_INSTALL_DIR}/tcl -f openocd/raspi-bcm2385.tcl -f target/nrf51.cfg -c "program bootloader_with_softdevice_delay.hex verify reset exit"
+```
+with `openocd/raspi-bcm2385.tcl` using [pins](https://pinout.xyz/) 11 for `swd` and 25 for `swio`, but feel free to change those.
+
+### Flashing the bootloader using JLink
+
+Get the bootloader [here](https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge/releases/v0.1.0)
 and flash the hex via nrfjprog, or any other program capable of swd.
 Here's how to do it using nrfjprog
 ```
@@ -15,9 +28,6 @@ nrfjprog --chiperase
 nrfjprog --program path_to_bootloader.hex
 nrfjprog --reset
 ```
-
-After that, your device should discoverable under the name "DfuTarg".
-The device will always boot into bootloader first for a few seconds.
 
 ### Rebooting into bootloader
 

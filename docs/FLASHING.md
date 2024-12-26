@@ -5,6 +5,12 @@
 This is the recommended way to flash the firmware since it allows for
 updates over the air (over BLE).
 
+### Flashing using an ESP32
+
+This is a good chance to try out https://github.com/atc1441/ESP32_nRF52_SWD.
+
+I have no experience with this. Feel free to open an issue and contribute some documentation.
+
 ### Flashing the bootloader using a Raspberry Pi
 
 Firstly, get openocd to run. I (cannot remember why) compiled the source from https://github.com/openocd-org/openocd myself on the RasPi.

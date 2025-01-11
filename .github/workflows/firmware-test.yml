@@ -22,7 +22,7 @@ jobs:
       run: |
         make BLE_ROOT=../../../../ FAMILY=NRF51
     - name: store firmware
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: firmware-file
         path: _build/nrf51822_xxac.hex

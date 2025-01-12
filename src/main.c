@@ -42,9 +42,9 @@ int main(void) {
 
     gpio_init(main_handle_input_change);
 
-    ble_init();
-
     watchdog_init();
+
+    ble_init();
 
     advertising_start();
 

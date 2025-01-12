@@ -1,0 +1,20 @@
+name: Jinja build
+
+on: [workflow_dispatch, push]
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: parse feature template
+      uses: rondefreitas/jinja2-action@v1.2.3
+      with:
+        template: src/config/feature_config.template.h.jinja
+        output_file: src/config/feature_config.template.h
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Auto-parse Jinja template
+        status_options: '--untracked-files=all'
+          

@@ -22,7 +22,7 @@ jobs:
       run: |
         make BLE_ROOT=../../../../ FAMILY=NRF51
     - name: store firmware
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: firmware-file
         path: _build/nrf51822_xxac.hex
@@ -33,13 +33,13 @@ jobs:
 
     steps:
     - name: download firmware
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: firmware-file
         path: /tmp/nrf51_firmware
     - name: flash firmware
       working-directory: /home/home/Projects/BLEnky/openocd
-      run: src/openocd -s tcl -f raspi-bcm2385.tcl -f nrf51.cfg -c "program /tmp/nrf51_firmware/nrf51822_xxac.hex verify reset exit"
+      run: src/openocd -s tcl -f raspi-bcm2385.tcl -f target/nrf51.cfg -c "program /tmp/nrf51_firmware/nrf51822_xxac.hex verify reset exit"
 
   test:
     runs-on: [self-hosted, firmware-flasher]

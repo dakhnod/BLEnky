@@ -2,7 +2,6 @@ TARGETS          ?= nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
 BLE_ROOT ?= ../..
-SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 
 APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE ?= $(BLE_ROOT)/private.pem
@@ -219,7 +218,8 @@ INC_FOLDERS += \
   $(CUSTOM_INCLUDES_DIR)/boards \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service \
 
-ifeq ($(FAMILY), NRF51)
+ifeq ($(CHIP), NRF51822)
+FAMILY = NRF51
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
 
@@ -232,6 +232,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
 
 BOARD ?= WT51822_S4AT
+SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 CFLAGS += -DNRF51
@@ -248,38 +249,61 @@ ASMFLAGS += -DNRF51822
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=2
 
 LDFLAGS += -mcpu=cortex-m0
-else ifeq ($(FAMILY), NRF52)
+
+else ifeq ($(CHIP), NRF52832)
+FAMILY=NRF52
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
-
-SRC_FILES += \
-  $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S \
-  $(SDK_ROOT)/components/toolchain/system_nrf52.c
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
   $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_3.0.0_softdevice.hex
 
-BOARD ?= HOLYIOT_17095
-SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_3.0.0_softdevice.hex
-
-CFLAGS += -DNRF52
 CFLAGS += -DS132
 CFLAGS += -DNRF52832
+
+ASMFLAGS += -DS132
+ASMFLAGS += -DNRF52832
+else ifeq ($(CHIP), NRF52840)
+FAMILY=NRF52
+$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
+  LINKER_SCRIPT  := src/linker/nrf52840_qfaa.ld
+
+INC_FOLDERS += \
+  $(SDK_ROOT)/components/softdevice/s140/headers \
+  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52 \
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex
+
+CFLAGS += -DS140
+CFLAGS += -DNRF52840
+
+ASMFLAGS += -DS140
+ASMFLAGS += -DNRF52840
+else
+$(error please specify CHIP=NRF51822 / NRF52832 / NRF52840)
+endif
+
+ifeq ($(FAMILY), NRF52)
+SRC_FILES += \
+  $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S \
+  $(SDK_ROOT)/components/toolchain/system_nrf52.c
+
+BOARD ?= HOLYIOT_17095
+
+CFLAGS += -DNRF52
 CFLAGS += -DNRF_SD_BLE_API_VERSION=3
 CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=1024
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
 ASMFLAGS += -DNRF52
-ASMFLAGS += -DS132
-ASMFLAGS += -DNRF52832
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=3
 
 LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-else
-$(error please specify FAMILY=NRF51 / NRF52)
+
+SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_13.0.0
 endif
 
 # Libraries common to all targets

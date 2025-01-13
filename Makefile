@@ -16,7 +16,7 @@ CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET ?= Pixel-5
 ADB_DIRECTORY ?= /sdcard/dfu
 
-FIRMWARE_VERSION := \"0.8.5"
+FIRMWARE_VERSION := \"0.8.5\"
 
 # Source files common to all targets
 SRC_FILES += \

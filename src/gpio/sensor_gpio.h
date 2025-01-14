@@ -28,6 +28,8 @@ typedef struct
   uint8_t invert;
   uint8_t ignored_state;
   uint8_t ignore_input;
+  uint8_t changed;
+  uint8_t virtual;
   uint32_t trigger_count;
 } gpio_config_input_digital_t;
 

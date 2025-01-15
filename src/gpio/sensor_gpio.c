@@ -340,8 +340,6 @@ void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull,
   config->pin.input.ignore_input = false;
 }
 
-#define VIRTUAL_INPUT_PIN_COUNT 2
-
 void gpio_init(gpio_input_change_handler_t input_change_handler) {
   ret_code_t err_code;
   err_code = nrf_drv_gpiote_init();

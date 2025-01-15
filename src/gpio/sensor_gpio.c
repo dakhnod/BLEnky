@@ -346,7 +346,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   uint32_t current_index = 0;
 
   // initialize virtual inputs first
-  gpio_input_digital_pin_count = VIRTUAL_INPUT_PIN_COUNT;
+  gpio_input_digital_pin_count = preconfigured_pin_count = VIRTUAL_INPUT_PIN_COUNT;
 
   for(uint8_t i = 0; i < VIRTUAL_INPUT_PIN_COUNT; i++){
     gpio_config_t *config = gpio_configs + i;

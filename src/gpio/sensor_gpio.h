@@ -33,7 +33,7 @@ typedef struct
   uint32_t trigger_count;
 } gpio_config_input_digital_t;
 
-typedef void (*gpio_input_change_handler_t)(uint32_t pin_index, gpio_config_input_digital_t *config);
+typedef void (*gpio_input_change_handler_t)(int highest_changed_index);
 
 void gpio_init(gpio_input_change_handler_t input_change_handler);
 void gpio_configure_aio_outputs();
@@ -47,5 +47,6 @@ uint8_t gpio_get_output_digital_state(uint32_t index);
 bool gpio_get_input_digital_state(uint32_t index);
 void gpio_encode_output_states(uint8_t *buffer);
 void gpio_encode_input_states(uint8_t *buffer);
+gpio_config_input_digital_t *gpio_find_input_by_index(uint32_t index);
 
 #endif

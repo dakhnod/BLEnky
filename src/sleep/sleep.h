@@ -8,4 +8,4 @@ typedef void (*sleep_enter_handler_t)();
 
 void sleep_init(sleep_enter_handler_t);
 bool sleep_get_allow_advertise();
-void sleep_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *input);
+void sleep_handle_gpio_event();

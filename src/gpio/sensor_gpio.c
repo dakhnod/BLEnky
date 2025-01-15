@@ -58,7 +58,7 @@ gpio_config_output_digital_t *find_gpio_output_by_index(uint32_t index){
   return &(config->pin.output);
 }
 
-gpio_config_input_digital_t *find_gpio_input_by_index(uint32_t index){
+gpio_config_input_digital_t *gpio_find_input_by_index(uint32_t index){
   gpio_config_t *config = find_gpio_config_by_index(index, INPUT);
   if(config == NULL){
     return NULL;
@@ -124,11 +124,11 @@ uint8_t gpio_get_output_digital_state(uint32_t index) {
 }
 
 bool gpio_get_input_digital_state(uint32_t index) {
-  gpio_config_input_digital_t *config = find_gpio_input_by_index(index);
+  gpio_config_input_digital_t *config = gpio_find_input_by_index(index);
   if(config == NULL){
     return false;
   }
-  return find_gpio_input_by_index(index)->state;
+  return gpio_find_input_by_index(index)->state;
 }
 
 void gpio_encode_states(uint8_t *buffer, direction_t direction){
@@ -206,7 +206,7 @@ void gpio_configure_aio_outputs_analog(){
 }
 
 void on_pin_changed(uint32_t index) {
-  gpio_config_input_digital_t *config = find_gpio_input_by_index(index);
+  gpio_config_input_digital_t *config = gpio_find_input_by_index(index);
   if(config == NULL){
     return;
   }
@@ -216,9 +216,13 @@ void on_pin_changed(uint32_t index) {
     config->trigger_count++;
   }
 
+  config->changed = true;
+
   if (gpio_input_change_handler != NULL) {
-    gpio_input_change_handler(index, config);
+    gpio_input_change_handler(index);
   }
+
+  config->changed = false;
 
   config->ignore_input = true;
 
@@ -226,7 +230,7 @@ void on_pin_changed(uint32_t index) {
 }
 
 void gpio_debounce_timeout_handler(uint32_t timer_index) {
-  gpio_config_input_digital_t *config = find_gpio_input_by_index(timer_index);
+  gpio_config_input_digital_t *config = gpio_find_input_by_index(timer_index);
   if(config == NULL){
     return;
   }
@@ -336,7 +340,7 @@ void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull,
   config->pin.input.ignore_input = false;
 }
 
-#define VIRTUAL_INPUT_PIN_COUNT 1
+#define VIRTUAL_INPUT_PIN_COUNT 2
 
 void gpio_init(gpio_input_change_handler_t input_change_handler) {
   ret_code_t err_code;
@@ -459,7 +463,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   }
 
   for (int i = 0; i < gpio_input_digital_pin_count; i++) {
-    gpio_config_input_digital_t *config = find_gpio_input_by_index(i);
+    gpio_config_input_digital_t *config = gpio_find_input_by_index(i);
     NRF_LOG_DEBUG("pin input: %d\n", config->pin);
     NRF_LOG_DEBUG("pin pull: %d\n", config->pull);
     NRF_LOG_DEBUG("pin invert: %d\n", config->invert);

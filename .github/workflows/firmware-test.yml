@@ -33,7 +33,7 @@ jobs:
 
     steps:
     - name: delete old firmware
-      run: rm /home/home/ram/nrf51822_xxac.hex
+      run: rm -f /home/home/ram/nrf51822_xxac.hex
     - name: download firmware
       uses: actions/download-artifact@v4
       with:

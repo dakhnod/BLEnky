@@ -283,26 +283,35 @@ void ble_init() {
     nrf_delay_ms(3); 
 }
 
-void ble_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+void ble_handle_input_change(int highest_changed_index)
 {
+    // these services only process a single changed input
+    for(int input_index = 0; input_index <= highest_changed_index; input_index++) {
+        gpio_config_input_digital_t *config = gpio_find_input_by_index(input_index);
+        if(!config->changed){
+            continue;
+        }
+
+        #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
+        ble_csc_handle_input_change(input_index, config);
+        #endif
+
+        #if FEATURE_ENABLED(HID)
+        ble_hid_handle_input_change(input_index, config);
+        #endif
+
+        #if FEATURE_ENABLED(BINARY_SENSOR)
+        ble_bss_handle_input_change(input_index, config);
+        #endif
+    }
+
+    // threse services should have access to all changed pins at once
     #if FEATURE_ENABLED(AUTOMATION_IO)
-    ble_aio_handle_input_change(index, config);
+    ble_aio_handle_input_change(highest_changed_index);
     #endif
 
     #if FEATURE_ENABLED(GPIO_ASM)
-    ble_gpio_asm_handle_input_change(index, config);
-    #endif
-
-    #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
-    ble_csc_handle_input_change(index, config);
-    #endif
-
-    #if FEATURE_ENABLED(HID)
-    ble_hid_handle_input_change(index, config);
-    #endif
-
-    #if FEATURE_ENABLED(BINARY_SENSOR)
-    ble_bss_handle_input_change(index, config);
+    ble_gpio_asm_handle_input_change();
     #endif
 
     #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)

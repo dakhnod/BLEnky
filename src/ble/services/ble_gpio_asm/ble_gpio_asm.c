@@ -66,9 +66,9 @@ uint8_t ble_gpio_asm_handle_data_write(uint8_t *data, uint32_t length)
     return is_overflown;
 }
 
-void ble_gpio_asm_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+void ble_gpio_asm_handle_input_change()
 {
-    gpioasm_handle_digital_input_update(&engine, index, config->state);
+    gpioasm_handle_digital_input_update(&engine);
 }
 
 void ble_gpio_asm_on_connect(ble_evt_t *p_ble_evt)

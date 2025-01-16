@@ -38,7 +38,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: firmware-file
-        path: /home/home/ram/nrf51822_xxac.hex
+        path: /home/home/ram/
     - name: flash firmware
       run: echo -e "program /home/home/ram/nrf51822_xxac.hex verify reset \n exit" | nc localhost 4444
 

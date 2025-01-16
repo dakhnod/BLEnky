@@ -1483,6 +1483,10 @@
 
 // </e>
 
+#ifndef VIRTUAL_INPUT_PIN_COUNT
+#define VIRTUAL_INPUT_PIN_COUNT 0
+#endif
+
 // </h>
 
 // <<< end of configuration section >>>

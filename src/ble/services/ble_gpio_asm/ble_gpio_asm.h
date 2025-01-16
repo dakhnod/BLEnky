@@ -10,4 +10,4 @@
 
 void ble_gpio_asm_init();
 void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt);
-void ble_gpio_asm_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);
+void ble_gpio_asm_handle_input_change();

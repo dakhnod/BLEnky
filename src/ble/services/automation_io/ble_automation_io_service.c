@@ -371,7 +371,7 @@ void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+void ble_aio_handle_input_change(int highest_changed_index)
 {
     if (ble_aio_connection_handle == BLE_CONN_HANDLE_INVALID || (!ble_aio_send_digital_input_updates))
     {
@@ -379,19 +379,22 @@ void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
     }
 
     // only need this many bytes since we only report the changed pin
-    uint32_t input_count = index + 1;
+    uint32_t input_count = highest_changed_index + 1;
 
-    uint16_t data_length = encoding_get_byte_count_from_pins(index + 1);
+    uint16_t data_length = encoding_get_byte_count_from_pins(input_count);
 
     uint8_t data[data_length];
     uint8_t input_states[input_count];
 
     // set every state before out changed index to undefined
-    for(uint8_t i = 0; i < (input_count - 1); i++){
-        input_states[i] = 0b11;
+    for(uint8_t i = 0; i < input_count; i++){
+        gpio_config_input_digital_t *config = gpio_find_input_by_index(i);
+        if(!config->changed){
+            input_states[i] = 0b11;
+            continue;
+        }
+        input_states[i] = config->state;
     }
-
-    input_states[index] = config->state;
 
     encode_states_to_bytes(input_states, input_count, data, data_length);
 

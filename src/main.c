@@ -16,13 +16,12 @@
 #include "watchdog.h"
 #include "bma400.h"
 
-void main_handle_input_change(uint32_t index, gpio_config_input_digital_t *config)
+void main_handle_input_change(int highest_changed_index)
 {
     #if FEATURE_ENABLED(SLEEP_MODE)
-        sleep_handle_gpio_event(index, config);
+        sleep_handle_gpio_event();
     #endif
-    bma400_handle_gpio_event(index, config);
-    ble_handle_input_change(index, config);
+    ble_handle_input_change(highest_changed_index);
 }
 
 int main(void) {

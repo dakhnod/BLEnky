@@ -15,6 +15,7 @@
 #include "ble_temperature_service.h"
 #include "ble_helpers.h"
 #include "i2c_service.h"
+#include "bma400.h"
 
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
@@ -304,6 +305,8 @@ void ble_handle_input_change(int highest_changed_index)
         #if FEATURE_ENABLED(BINARY_SENSOR)
         ble_bss_handle_input_change(input_index, config);
         #endif
+
+        bma400_handle_gpio_event(input_index, config);
     }
 
     // threse services should have access to all changed pins at once

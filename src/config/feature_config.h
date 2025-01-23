@@ -1,1 +1,1 @@
-#include "feature_config.template.h"
+feature_config.ringer.h

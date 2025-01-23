@@ -6,6 +6,7 @@
 #include <nrf_delay.h>
 #include <sensor_gpio.h>
 #include <math.h>
+#include <feature_config.h>
 
 #define BMA400_ADDRESS 0x14
 
@@ -18,6 +19,8 @@ APP_TIMER_DEF(state_timer);
         return code;          \
     }                         \
 }while(0)
+
+gpio_input_change_handler_t gpio_change_handler;
 
 ret_code_t bma400_write(uint8_t *data, uint8_t length) {
     return i2c_write(BMA400_ADDRESS, data, length);
@@ -86,7 +89,7 @@ void timeout_handler(){
 }
 
 void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *config){
-    if(index != 0) {
+    if(config->pin != BMA400_INTERRUPT_PIN) {
         return;
     }
     // uint8_t interrupt_reg;
@@ -126,28 +129,16 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
     NRF_LOG_DEBUG("stopped!\n");
     NRF_LOG_DEBUG("x: " NRF_LOG_FLOAT_MARKER ", y: " NRF_LOG_FLOAT_MARKER ", z: " NRF_LOG_FLOAT_MARKER "\n", NRF_LOG_FLOAT(x), NRF_LOG_FLOAT(y), NRF_LOG_FLOAT(z));
 
-    double orientations[] = {
-        1, 0, 0,
-        -1, 0, 0,
-        0, 1, 0,
-        0, -1, 0,
-        0, 0, 1,
-        0, 0, -1,
-    };
-
-    char *labels[] = {
-        "x up",
-        "x down",
-        "y up",
-        "y down",
-        "z up",
-        "z down",
-    };
+    double orientations[] = ORIENTATION_VECTORS;
 
     int closest_point = -1;
     double smallest_distance;
 
-    for(int i = 0; i < (sizeof(orientations) / sizeof(double) / 3); i++) {
+    gpio_config_input_digital_t *highest_config = NULL;
+
+    int count = (sizeof(orientations) / sizeof(double) / 3);
+
+    for(int i = 0; i < count; i++) {
         double compared_x = orientations[(i * 3) + 0];
         double compared_y = orientations[(i * 3) + 1];
         double compared_z = orientations[(i * 3) + 2];
@@ -161,18 +152,39 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
         LOG_XYZ("comparing to", compared_x, compared_y, compared_z);
         NRF_LOG_DEBUG("distance: " NRF_LOG_FLOAT_MARKER "\n", NRF_LOG_FLOAT(distance));
 
+        gpio_config_input_digital_t *current_config = gpio_find_input_by_index(i);
+        current_config->changed = true;
+        current_config->state = 0;
+
         if((closest_point == -1) || (distance < smallest_distance)) {
             smallest_distance = distance;
             closest_point = i;
+            highest_config = current_config;
         }
     }
 
+    highest_config->state = 1;
+
+    char *labels[] = {
+        "x up",
+        "x down",
+        "y up",
+        "y down",
+        "z up",
+        "z down",
+    };
+
     NRF_LOG_DEBUG("closest distance: " NRF_LOG_FLOAT_MARKER "   orientation: %s\n", NRF_LOG_FLOAT(smallest_distance), (uint32_t) (labels[closest_point]));
+
+    // gpio_change_handler(count);
 }
 
-ret_code_t bma400_setup_orientation_detection(){
+ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change_handler){
+    gpio_change_handler = change_handler;
+
     NRF_LOG_INFO("bma400_reset...\n");
     CHECK_ERROR(bma400_reset());
+
     
     nrf_delay_ms(100);
 

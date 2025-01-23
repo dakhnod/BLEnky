@@ -96,8 +96,8 @@ void i2c_disable(){
 ret_code_t i2c_write(uint8_t address, uint8_t *data, uint8_t length) {    
     app_twi_transfer_t transfer = APP_TWI_WRITE(address, data, length, 0);
 
-    NRF_LOG_DEBUG("writing i2c\n");
-    NRF_LOG_HEXDUMP_INFO(data, length);
+    // NRF_LOG_DEBUG("writing i2c\n");
+    // NRF_LOG_HEXDUMP_INFO(data, length);
 
     i2c_enable();
     // TODO: this should be async

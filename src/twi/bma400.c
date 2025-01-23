@@ -120,14 +120,14 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
         z_raw -= 4096;
     }
 
-    NRF_LOG_DEBUG("raw measurements: %d %d %d\n", x_raw, y_raw, z_raw);
+    // NRF_LOG_DEBUG("raw measurements: %d %d %d\n", x_raw, y_raw, z_raw);
 
     double x = x_raw / 512.0;
     double y = y_raw / 512.0;
     double z = z_raw / 512.0;
 
-    NRF_LOG_DEBUG("stopped!\n");
-    NRF_LOG_DEBUG("x: " NRF_LOG_FLOAT_MARKER ", y: " NRF_LOG_FLOAT_MARKER ", z: " NRF_LOG_FLOAT_MARKER "\n", NRF_LOG_FLOAT(x), NRF_LOG_FLOAT(y), NRF_LOG_FLOAT(z));
+    // NRF_LOG_DEBUG("stopped!\n");
+    // NRF_LOG_DEBUG("x: " NRF_LOG_FLOAT_MARKER ", y: " NRF_LOG_FLOAT_MARKER ", z: " NRF_LOG_FLOAT_MARKER "\n", NRF_LOG_FLOAT(x), NRF_LOG_FLOAT(y), NRF_LOG_FLOAT(z));
 
     double orientations[] = ORIENTATION_VECTORS;
 
@@ -149,8 +149,8 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
 
         double distance = sqrtf((delta_x * delta_x) + (delta_y * delta_y) + (delta_z * delta_z));
 
-        LOG_XYZ("comparing to", compared_x, compared_y, compared_z);
-        NRF_LOG_DEBUG("distance: " NRF_LOG_FLOAT_MARKER "\n", NRF_LOG_FLOAT(distance));
+        // LOG_XYZ("comparing to", compared_x, compared_y, compared_z);
+        // NRF_LOG_DEBUG("distance: " NRF_LOG_FLOAT_MARKER "\n", NRF_LOG_FLOAT(distance));
 
         gpio_config_input_digital_t *current_config = gpio_find_input_by_index(i);
         current_config->changed = true;
@@ -174,9 +174,14 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
         "z down",
     };
 
-    NRF_LOG_DEBUG("closest distance: " NRF_LOG_FLOAT_MARKER "   orientation: %s\n", NRF_LOG_FLOAT(smallest_distance), (uint32_t) (labels[closest_point]));
+    NRF_LOG_DEBUG("closest distance: " NRF_LOG_FLOAT_MARKER "   orientation: %s, count: %d\n", NRF_LOG_FLOAT(smallest_distance), (uint32_t) (labels[closest_point]), count);
 
-    // gpio_change_handler(count);
+    gpio_change_handler(count - 1);
+
+    for(int i = 0; i < count; i++) {
+        gpio_config_input_digital_t *config = gpio_find_input_by_index(count);
+        config->changed = false;
+    }
 }
 
 ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change_handler){

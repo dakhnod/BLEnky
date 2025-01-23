@@ -41,14 +41,14 @@ int main(void) {
 
     gpio_init(main_handle_input_change);
 
-    watchdog_init();
-
     ble_init();
 
     advertising_start();
 
-    ret_code_t err_code = bma400_setup_orientation_detection();
+    ret_code_t err_code = bma400_setup_orientation_detection(main_handle_input_change);
     NRF_LOG_DEBUG("orientation: %d\n", err_code);
+
+    watchdog_init();
 
     NRF_LOG_INFO("setup done\n");
 

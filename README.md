@@ -17,6 +17,16 @@ All of the features can be [enabled/disabled](docs/FEATURES.md) to save ram and 
 
 To summarize, this is basically like Tasmota for the nRF51, that can be powered from a coin cell for a long time.
 
+|Board|Supported|LF-Crystal available|Pin configuration template available|Remarks|
+|-----|---------|-------|---------|-----|
+|nice!nano|✅|✅||only 0.xx pins work|
+|[Big beacon thing](https://de.aliexpress.com/item/32988225162.html?spm=a2g0o.productlist.main.3.1281Dxz4Dxz4uj&algo_pvid=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc&algo_exp_id=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc-1&pdp_npi=4%40dis%21EUR%213.09%213.09%21%21%213.14%213.14%21%402103890917383147672042275e555a%2166814403390%21sea%21DE%211858291489%21X&curPageLogUid=25giPJzksnGr&utparam-url=scene%3Asearch%7Cquery_from%3A)|✅||✅|
+|[Small beacon thing](https://de.aliexpress.com/item/32872483730.html?spm=a2g0o.productlist.main.41.1281Dxz4Dxz4uj&algo_pvid=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc&algo_exp_id=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc-20&pdp_npi=4%40dis%21EUR%215.51%214.79%21%21%215.59%214.86%21%402103890917383147672042275e555a%2165507258407%21sea%21DE%211858291489%21X&curPageLogUid=NJ5twh8e5mzM&utparam-url=scene%3Asearch%7Cquery_from%3A)|✅|✅|✅|
+|WS51822-S4AT|✅||✅|
+|HolyIOT 17095|✅|||whole board is only 9x9mm!|
+|BLE400|✅|✅|✅|
+|XIAO nRF52840|✅|✅||only 0.xx pins work
+
 With this firmware you can use every available pin on the chip as an input or an output.
 Well, until a buffer overruns or the RAM runs out or something...
 

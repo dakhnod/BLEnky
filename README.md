@@ -26,6 +26,8 @@ To summarize, this is basically like Tasmota for the nRF51, that can be powered 
 |HolyIOT 17095|✅|||whole board is only 9x9mm!|
 |BLE400|✅|✅|✅|
 |XIAO nRF52840|✅|✅||only 0.xx pins work
+|Any board with an nRF51|✅|?||
+|Any board with an nRF52|✅|?||only 0.xx pins work
 
 With this firmware you can use every available pin on the chip as an input or an output.
 Well, until a buffer overruns or the RAM runs out or something...

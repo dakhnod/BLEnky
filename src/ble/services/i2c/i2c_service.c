@@ -272,13 +272,12 @@ ret_code_t ble_i2c_init() {
     ret_code_t err_code;
 
     nrf_drv_twi_config_t const config = {
-       .sda                = 0,
-       .scl                = 2,
+       .sda                = 29,
+       .scl                = 28,
        .frequency          = NRF_TWI_FREQ_100K,
        .clear_bus_init     = true
     };
     UNUSED_PARAMETER(err_code);
-    UNUSED_PARAMETER(config);
 
     APP_TWI_INIT(&twi_instance, &config, 1, err_code);
     APP_ERROR_CHECK(err_code);

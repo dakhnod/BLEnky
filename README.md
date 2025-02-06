@@ -25,7 +25,7 @@ To summarize, this is basically like Tasmota for the nRF51, that can be powered 
 |WS51822-S4AT|✅||✅|
 |HolyIOT 17095|✅|||whole board is only 9x9mm!|
 |BLE400|✅|✅|✅|
-|XIAO nRF52840|✅|✅||only 0.xx pins work
+|[XIAO nRF52840](https://www.seeedstudio.com/Seeed-XIAO-BLE-nRF52840-p-5201.html)|✅|✅||only 0.xx pins work
 |Any board with an nRF51|✅|?||
 |Any board with an nRF52|✅|?||only 0.xx pins work
 

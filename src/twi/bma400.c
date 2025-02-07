@@ -202,8 +202,8 @@ ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change
 
     uint8_t data[] = {
         0x20, 0x00, // INT_CONFIG1
-        0x21, 0x04, // INT1_MAP gen1_int1
-        0x22, 0x00, // INT2_MAP
+        0x21, 0x00, // INT1_MAP gen1_int1
+        0x22, 0x04, // INT2_MAP
         0x23, 0x00, // INT12_MAP
     };
 

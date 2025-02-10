@@ -64,14 +64,11 @@ ret_code_t bma400_set_auto_low_power(){
         0x40, 0x01, // GEN1INT_CONFIG1 logical AND
         0x41, 0x05, // GEN1INT_CONFIG2 gen1_int_thres 5
         0x42, 0x00, // GEN1INT_CONFIG3 duration 0
+        0x43, 0x32, // GEN1INT_CONFIG4 duration 50
     };
 
     CHECK_ERROR(bma400_write(data, sizeof(data)));
 
-    uint8_t data2[] = {
-        0x43, 0x32  // GEN1INT_CONFIG31 gen1_int_dur_7_0 32
-    };
-    CHECK_ERROR(bma400_write(data2, sizeof(data2)));
 
     return NRF_SUCCESS;
 }
@@ -88,7 +85,7 @@ void timeout_handler(){
     NRF_LOG_DEBUG("bma400 state: %x\n", state);
 }
 
-void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *config){
+void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *config, bool *continue_handling){
     if(config->pin != BMA400_INTERRUPT_PIN) {
         return;
     }
@@ -97,6 +94,8 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
     // bma400_read(0x0E, &interrupt_reg, 1);
 
     // NRF_LOG_DEBUG("int stat: %x\n", interrupt_reg);
+
+    (*continue_handling) = false;
 
     if(config->state != 1) {
         return;
@@ -202,8 +201,8 @@ ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change
 
     uint8_t data[] = {
         0x20, 0x00, // INT_CONFIG1
-        0x21, 0x00, // INT1_MAP gen1_int1
-        0x22, 0x04, // INT2_MAP
+        0x21, 0x04, // INT1_MAP gen1_int1
+        0x22, 0x00, // INT2_MAP
         0x23, 0x00, // INT12_MAP
     };
 

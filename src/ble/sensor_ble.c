@@ -287,6 +287,8 @@ void ble_init() {
 
 void ble_handle_input_change(int highest_changed_index)
 {
+    bool continue_handling = true;
+
     // these services only process a single changed input
     for(int input_index = 0; input_index <= highest_changed_index; input_index++) {
         gpio_config_input_digital_t *config = gpio_find_input_by_index(input_index);
@@ -306,17 +308,12 @@ void ble_handle_input_change(int highest_changed_index)
         ble_bss_handle_input_change(input_index, config);
         #endif
 
-        bma400_handle_gpio_event(input_index, config);
+        bma400_handle_gpio_event(input_index, config, &continue_handling);
+
+        if(!continue_handling) {
+            break;
+        }
     }
-
-    // threse services should have access to all changed pins at once
-    #if FEATURE_ENABLED(AUTOMATION_IO)
-    ble_aio_handle_input_change(highest_changed_index);
-    #endif
-
-    #if FEATURE_ENABLED(GPIO_ASM)
-    ble_gpio_asm_handle_input_change();
-    #endif
 
     #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
     if(custom_advertisement_running){
@@ -330,6 +327,19 @@ void ble_handle_input_change(int highest_changed_index)
         // awoke from light sleep mode or custom advertising mode
         advertising_start();
     }
+
+    if(!continue_handling) {
+        return;
+    }
+
+    // threse services should have access to all changed pins at once
+    #if FEATURE_ENABLED(AUTOMATION_IO)
+    ble_aio_handle_input_change(highest_changed_index);
+    #endif
+
+    #if FEATURE_ENABLED(GPIO_ASM)
+    ble_gpio_asm_handle_input_change();
+    #endif
 }
 
 void ble_handle_device_name_write(ble_gatts_evt_write_t *write_evt){

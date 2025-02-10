@@ -355,6 +355,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
     config->direction = INPUT;
 
     config->pin.input.virtual = true;
+    config->pin.input.pin = 0xFF;
   }
 
   // this is in a macro instead of a function

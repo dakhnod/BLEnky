@@ -40,7 +40,7 @@ jobs:
         name: firmware-file
         path: /home/home/ram/
     - name: flash firmware
-      run: echo -e "program /home/home/ram/nrf51822_xxac.hex verify reset \n exit" | nc localhost 4444
+      run: echo -e "program /home/home/ram/nrf51822_xxac.hex verify; program /home/home/Projects/BLEnky/testing/settings.hex verify reset \n exit" | nc localhost 4444
 
   test:
     runs-on: [self-hosted, firmware-flasher]

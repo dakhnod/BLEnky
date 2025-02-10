@@ -2606,7 +2606,7 @@
 // <e> TWI_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
 #ifndef TWI_CONFIG_LOG_ENABLED
-#define TWI_CONFIG_LOG_ENABLED 1
+#define TWI_CONFIG_LOG_ENABLED 0
 #endif
 #if  TWI_CONFIG_LOG_ENABLED
 // <o> TWI_CONFIG_LOG_LEVEL  - Default Severity level

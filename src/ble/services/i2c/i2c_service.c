@@ -49,6 +49,7 @@ void i2c_add_characteristics(){
   ble_helper_characteristic_init_t init_tx = {
     .service_handle = ble_i2c_service_handle,
     .uuid = UUID_I2C_TX_CHARACTERISTIC,
+    .uuid_type = ble_i2c_custom_uuid_type,
     .is_writable = true,
     .authorize_write = true,
     .max_length = 19,
@@ -60,6 +61,7 @@ void i2c_add_characteristics(){
   ble_helper_characteristic_init_t init_rx = {
     .service_handle = ble_i2c_service_handle,
     .uuid = UUID_I2C_RX_CHARACTERISTIC,
+    .uuid_type = ble_i2c_custom_uuid_type,
     .is_notifiable = true,
     .max_length = 19,
     .value_handle = &ble_i2c_rx_characteristic_handle,

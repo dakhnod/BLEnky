@@ -26,6 +26,7 @@ To summarize, this is basically like Tasmota for the nRF51/52, that can be power
 |HolyIOT 17095|?|||whole board is only 9x9mm!|
 |BLE400|✅|✅|✅|
 |[XIAO nRF52840](https://www.seeedstudio.com/Seeed-XIAO-BLE-nRF52840-p-5201.html)|✅|✅||only 0.xx pins work
+|[nRF52840 dongle](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-Dongle/Download?lang=en#infotabs)|✅|✅||only 0.xx pins work, use `dfu usb-serial -pkg dongle.zip --port /dev/ttyACMX` to flash.
 |Any board with an nRF51|✅|?||
 |Any board with an nRF52|✅|?||only 0.xx pins work
 

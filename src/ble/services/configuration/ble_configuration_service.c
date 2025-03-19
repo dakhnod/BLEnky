@@ -24,7 +24,7 @@ ret_code_t ble_configuration_characteristic_pin_configuration_add() {
     .description_str = "Pin configuration",
     .is_writable = true,
     .is_readable = true,
-    .max_length = 16,
+    .max_length = PIN_CONFIGURATION_LENGTH,
     .value_handle = &ble_configuration_pin_configuration_handle,
   };
   return ble_helper_characteristic_add(&init);
@@ -240,12 +240,12 @@ void ble_configuration_handle_pin_configuration_write(ble_gatts_evt_write_t *wri
   uint8_t *data = write_evt->data;
   uint32_t len = write_evt->len;
 
-  uint32_t writable_data_length = MIN(16, len);
-  static uint8_t data_to_write[16];
+  uint32_t writable_data_length = MIN(PIN_CONFIGURATION_LENGTH, len);
+  static uint8_t data_to_write[PIN_CONFIGURATION_LENGTH];
 
   memcpy(data_to_write, data, writable_data_length);
 
-  for (uint32_t i = writable_data_length; i < 16; i++) {
+  for (uint32_t i = writable_data_length; i < PIN_CONFIGURATION_LENGTH; i++) {
     data_to_write[i] = 0xFF;
   }
 

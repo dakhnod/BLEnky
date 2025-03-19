@@ -9,6 +9,10 @@
 #define OFFSET_DEVICE_NAME (OFFSET_CONNECTION_PARAMS_CONFIGURATION + 10)
 #define OFFSET_CHECKSUM (OFFSET_DEVICE_NAME + LENGTH_DEVICE_NAME)
 
+// the +4 bytes are for storing a checksum
+// the +2 bytes are to allign to 4 bytes since the size comes out to 50 or 66
+#define CONFIGURATION_SIZE OFFSET_CHECKSUM + 4 + 2
+
 FS_REGISTER_CFG(fs_config_t fs_config) =
 {
     .callback = fs_evt_handler, // Function for event callbacks.
@@ -177,15 +181,10 @@ void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t rebo
 
   // PIN_CONFIGURATION_LENGTH bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
   const uint32_t size = OFFSET_CHECKSUM;
-  
-  // should should be done dynamically, but at compile-time
-  // we are also allocating 4 bytes for checksum + 2 bytes for alignment
-  const uint32_t size_aligned = 52; // calculate 4-byte-alignet size
 
-  const uint32_t data_size_32 = size_aligned / 4; // calculate size in 32-bit-words
+  const uint32_t data_size_32 = CONFIGURATION_SIZE / 4; // calculate size in 32-bit-words
 
-  // we should use size_aligned as the size, but that isn't constant enough for the compiler...
-  static uint8_t storage_data[52]; 
+  static uint8_t storage_data[CONFIGURATION_SIZE]; 
   storage_read(0, storage_data, size); // read whole storage
 
   memcpy(storage_data + offset, data, length);

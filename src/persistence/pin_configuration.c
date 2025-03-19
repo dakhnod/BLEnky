@@ -112,11 +112,11 @@ uint32_t get_pin_count_input_digital() {
 void pin_configuration_init() {
   storage_init();
 
-  uint8_t pin_configuration_data[16];
+  uint8_t pin_configuration_data[PIN_CONFIGURATION_LENGTH];
   pin_configuration_data_read(pin_configuration_data);
 
   // count output pins
-  pin_data_for_each_pin(pin_configuration_data, 16, count_up_if_enabled);
+  pin_data_for_each_pin(pin_configuration_data, PIN_CONFIGURATION_LENGTH, count_up_if_enabled);
 }
 
 void pin_configuration_parse(
@@ -124,14 +124,14 @@ void pin_configuration_parse(
   pin_output_analog_handler_t output_analog_handler,
   pin_input_digital_handler_t input_digital_handler
 ) {
-  uint8_t pin_configuration_data[16];
+  uint8_t pin_configuration_data[PIN_CONFIGURATION_LENGTH];
   pin_configuration_data_read(pin_configuration_data);
 
   pin_configuration_output_digital_handler = output_digital_handler;
   pin_configuration_output_analog_handler = output_analog_handler;
   pin_configuration_input_digital_handler = input_digital_handler;
 
-  pin_data_for_each_pin(pin_configuration_data, 16, parse_pin_byte);
+  pin_data_for_each_pin(pin_configuration_data, PIN_CONFIGURATION_LENGTH, parse_pin_byte);
 }
 
 void pin_configuration_data_read(uint8_t *data) {

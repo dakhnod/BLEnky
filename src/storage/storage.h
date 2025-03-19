@@ -1,6 +1,7 @@
 #include "fstorage.h"
 #include "nrf_log.h"
 
+#define PIN_CONFIGURATION_LENGTH (HARDWARE_PIN_COUNT / 2)
 #define LENGTH_DEVICE_NAME 20
 
 void storage_init();

@@ -59,11 +59,11 @@ ret_code_t ble_configuration_characteristic_data_set(uint32_t handle, uint8_t *d
   );
 }
 
-ret_code_t ble_configuration_pin_configuraion_data_set(uint8_t data[16]) {
+ret_code_t ble_configuration_pin_configuraion_data_set(uint8_t data[]) {
   return ble_configuration_characteristic_data_set(
     ble_configuration_pin_configuration_handle,
     data,
-    16
+    PIN_CONFIGURATION_LENGTH
   );
 }
 
@@ -78,7 +78,7 @@ ret_code_t ble_configuration_connection_params_configuraion_data_set(uint8_t dat
 void ble_configuration_restore_values() {
   ret_code_t err_code;
 
-  uint8_t storage_data[16]; // size 16 to cover both endpoints
+  uint8_t storage_data[PIN_CONFIGURATION_LENGTH]; // size 16 to cover both endpoints
   storage_read_pin_configuration(storage_data);
   err_code = ble_configuration_pin_configuraion_data_set(storage_data);
   APP_ERROR_CHECK(err_code);

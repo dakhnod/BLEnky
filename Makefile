@@ -40,14 +40,12 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c \
   $(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer.c \
-  $(SDK_ROOT)/components/libraries/timer/app_timer_appsh.c \
   $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
   $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
   $(SDK_ROOT)/components/libraries/fstorage/fstorage.c \
   $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c \
   $(SDK_ROOT)/components/libraries/util/nrf_assert.c \
   $(SDK_ROOT)/components/libraries/uart/retarget.c \
-  $(SDK_ROOT)/components/libraries/util/sdk_errors.c \
   $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c \
   $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
@@ -114,7 +112,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/fifo \
   $(SDK_ROOT)/components/drivers_nrf/common \
   $(SDK_ROOT)/components/ble/ble_advertising \
-  $(SDK_ROOT)/components/drivers_nrf/adc \
   $(SDK_ROOT)/components/ble/ble_services/ble_bas_c \
   $(SDK_ROOT)/components/ble/ble_services/ble_hrs_c \
   $(SDK_ROOT)/components/libraries/queue \
@@ -225,11 +222,14 @@ $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
 
 SRC_FILES += \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
-  $(SDK_ROOT)/components/toolchain/system_nrf51.c
+  $(SDK_ROOT)/components/toolchain/system_nrf51.c \
+  $(SDK_ROOT)/components/libraries/timer/app_timer_appsh.c \
+  $(SDK_ROOT)/components/libraries/util/sdk_errors.c
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s130/headers \
   $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
+  $(SDK_ROOT)/components/drivers_nrf/adc
 
 BOARD ?= WT51822_S4AT
 SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
@@ -240,6 +240,7 @@ CFLAGS += -DS130
 CFLAGS += -DNRF51822
 CFLAGS += -DNRF_SD_BLE_API_VERSION=2
 CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=256
+CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time,prescaler\)
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mfloat-abi=soft
 
@@ -257,14 +258,15 @@ $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
-  $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_3.0.0_softdevice.hex
+  $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
+
+SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex
 
 CFLAGS += -DS132
-CFLAGS += -DNRF52832
+CFLAGS += -DNRF52
 
 ASMFLAGS += -DS132
-ASMFLAGS += -DNRF52832
+ASMFLAGS += -DNRF52
 else ifeq ($(CHIP), NRF52840)
 FAMILY=NRF52
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
@@ -272,14 +274,15 @@ $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s140/headers \
-  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52 \
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex
+  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52
+
+SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex
 
 CFLAGS += -DS140
-CFLAGS += -DNRF52840
+CFLAGS += -DNRF52840_XXAA
 
 ASMFLAGS += -DS140
-ASMFLAGS += -DNRF52840
+ASMFLAGS += -DNRF52840_XXAA
 else
 $(error please specify CHIP=NRF51822 / NRF52832 / NRF52840)
 endif
@@ -291,13 +294,17 @@ SRC_FILES += \
 
 BOARD ?= HOLYIOT_17095
 
-CFLAGS += -DNRF52
 CFLAGS += -DNRF_SD_BLE_API_VERSION=3
 CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=1024
+CFLAGS += -DAPP_TIMER_CONFIG_RTC_FREQUENCY=0
+CFLAGS += -DAPP_TIMER_CONFIG_IRQ_PRIORITY=7
+CFLAGS += -DAPP_TIMER_CONFIG_USE_SCHEDULER=1
+CFLAGS += -DAPP_TIMER_CONFIG_OP_QUEUE_SIZE=10
+CFLAGS += -DSEGGER_RTT_CONFIG_DEFAULT_MODE=0
+CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time\)
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-ASMFLAGS += -DNRF52
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=3
 
 LDFLAGS += -mcpu=cortex-m4
@@ -427,3 +434,16 @@ rtt_viewer_stop:
 
 python_script_run:
 	test/venv/bin/python test/send.py
+
+dongle.zip: $(APPLICATION_HEX)
+	nrfutil pkg generate \
+	--application $(APPLICATION_HEX) \
+	--debug-mode \
+	--hw-version 52 \
+	--sd-id 0x00 \
+	--sd-req 0x00 \
+	--softdevice $(BLE_ROOT)/nRF5_SDK_13.0.0/components/softdevice/s140/hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex \
+	dongle.zip
+
+serial: dongle.zip
+	nrfutil dfu usb-serial -pkg dongle.zip --port /dev/tty.usbmodemCDEEB788250C1

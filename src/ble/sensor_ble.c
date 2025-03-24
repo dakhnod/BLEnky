@@ -15,8 +15,9 @@
 #include "ble_temperature_service.h"
 #include "ble_helpers.h"
 
-#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
-#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
+#define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS_COMPAT(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
+#define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS_COMPAT(5000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
+
 #define MAX_CONN_PARAMS_UPDATE_COUNT    3   
 
 #define APP_ADV_INTERVAL_FAST           MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_FAST, UNIT_0_625_MS)
@@ -38,7 +39,7 @@
 #define STATUS_BATTERY_LEVEL_LOW      0b10
 #define STATUS_BATTERY_LEVEL_CRITICAL 0b11
 
-#define NRF_BLE_MAX_MTU_SIZE    GATT_MTU_SIZE_DEFAULT
+#define NRF_BLE_MAX_MTU_SIZE    40
 
 ble_dfu_t dfu;
 
@@ -777,6 +778,7 @@ void ble_stack_init(void) {
     // Initialize the SoftDevice handler module.
     SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);
 
+    #ifdef NRF51
     ble_enable_params_t ble_enable_params;
     err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
         PERIPHERAL_LINK_COUNT,
@@ -793,6 +795,43 @@ void ble_stack_init(void) {
 #endif
     err_code = softdevice_enable(&ble_enable_params);
     APP_ERROR_CHECK(err_code);
+    #else
+    // Fetch the start address of the application RAM.
+    uint32_t ram_start = 0;
+    err_code = softdevice_app_ram_start_get(&ram_start);
+    APP_ERROR_CHECK(err_code);
+
+    // Overwrite some of the default configurations for the BLE stack.
+    ble_cfg_t ble_cfg;
+    // Overwrite some of the default configurations for the BLE stack.
+
+    // Configure the maximum number of connections.
+    memset(&ble_cfg, 0, sizeof(ble_cfg));
+    ble_cfg.gap_cfg.role_count_cfg.periph_role_count  = 1;
+    ble_cfg.gap_cfg.role_count_cfg.central_role_count = 0;
+    ble_cfg.gap_cfg.role_count_cfg.central_sec_count  = 0;
+    err_code = sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT, &ble_cfg, ram_start);
+    APP_ERROR_CHECK(err_code);
+
+    memset(&ble_cfg, 0, sizeof(ble_cfg));
+    ble_cfg.gatts_cfg.attr_tab_size.attr_tab_size = BLE_GATTS_ATTR_TAB_SIZE_MIN;
+    err_code = sd_ble_cfg_set(BLE_GATTS_CFG_ATTR_TAB_SIZE, &ble_cfg, ram_start);
+    APP_ERROR_CHECK(err_code);
+
+    memset(&ble_cfg, 0, sizeof(ble_cfg));
+    ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = NRF_BLE_MAX_MTU_SIZE;
+    err_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT, &ble_cfg, ram_start);
+    APP_ERROR_CHECK(err_code);
+
+    memset(&ble_cfg, 0, sizeof(ble_cfg));
+    ble_cfg.common_cfg.vs_uuid_cfg.vs_uuid_count = 3;
+    err_code = sd_ble_cfg_set(BLE_COMMON_CFG_VS_UUID, &ble_cfg, ram_start);
+    APP_ERROR_CHECK(err_code);
+
+    // Enable BLE stack.
+    err_code = softdevice_enable(&ram_start);
+    APP_ERROR_CHECK(err_code);
+    #endif
 
     // Subscribe for BLE events.
     err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
@@ -840,7 +879,11 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
         if (err_code == NRF_SUCCESS) {
             return;
         }
+        #ifdef NRF51
         NRF_LOG_ERROR("failed setting stored connection parameters: %s\n", (uint32_t)ERR_TO_STR(err_code));
+        #else
+        NRF_LOG_ERROR("failed setting stored connection parameters: %d\n", err_code);
+        #endif
     }
     else {
         NRF_LOG_WARNING("Connection params not configured\n");
@@ -910,7 +953,11 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
     );
 
     if (err_code != NRF_SUCCESS) {
+        #ifdef NRF51
         NRF_LOG_ERROR("update failed: %s\n", (uint32_t)ERR_TO_STR(err_code));
+        #else
+        NRF_LOG_ERROR("update failed: %d\n", err_code);
+        #endif
     }
     else {
         NRF_LOG_DEBUG("udpate success\n");

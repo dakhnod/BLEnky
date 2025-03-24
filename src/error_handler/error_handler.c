@@ -36,7 +36,10 @@ app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
         (uint32_t)((error_info_t *)(info))->p_file_name);
       NRF_LOG_ERROR("Error Code:  0x%X\r\n", tmp =
         ((error_info_t *)(info))->err_code);
+
+      #ifdef NRF51
       NRF_LOG_ERROR("Error description: %s\n", (uint32_t)ERR_TO_STR(((error_info_t *)(info))->err_code));
+      #endif
       break;
   }
 #ifdef DEBUG

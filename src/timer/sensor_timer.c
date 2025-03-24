@@ -2,7 +2,7 @@
 #include "nrf_log.h"
 #include "feature_config.h"
 
-#define DEBOUNCE_TIMEOUT APP_TIMER_TICKS(GPIO_DEBOUNCE_TIMEOUT_MS, APP_TIMER_PRESCALER)
+#define DEBOUNCE_TIMEOUT APP_TIMER_TICKS_COMPAT(GPIO_DEBOUNCE_TIMEOUT_MS, APP_TIMER_PRESCALER)
 #define MAX_TICKS 32000
 
 // was using mem_manager and malloc, but there's no point since it reserves the max amount anyway
@@ -75,16 +75,20 @@ void timer_sequence_set_timeout_handler(sequence_timer_handler_t timeout_handler
 }
 
 void timer_gpioasm_start(uint64_t millis) {
-    uint64_t total_ticks = APP_TIMER_TICKS(millis, APP_TIMER_PRESCALER);
+    uint64_t total_ticks = APP_TIMER_TICKS_COMPAT(millis, APP_TIMER_PRESCALER);
     timer_gpioasm_start_ticks(total_ticks, &sequence_timer_remaining_ticks);
 }
 
 void timer_init() {
     APP_SCHED_INIT(sizeof(app_timer_event_t), APP_SCHEDULER_QUEUE_SIZE);
 
+    #ifdef NRF51
     APP_TIMER_APPSH_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, true);
+    #else
+    ret_code_t err_code = app_timer_init();
+    APP_ERROR_CHECK(err_code);
+    #endif
 
-    ret_code_t err_code;
     err_code = app_timer_create(
         &sequence_timer,
         APP_TIMER_MODE_SINGLE_SHOT,

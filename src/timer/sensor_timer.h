@@ -2,7 +2,9 @@
 #define SENSOR_TIMER_H
 
 #include "app_timer.h"
+#ifdef NRF51
 #include "app_timer_appsh.h"
+#endif
 #include "app_scheduler.h"
 
 #define APP_TIMER_PRESCALER             0                                 /**< Value of the RTC1 PRESCALER register. */

@@ -1,7 +1,7 @@
 TARGETS          ?= nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
-BLE_ROOT ?= ../..
+BLE_ROOT ?= ..
 
 APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE ?= $(BLE_ROOT)/private.pem
@@ -291,6 +291,9 @@ ifeq ($(FAMILY), NRF52)
 SRC_FILES += \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S \
   $(SDK_ROOT)/components/toolchain/system_nrf52.c
+
+INC_FOLDERS += \
+  $(SDK_ROOT)/components/libraries/strerror \
 
 BOARD ?= HOLYIOT_17095
 

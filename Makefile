@@ -1,4 +1,3 @@
-TARGETS          ?= nrf51822_xxac
 OUTPUT_DIRECTORY := _build
 
 BLE_ROOT ?= ..
@@ -217,8 +216,9 @@ INC_FOLDERS += \
 
 ifeq ($(CHIP), NRF51822)
 FAMILY = NRF51
+TARGETS = nrf51822_xxac
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
-  LINKER_SCRIPT  := src/linker/nrf51822_qfaa.ld
+  LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
 SRC_FILES += \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
@@ -231,7 +231,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
   $(SDK_ROOT)/components/drivers_nrf/adc
 
-BOARD ?= WT51822_S4AT
+BOARD ?= BLE400
 SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
@@ -253,6 +253,7 @@ LDFLAGS += -mcpu=cortex-m0
 
 else ifeq ($(CHIP), NRF52832)
 FAMILY=NRF52
+TARGETS = nrf52832_xxac
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
 
@@ -376,8 +377,8 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 # Flash the program
 flash: $(APPLICATION_HEX)
 	@echo Flashing: $<
-	nrfjprog --program $< -f $(FAMILY) --sectorerase --verify
-	nrfjprog --reset -f $(FAMILY)
+	scp $(APPLICATION_HEX) home:ram
+	echo -e "program /home/home/ram/$(TARGETS).hex verify reset \n exit" | nc home 4444
 
 # Flash softdevice
 flash_softdevice: $(SOFTDEVICE_HEX)

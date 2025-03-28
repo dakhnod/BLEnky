@@ -4,9 +4,6 @@
 #include "nrf_delay.h"
 #include "feature_config.h"
 
-APP_TIMER_DEF(reboot_timer);
-#define REBOOT_TIMEOUT APP_TIMER_TICKS_COMPAT(500, APP_TIMER_PRESCALER)
-
 #define OFFSET_PIN_CONFIGURATION 0x00
 #define OFFSET_CONNECTION_PARAMS_CONFIGURATION 0x10
 #define OFFSET_DEVICE_NAME 0x1A
@@ -44,9 +41,8 @@ void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
     }
     NRF_LOG_DEBUG("fstorage store successfull\n");
     if (((uint8_t *)evt->p_context)[0] == 0x01) {
-      NRF_LOG_DEBUG("reboot requested, rebooting...\n");
-      ret_code_t err_code = app_timer_start(reboot_timer, REBOOT_TIMEOUT, NULL);
-      APP_ERROR_CHECK(err_code);
+      // reboot requested
+      NVIC_SystemReset();
       return;
     }
   }else if(evt->id == FS_EVT_ERASE) {
@@ -142,13 +138,6 @@ void storage_init() {
   NRF_LOG_DEBUG("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
 
   storage_checksum_check();
-
-  ret_code_t err_code = app_timer_create(
-    &reboot_timer,
-    APP_TIMER_MODE_SINGLE_SHOT,
-    (app_timer_timeout_handler_t)NVIC_SystemReset
-  );
-  APP_ERROR_CHECK(err_code);
 }
 
 void storage_on_sys_evt(uint32_t sys_evt) {

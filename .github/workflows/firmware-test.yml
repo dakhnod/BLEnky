@@ -32,14 +32,15 @@ jobs:
     needs: build
 
     steps:
+    - name: delete old firmware
+      run: rm -f /home/home/ram/nrf51822_xxac.hex
     - name: download firmware
       uses: actions/download-artifact@v4
       with:
         name: firmware-file
-        path: /tmp/nrf51_firmware
+        path: /home/home/ram/
     - name: flash firmware
-      working-directory: /home/home/Projects/BLEnky/openocd
-      run: src/openocd -s tcl -f raspi-bcm2385.tcl -f target/nrf51.cfg -c "program /tmp/nrf51_firmware/nrf51822_xxac.hex verify reset exit"
+      run: echo -e "program /home/home/ram/nrf51822_xxac.hex verify; program /home/home/Projects/BLEnky/testing/settings.hex verify reset \n exit" | nc localhost 4444
 
   test:
     runs-on: [self-hosted, firmware-flasher]

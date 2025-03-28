@@ -29,7 +29,7 @@ extern "C" {
     void ble_aio_on_authorize(ble_evt_t *p_ble_evt);
     void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer, uint16_t buffer_len);
     uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count);
-    void ble_aio_handle_input_change(uint32_t index, gpio_config_input_digital_t *config);
+    void ble_aio_handle_input_change(int highest_changed_index);
     void ble_aio_handle_pin_digital_data(uint8_t *pin_data, uint32_t pin_data_length);
     void ble_aio_handle_pin_analog_data(uint32_t index, uint16_t duty_cycle);
 

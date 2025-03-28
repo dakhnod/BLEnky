@@ -11,6 +11,8 @@ uint32_t gpio_output_digital_pin_count = 0;
 uint32_t gpio_output_analog_pin_count = 0;
 uint32_t gpio_input_digital_pin_count = 0;
 
+uint32_t preconfigured_pin_count = 0;
+
 uint16_t analog_output_values[2] = {0};
 
 typedef enum {
@@ -56,7 +58,7 @@ gpio_config_output_digital_t *find_gpio_output_by_index(uint32_t index){
   return &(config->pin.output);
 }
 
-gpio_config_input_digital_t *find_gpio_input_by_index(uint32_t index){
+gpio_config_input_digital_t *gpio_find_input_by_index(uint32_t index){
   gpio_config_t *config = find_gpio_config_by_index(index, INPUT);
   if(config == NULL){
     return NULL;
@@ -122,11 +124,11 @@ uint8_t gpio_get_output_digital_state(uint32_t index) {
 }
 
 bool gpio_get_input_digital_state(uint32_t index) {
-  gpio_config_input_digital_t *config = find_gpio_input_by_index(index);
+  gpio_config_input_digital_t *config = gpio_find_input_by_index(index);
   if(config == NULL){
     return false;
   }
-  return find_gpio_input_by_index(index)->state;
+  return gpio_find_input_by_index(index)->state;
 }
 
 void gpio_encode_states(uint8_t *buffer, direction_t direction){
@@ -204,7 +206,7 @@ void gpio_configure_aio_outputs_analog(){
 }
 
 void on_pin_changed(uint32_t index) {
-  gpio_config_input_digital_t *config = find_gpio_input_by_index(index);
+  gpio_config_input_digital_t *config = gpio_find_input_by_index(index);
   if(config == NULL){
     return;
   }
@@ -214,9 +216,13 @@ void on_pin_changed(uint32_t index) {
     config->trigger_count++;
   }
 
+  config->changed = true;
+
   if (gpio_input_change_handler != NULL) {
-    gpio_input_change_handler(index, config);
+    gpio_input_change_handler(index);
   }
+
+  config->changed = false;
 
   config->ignore_input = true;
 
@@ -224,7 +230,7 @@ void on_pin_changed(uint32_t index) {
 }
 
 void gpio_debounce_timeout_handler(uint32_t timer_index) {
-  gpio_config_input_digital_t *config = find_gpio_input_by_index(timer_index);
+  gpio_config_input_digital_t *config = gpio_find_input_by_index(timer_index);
   if(config == NULL){
     return;
   }
@@ -279,6 +285,9 @@ void gpio_configure_aio_inputs_digital() {
       continue;
     }
     current_index++;
+    if(config->pin.input.virtual){
+      continue;
+    }
     gpio_config_input_digital_t *pin_config = &(config->pin.input);
     uint32_t pin = pin_config->pin;
     uint8_t pull = pin_config->pull;
@@ -304,7 +313,7 @@ void gpio_configure_aio_inputs_digital() {
 }
 
 void gpio_handle_parse_output_digital(uint32_t index, uint32_t pin, uint8_t default_state, uint8_t invert) {
-  gpio_config_t *config = gpio_configs + index;
+  gpio_config_t *config = gpio_configs + index + preconfigured_pin_count;
   config->direction = OUTPUT;
   config->pin.output.pin = pin;
   config->pin.output.default_state = default_state;
@@ -323,7 +332,7 @@ void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t inver
 }
 
 void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert) {
-  gpio_config_t *config = gpio_configs + index;
+  gpio_config_t *config = gpio_configs + index + preconfigured_pin_count;
   config->direction = INPUT;
   config->pin.input.pin = pin;
   config->pin.input.pull = pull;
@@ -336,26 +345,40 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
-  uint32_t current_index;
+  uint32_t current_index = 0;
+
+  // initialize virtual inputs first
+  gpio_input_digital_pin_count = preconfigured_pin_count = VIRTUAL_INPUT_PIN_COUNT;
+
+  for(uint8_t i = 0; i < VIRTUAL_INPUT_PIN_COUNT; i++){
+    gpio_config_t *config = gpio_configs + i;
+    config->direction = INPUT;
+
+    config->pin.input.virtual = true;
+    config->pin.input.pin = 0xFF;
+  }
 
   // this is in a macro instead of a function
   // to make it usable with the configuration macros
   #define GPIO_CONFIGURATION_CHECK(pin_index) \
   do{ \
     current_index = gpio_input_digital_pin_count + gpio_output_digital_pin_count; \
+    gpio_config_t *gpio_config = gpio_configs + current_index; \
     if(GPIO_CONFIGURATION_PIN_##pin_index##_MODE == GPIO_CONFIGURATION_PIN_MODE_INPUT){ \
       gpio_input_digital_pin_count++; \
-      gpio_configs[current_index].direction = INPUT; \
-      gpio_configs[current_index].pin.input.pin = pin_index; \
-      gpio_configs[current_index].pin.input.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
-      gpio_configs[current_index].pin.input.pull = GPIO_CONFIGURATION_PIN_##pin_index##_PULL; \
+      preconfigured_pin_count++; \
+      gpio_config->direction = INPUT; \
+      gpio_config->pin.input.pin = pin_index; \
+      gpio_config->pin.input.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
+      gpio_config->pin.input.pull = GPIO_CONFIGURATION_PIN_##pin_index##_PULL; \
     }else if(GPIO_CONFIGURATION_PIN_##pin_index##_MODE == GPIO_CONFIGURATION_PIN_MODE_OUTPUT){ \
       gpio_output_digital_pin_count++; \
-      gpio_configs[current_index].direction = OUTPUT; \
-      gpio_configs[current_index].pin.output.pin = pin_index; \
-      gpio_configs[current_index].pin.output.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
-      gpio_configs[current_index].pin.output.default_state = GPIO_CONFIGURATION_PIN_##pin_index##_DEFAULT_OUTPUT; \
-      gpio_configs[current_index].pin.output.state = 0xff; \
+      preconfigured_pin_count++; \
+      gpio_config->direction = OUTPUT; \
+      gpio_config->pin.output.pin = pin_index; \
+      gpio_config->pin.output.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
+      gpio_config->pin.output.default_state = GPIO_CONFIGURATION_PIN_##pin_index##_DEFAULT_OUTPUT; \
+      gpio_config->pin.output.state = 0xff; \
     } \
   }while (false)
 
@@ -439,7 +462,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   }
 
   for (int i = 0; i < gpio_input_digital_pin_count; i++) {
-    gpio_config_input_digital_t *config = find_gpio_input_by_index(i);
+    gpio_config_input_digital_t *config = gpio_find_input_by_index(i);
     NRF_LOG_DEBUG("pin input: %d\n", config->pin);
     NRF_LOG_DEBUG("pin pull: %d\n", config->pull);
     NRF_LOG_DEBUG("pin invert: %d\n", config->invert);

@@ -3,6 +3,7 @@
 #include <nrf_log.h>
 #include <nrf_nvic.h>
 #include <nrf_soc.h>
+#include "app_util_platform.h"
 
 #include "watchdog.h"
 
@@ -28,7 +29,7 @@ uint32_t radio_notification_init()
         return err_code;
     }
 
-    err_code = sd_nvic_SetPriority(SWI1_IRQn, 1);
+    err_code = sd_nvic_SetPriority(SWI1_IRQn, APP_IRQ_PRIORITY_LOWEST);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;

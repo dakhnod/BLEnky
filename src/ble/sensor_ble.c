@@ -39,7 +39,7 @@
 #define STATUS_BATTERY_LEVEL_LOW      0b10
 #define STATUS_BATTERY_LEVEL_CRITICAL 0b11
 
-#define NRF_BLE_MAX_MTU_SIZE    40
+#define NRF_BLE_MAX_MTU_SIZE    23
 
 ble_dfu_t dfu;
 

@@ -270,6 +270,7 @@ ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
 else ifeq ($(CHIP), NRF52840)
 FAMILY=NRF52
+TARGETS=nrf52840_xxaa
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52840_qfaa.ld
 

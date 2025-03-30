@@ -24,8 +24,6 @@ void main_handle_input_change(int highest_changed_index)
 }
 
 int main(void) {
-    nrf_gpio_cfg_output(13);
-    nrf_gpio_pin_clear(13);
     (void) NRF_LOG_INIT(NULL);
 
     NRF_LOG_INFO("starting\n");

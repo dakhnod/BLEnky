@@ -39,7 +39,7 @@
 #define STATUS_BATTERY_LEVEL_LOW      0b10
 #define STATUS_BATTERY_LEVEL_CRITICAL 0b11
 
-#define NRF_BLE_MAX_MTU_SIZE    23
+#define NRF_BLE_MAX_MTU_SIZE    64
 
 ble_dfu_t dfu;
 
@@ -277,6 +277,7 @@ void ble_init() {
     APP_ERROR_CHECK(sd_ble_gap_address_get(&ble_address));
     #else
     APP_ERROR_CHECK(sd_ble_gap_addr_get(&ble_address));
+    ble_advertising_conn_cfg_tag_set(1);
     #endif
 
     // allow flash operation to complete. 
@@ -823,11 +824,13 @@ void ble_stack_init(void) {
     APP_ERROR_CHECK(err_code);
 
     memset(&ble_cfg, 0, sizeof(ble_cfg));
-    ble_cfg.gatts_cfg.attr_tab_size.attr_tab_size = BLE_GATTS_ATTR_TAB_SIZE_MIN;
+    ble_cfg.conn_cfg.conn_cfg_tag                 = 1;
+    ble_cfg.gatts_cfg.attr_tab_size.attr_tab_size = BLE_GATTS_ATTR_TAB_SIZE_DEFAULT;
     err_code = sd_ble_cfg_set(BLE_GATTS_CFG_ATTR_TAB_SIZE, &ble_cfg, ram_start);
     APP_ERROR_CHECK(err_code);
 
     memset(&ble_cfg, 0, sizeof(ble_cfg));
+    ble_cfg.conn_cfg.conn_cfg_tag                 = 1;
     ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = NRF_BLE_MAX_MTU_SIZE;
     err_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT, &ble_cfg, ram_start);
     APP_ERROR_CHECK(err_code);

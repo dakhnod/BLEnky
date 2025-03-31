@@ -14,6 +14,7 @@
 #endif
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 
 #include "sensor_ble.h"
 #include "sensor_gpio.h"
@@ -35,6 +36,10 @@ void main_handle_input_change(int highest_changed_index)
 
 int main(void) {
     (void) NRF_LOG_INIT(NULL);
+
+    #ifndef S130
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+    #endif
 
     NRF_LOG_INFO("starting\n");
 

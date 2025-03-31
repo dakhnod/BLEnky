@@ -304,9 +304,15 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/experimental_memobj/nrf_memobj.c \
   $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c \
+  $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_rtt.c \
+  $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_backend_serial.c \
+  $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_default_backends.c \
+  $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_str_formatter.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+  $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
+  $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/strerror \
@@ -318,6 +324,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/svc \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt \
+  $(SDK_ROOT)/external/fprintf \
 
 BOARD ?= HOLYIOT_17095
 
@@ -359,6 +366,8 @@ CFLAGS += -DNRF_LOG_BUFSIZE=1024
 CFLAGS += -DNRF_LOG_MSGPOOL_ELEMENT_COUNT=8
 CFLAGS += -DNRF_LOG_MSGPOOL_ELEMENT_SIZE=20
 CFLAGS += -DNRF_LOG_ALLOW_OVERFLOW=1
+CFLAGS += -DNRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE=128
+CFLAGS += -DNRF_FPRINTF_ENABLED=1
 
 CFLAGS += -DNRF_FSTORAGE_ENABLED=1
 CFLAGS += -DNRF_FSTORAGE_SD_QUEUE_SIZE=4

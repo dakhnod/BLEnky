@@ -449,9 +449,38 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
                 NRF_BLE_MAX_MTU_SIZE);
             APP_ERROR_CHECK(err_code);
             break; // BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST
+            
+
+        case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {
+            ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
+            // Accepting parameters requested by peer.
+            err_code = sd_ble_gap_conn_param_update(p_gap_evt->conn_handle,
+                                                    &p_gap_evt->params.conn_param_update_request.conn_params);
+            APP_ERROR_CHECK(err_code);
+            break;
+        }
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST: {
+            ble_gap_data_length_params_t dl_params;
+
+            // Clearing the struct will effectivly set members to @ref BLE_GAP_DATA_LENGTH_AUTO
+            memset(&dl_params, 0, sizeof(ble_gap_data_length_params_t));
+            err_code = sd_ble_gap_data_length_update(p_ble_evt->evt.gap_evt.conn_handle, &dl_params, NULL);
+            APP_ERROR_CHECK(err_code);
+            break;
+        }
+        case BLE_GAP_EVT_TIMEOUT:
+            NRF_LOG_DEBUG("BLE_GAP_EVT_TIMEOUT\n");
+            break;
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE: 
+            // nothing to do
+            break;
+        case BLE_GAP_EVT_CONN_PARAM_UPDATE:
+            // nothing to do
+            break;
 #endif
 
         default:
+            NRF_LOG_DEBUG("unhandled ble evt: %d\n", p_ble_evt->header.evt_id);
             // No implementation needed.
             break;
     }

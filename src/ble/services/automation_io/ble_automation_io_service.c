@@ -26,19 +26,19 @@ uint16_t ble_aio_analog_out_write_handles[GPIO_OUTPUT_ANALOG_PIN_LIMIT];
 uint8_t ble_aio_send_digital_input_updates = false;
 uint32_t ble_aio_output_analog_pin_count;
 
-void ble_aio_on_connect(ble_evt_t *p_ble_evt)
+void ble_aio_on_connect(const ble_evt_t *p_ble_evt)
 {
     ble_aio_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_aio_on_disconnect(ble_evt_t *p_ble_evt)
+void ble_aio_on_disconnect(const ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
     ble_aio_send_digital_input_updates = false;
 }
 
-void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt)
+void handle_pin_digital_in_cccd_write(const ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len == 2)
     {
@@ -47,7 +47,7 @@ void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt)
 }
 
 void ble_aio_handle_pin_digital_data(
-    uint8_t *pin_data,
+    const uint8_t *pin_data,
     uint32_t pin_data_length)
 {
     uint32_t available_output_count = gpio_get_output_digital_pin_count();
@@ -78,15 +78,15 @@ void ble_aio_handle_pin_analog_data(
     gpio_write_output_analog_pin_us(index, duty_cycle);
 }
 
-void handle_digital_out_write(ble_gatts_evt_write_t *write_evt)
+void handle_digital_out_write(const ble_gatts_evt_write_t *write_evt)
 {
-    uint8_t *data = write_evt->data;
+    const uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
     ble_aio_handle_pin_digital_data(data, len);
 }
 
-void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_evt)
+void handle_pin_analog_out_write(uint32_t index, const ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len != 2)
     {
@@ -188,9 +188,9 @@ ret_code_t ble_aio_characteristic_digital_input_add()
     return ble_helper_characteristic_add(&init);
 }
 
-void ble_aio_on_write(ble_evt_t *p_ble_evt)
+void ble_aio_on_write(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
+    const ble_gatts_evt_write_t *write_evt = &p_ble_evt
                                             ->evt
                                             .gatts_evt
                                             .params
@@ -316,9 +316,9 @@ void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buff
     }
 }
 
-void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
+void ble_aio_on_authorize(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+    const ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
                                                       ->evt.gatts_evt
                                                       .params
                                                       .authorize_request);
@@ -345,7 +345,7 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
+void ble_aio_on_ble_evt(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {

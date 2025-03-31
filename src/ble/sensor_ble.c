@@ -49,6 +49,11 @@ uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the curr
 
 uint16_t advertising_interval = APP_ADV_INTERVAL_SLOW;
 
+#ifndef S130                                        /**< GATT module instance. */
+BLE_ADVERTISING_DEF(m_advertising);
+NRF_BLE_GATT_DEF(m_gatt);
+#endif
+
 #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
 bool custom_advertisement_running = false;
 void custom_data_advertisement_stop();
@@ -277,7 +282,7 @@ void ble_init() {
     APP_ERROR_CHECK(sd_ble_gap_address_get(&ble_address));
     #else
     APP_ERROR_CHECK(sd_ble_gap_addr_get(&ble_address));
-    ble_advertising_conn_cfg_tag_set(1);
+    ble_advertising_conn_cfg_tag_set(&m_advertising, 1);
     #endif
 
     // allow flash operation to complete. 
@@ -330,15 +335,15 @@ void ble_handle_input_change(int highest_changed_index)
     }
 }
 
-void ble_handle_device_name_write(ble_gatts_evt_write_t *write_evt){
+void ble_handle_device_name_write(const ble_gatts_evt_write_t *write_evt){
     uint16_t len = write_evt->len;
-    uint8_t *data = write_evt->data;
+    const uint8_t *data = write_evt->data;
 
     storage_store_device_name(data, len);
 }
 
-void ble_on_write(ble_evt_t *p_ble_evt) {
-  ble_gatts_evt_write_t *write_evt = &p_ble_evt
+void ble_on_write(const ble_evt_t *p_ble_evt) {
+  const ble_gatts_evt_write_t *write_evt = &p_ble_evt
     ->evt
     .gatts_evt
     .params
@@ -355,7 +360,7 @@ void ble_on_write(ble_evt_t *p_ble_evt) {
   }
 }
 
-void on_ble_evt(ble_evt_t *p_ble_evt) {
+void on_ble_evt(const ble_evt_t *p_ble_evt) {
     uint32_t err_code;
 
     switch (p_ble_evt->header.evt_id) {
@@ -486,8 +491,14 @@ void on_ble_evt(ble_evt_t *p_ble_evt) {
     }
 }
 
+#ifdef S130
 void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
+#else
+void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
+#endif
+    #ifdef S130
     ble_conn_state_on_ble_evt(p_ble_evt);
+    #endif
 
     #if FEATURE_ENABLED(BLE_BONDING)
     pm_on_ble_evt(p_ble_evt);
@@ -503,7 +514,9 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
     ble_bss_on_ble_evt(p_ble_evt);
     #endif
 
+    #ifdef S130
     ble_conn_params_on_ble_evt(p_ble_evt);
+    #endif
 
     if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
         // disallow advertising if the sleep module forbids it
@@ -520,7 +533,11 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
         #endif
         
         if(can_advertise){
+            #ifdef S130
             ble_advertising_on_ble_evt(p_ble_evt);
+            #else
+            ble_advertising_on_ble_evt(p_ble_evt, &m_advertising);
+            #endif
         }
     }else if(p_ble_evt->header.evt_id == BLE_GAP_EVT_TIMEOUT){
         #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
@@ -533,10 +550,18 @@ void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
                 ble_advertising_on_ble_evt(p_ble_evt);
             }
         #else
+            #ifdef S130
             ble_advertising_on_ble_evt(p_ble_evt);
+            #else
+            ble_advertising_on_ble_evt(p_ble_evt, &m_advertising);
+            #endif
         #endif
     }else{
+        #ifdef S130
         ble_advertising_on_ble_evt(p_ble_evt);
+        #else
+        ble_advertising_on_ble_evt(p_ble_evt, &m_advertising);
+        #endif
     }
 
     ble_dfu_on_ble_evt(&dfu, p_ble_evt);
@@ -724,19 +749,6 @@ void advertising_event_handler(ble_adv_evt_t event) {
 void advertising_init() {
     ret_code_t err_code;
 
-    ble_adv_modes_config_t advertising_modes_config = {
-      .ble_adv_whitelist_enabled = false,
-      .ble_adv_directed_enabled = false,
-      .ble_adv_directed_slow_enabled = false,
-      .ble_adv_fast_enabled = true,
-      .ble_adv_slow_enabled = true,
-
-      .ble_adv_fast_interval = APP_ADV_INTERVAL_FAST,
-      .ble_adv_fast_timeout = ADVERTISEMENT_TIMEOUT_FAST,
-      .ble_adv_slow_interval = advertising_interval,
-      .ble_adv_slow_timeout = ADVERTISEMENT_TIMEOUT_SLOW,
-    };
-
     uint8_t uuid_len = 0;
     ble_uuid_t uuids[4]; // size may be updated in the future
 
@@ -764,6 +776,20 @@ void advertising_init() {
         uuid_len++;
     #endif
 
+    #ifdef S130
+    ble_adv_modes_config_t advertising_modes_config = {
+      .ble_adv_whitelist_enabled = false,
+      .ble_adv_directed_enabled = false,
+      .ble_adv_directed_slow_enabled = false,
+      .ble_adv_fast_enabled = true,
+      .ble_adv_slow_enabled = true,
+
+      .ble_adv_fast_interval = APP_ADV_INTERVAL_FAST,
+      .ble_adv_fast_timeout = ADVERTISEMENT_TIMEOUT_FAST,
+      .ble_adv_slow_interval = advertising_interval,
+      .ble_adv_slow_timeout = ADVERTISEMENT_TIMEOUT_SLOW,
+    };
+
     ble_advdata_t advertisement_data = {
       .name_type = BLE_ADVDATA_FULL_NAME,
       .include_appearance = true,
@@ -782,6 +808,29 @@ void advertising_init() {
         advertising_event_handler,
         NULL
     );
+    #else
+    ble_advertising_init_t init;
+
+    memset(&init, 0, sizeof(init));
+
+    init.advdata.name_type                = BLE_ADVDATA_FULL_NAME;
+    init.advdata.include_appearance       = true;
+    init.advdata.flags                    = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE;
+    init.advdata.uuids_complete.uuid_cnt  = uuid_len;
+    init.advdata.uuids_complete.p_uuids   = uuids;
+
+    init.config.ble_adv_fast_enabled      = true;
+    init.config.ble_adv_fast_interval     = APP_ADV_INTERVAL_FAST;
+    init.config.ble_adv_fast_timeout      = ADVERTISEMENT_TIMEOUT_FAST;
+
+    init.config.ble_adv_slow_enabled      = true;
+    init.config.ble_adv_slow_interval      = advertising_interval;
+    init.config.ble_adv_slow_timeout      = ADVERTISEMENT_TIMEOUT_SLOW;
+
+    init.evt_handler   = advertising_event_handler;
+
+    err_code = ble_advertising_init(&m_advertising, &init);
+    #endif
 
     APP_ERROR_CHECK(err_code);
 }
@@ -792,14 +841,25 @@ void advertising_init() {
 void advertising_start() {
     ret_code_t err_code;
 
+    #ifdef S130
     err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
+    #else
+    err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+    #endif
     APP_ERROR_CHECK(err_code);
 }
 
+#ifdef S130
 void sys_evt_dispatch(uint32_t sys_evt) {
     storage_on_sys_evt(sys_evt);
     ble_advertising_on_sys_evt(sys_evt);
 }
+#else
+void sys_evt_dispatch(uint32_t sys_evt, void * p_contextt) {
+    storage_on_sys_evt(sys_evt);
+    ble_advertising_on_sys_evt(sys_evt, &m_advertising);
+}
+#endif
 
 void ble_disable_rf(){
     if(connection_handle != BLE_CONN_HANDLE_INVALID){
@@ -812,12 +872,12 @@ void ble_disable_rf(){
 void ble_stack_init(void) {
     uint32_t err_code;
 
-    nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
+    #ifdef NRF51
+    // nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
 
     // Initialize the SoftDevice handler module.
     SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);
 
-    #ifdef NRF51
     ble_enable_params_t ble_enable_params;
     err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
         PERIPHERAL_LINK_COUNT,
@@ -828,6 +888,13 @@ void ble_stack_init(void) {
     //Check the ram settings against the used number of links
     CHECK_RAM_START_ADDR(CENTRAL_LINK_COUNT, PERIPHERAL_LINK_COUNT);
 
+        // Subscribe for BLE events.
+    err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
+    APP_ERROR_CHECK(err_code);
+
     // Enable BLE stack.
 #if (NRF_SD_BLE_API_VERSION == 3)
     ble_enable_params.gatt_enable_params.att_mtu = NRF_BLE_MAX_MTU_SIZE;
@@ -835,9 +902,12 @@ void ble_stack_init(void) {
     err_code = softdevice_enable(&ble_enable_params);
     APP_ERROR_CHECK(err_code);
     #else
+    err_code = nrf_sdh_enable_request();
+    APP_ERROR_CHECK(err_code);
+
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
-    err_code = softdevice_app_ram_start_get(&ram_start);
+    err_code = nrf_sdh_ble_app_ram_start_get(&ram_start);
     APP_ERROR_CHECK(err_code);
 
     // Overwrite some of the default configurations for the BLE stack.
@@ -870,16 +940,12 @@ void ble_stack_init(void) {
     APP_ERROR_CHECK(err_code);
 
     // Enable BLE stack.
-    err_code = softdevice_enable(&ram_start);
+    err_code = nrf_sdh_ble_enable(&ram_start);
     APP_ERROR_CHECK(err_code);
     #endif
 
-    // Subscribe for BLE events.
-    err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
-    APP_ERROR_CHECK(err_code);
+    NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_dispatch, NULL);
+    NRF_SDH_SOC_OBSERVER(m_adv_soc_obs, BLE_ADV_SOC_OBSERVER_PRIO, sys_evt_dispatch, NULL);
 }
 
 /**@brief Function for the GAP initialization.
@@ -989,9 +1055,16 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
 
     ret_code_t err_code;
 
+    #ifdef S130
     err_code = ble_conn_params_change_conn_params(
         &real_params
     );
+    #else
+    err_code = ble_conn_params_change_conn_params(
+        0x00,
+        &real_params
+    );
+    #endif
 
     if (err_code != NRF_SUCCESS) {
         #ifdef NRF51

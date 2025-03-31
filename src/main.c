@@ -1,9 +1,17 @@
+#ifdef S130
 #define NRF_LOG_MODULE_NAME "APP"
+#else
+#define NRF_LOG_MODULE_NAME APP
+#endif
 
 #include <stdint.h>
 #include <string.h>
 
+#if S130
 #include "fstorage.h"
+#else
+#include "nrf_fstorage.h"
+#endif
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 
@@ -14,6 +22,8 @@
 #include "sleep.h"
 #include "feature_config.h"
 #include "watchdog.h"
+
+NRF_LOG_MODULE_REGISTER();
 
 void main_handle_input_change(int highest_changed_index)
 {
@@ -30,7 +40,9 @@ int main(void) {
 
     ble_stack_init();
 
+    #ifdef S130
     fs_init();
+    #endif
 
     timer_init();
 

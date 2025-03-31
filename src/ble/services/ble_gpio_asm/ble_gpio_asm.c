@@ -30,7 +30,7 @@ ret_code_t ble_gpio_asm_characteristic_asm_data_add()
 }
 
 
-uint8_t ble_gpio_asm_handle_data_write(uint8_t *data, uint32_t length)
+uint8_t ble_gpio_asm_handle_data_write(const uint8_t *data, uint32_t length)
 {
     static uint8_t is_overflown = false;
 
@@ -71,19 +71,19 @@ void ble_gpio_asm_handle_input_change()
     gpioasm_handle_digital_input_update(&engine);
 }
 
-void ble_gpio_asm_on_connect(ble_evt_t *p_ble_evt)
+void ble_gpio_asm_on_connect(const ble_evt_t *p_ble_evt)
 {
     ble_gpio_asm_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_gpio_asm_on_disconnect(ble_evt_t *p_ble_evt)
+void ble_gpio_asm_on_disconnect(const ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_gpio_asm_connection_handle = BLE_CONN_HANDLE_INVALID;
 }
 
 
-void ble_gpio_asm_authorize_data_write(ble_gatts_evt_write_t *write_req)
+void ble_gpio_asm_authorize_data_write(const ble_gatts_evt_write_t *write_req)
 {
     uint16_t status = BLE_GATT_STATUS_SUCCESS;
 
@@ -106,9 +106,9 @@ void ble_gpio_asm_authorize_data_write(ble_gatts_evt_write_t *write_req)
         &authorize_params);
 }
 
-void ble_gpio_asm_on_authorize(ble_evt_t *p_ble_evt)
+void ble_gpio_asm_on_authorize(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+    const ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
                                                       ->evt.gatts_evt
                                                       .params
                                                       .authorize_request);
@@ -138,7 +138,7 @@ void ble_gpio_asm_on_authorize(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_gpio_asm_on_ble_evt(ble_evt_t *p_ble_evt)
+void ble_gpio_asm_on_ble_evt(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {

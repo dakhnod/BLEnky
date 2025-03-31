@@ -3,71 +3,49 @@
 #include "crc32.h"
 #include "nrf_delay.h"
 #include "feature_config.h"
+#include "nrf_fstorage_sd.h"
+#include "nrf_fstorage_nvmc.h"
 
-#define OFFSET_PIN_CONFIGURATION 0x00
-#define OFFSET_CONNECTION_PARAMS_CONFIGURATION (OFFSET_PIN_CONFIGURATION + PIN_CONFIGURATION_LENGTH)
-#define OFFSET_DEVICE_NAME (OFFSET_CONNECTION_PARAMS_CONFIGURATION + 10)
-#define OFFSET_CHECKSUM (OFFSET_DEVICE_NAME + LENGTH_DEVICE_NAME)
-
-// the +4 bytes are for storing a checksum
-// the +2 bytes are to allign to 4 bytes since the size comes out to 50 or 66
-#define CONFIGURATION_SIZE OFFSET_CHECKSUM + 4 + 2
-
-FS_REGISTER_CFG(fs_config_t fs_config) =
+NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
 {
-    .callback = fs_evt_handler, // Function for event callbacks.
-    .num_pages = 1,      // Number of physical flash pages required.
-    .priority = 0xFE,            // Priority for flash usage.
-    // why are we not letting the range to be automatically assigned?
-    // we want to have this data to always be at the same location.
-    // automatic assignment would move the data depending on the presence of a bootloader
-    // if we know that this data cannot be in the following three pages, we can just nuke them to delete bonding data
-    // without nuking the pin data
-#ifdef NRF51
-    .p_start_addr = (uint32_t *)(0x00035C00 - (4 * 0x0400)), // start four pages before the bootloader
-    .p_end_addr = (uint32_t *)(0x00035C00 - (3 * 0x0400)), // end three pages before the bootloader
-#else
-    .p_start_addr = (uint32_t *)(0x00075000 - (4 * 0x1000)), // start four pages before the bootloader
-    .p_end_addr = (uint32_t *)(0x00075000 - (3 * 0x1000)), // end three pages before the bootloader
-#endif
-    // remaining three pages are reserved for bonding data
+    .evt_handler    = fs_evt_handler,
+    .start_addr     = (0x00075000 - (4 * 0x1000)),
+    .end_addr       = (0x00075000 - (3 * 0x1000))
 };
 
-void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result) {
-  if (result != FS_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage failure\n");
-    return;
-  }
-  if (evt->id == FS_EVT_STORE) {
-    if (result != FS_SUCCESS) {
-      NRF_LOG_DEBUG("fstorage store failed: %d\n", result);
-      return;
+void fs_evt_handler(nrf_fstorage_evt_t * p_evt) {
+
+
+  NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", p_evt->id, p_evt->result);
+
+  if (p_evt->result == NRF_SUCCESS)
+    {
+        NRF_LOG_DEBUG("Flash %s success: addr=%p",
+                      (p_evt->id == NRF_FSTORAGE_EVT_WRITE_RESULT) ? "write" : "erase",
+                      p_evt->addr);
     }
-    NRF_LOG_DEBUG("fstorage store successfull\n");
-    if (((uint8_t *)evt->p_context)[0] == 0x01) {
-      // reboot requested
-      NVIC_SystemReset();
-      return;
+    else
+    {
+        NRF_LOG_DEBUG("Flash %s failed (0x%x): addr=%p, len=0x%x bytes",
+                      (p_evt->id == NRF_FSTORAGE_EVT_WRITE_RESULT) ? "write" : "erase",
+                      p_evt->result, p_evt->addr, p_evt->len);
     }
-  }else if(evt->id == FS_EVT_ERASE) {
-    if (result != FS_SUCCESS) {
-      NRF_LOG_DEBUG("fstorage erase failed: %d\n", result);
-      return;
+
+    if (p_evt->p_param)
+    {
+        ((void (*)())p_evt->p_param)(p_evt);
     }
-    NRF_LOG_DEBUG("fstorage erase successfull\n");
-  }
-  NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", evt->id, result);
 }
 
 void storage_erase(){
-  ret_code_t ret_code = fs_erase(
-    &fs_config,
-    fs_config.p_start_addr,
+  ret_code_t ret_code = nrf_fstorage_erase(
+    &m_storage,
+    m_storage.start_addr,
     1,
     NULL
   );
 
-  if (ret_code != FS_SUCCESS) {
+  if (ret_code != NRF_SUCCESS) {
     NRF_LOG_DEBUG("fstorage erase failure: %d\n", ret_code);
     return;
   }
@@ -79,7 +57,7 @@ uint32_t checksum_compute(uint8_t *data, uint32_t length){
 
 void storage_read(uint32_t offset, uint8_t *buffer, uint32_t length) {
   // casting p_start_addr, so that offset calculation does not add offset * sizeof(uint32_t)
-  memcpy(buffer, ((uint8_t *)fs_config.p_start_addr) + offset, length);
+  memcpy(buffer, ((uint8_t *)m_storage.start_addr) + offset, length);
 }
 
 void storage_checksum_check(){
@@ -126,26 +104,40 @@ void storage_checksum_check(){
   // giving flash some time to erase flash page
   nrf_delay_ms(3);
 
-  uint32_t count;
-
-  (void)fs_queued_op_count_get(&count);
-
   return;
 };
 
 void storage_init() {
-  fs_ret_t ret = fs_init();
-  if (ret != FS_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage init failure\n");
-    return;
+  nrf_fstorage_api_t * p_api_impl;
+  bool sd_irq_initialized = false;
+
+  NRF_LOG_DEBUG("Calling nrf_dfu_flash_init(sd_irq_initialized=%s)...",
+                sd_irq_initialized ? "true" : "false");
+
+  /* Setup the desired API implementation. */
+#ifdef BLE_STACK_SUPPORT_REQD
+  if (sd_irq_initialized)
+  {
+      NRF_LOG_DEBUG("Initializing nrf_fstorage_sd backend.");
+      p_api_impl = &nrf_fstorage_sd;
   }
-  NRF_LOG_DEBUG("fstorage init success, address %x - %x\n", (uint32_t)fs_config.p_start_addr, (uint32_t)fs_config.p_end_addr);
+  else
+#endif
+  {
+      NRF_LOG_DEBUG("Initializing nrf_fstorage_nvmc backend.");
+      p_api_impl = &nrf_fstorage_nvmc;
+  }
+
+  ret_code_t err_code = nrf_fstorage_init(&m_storage, p_api_impl, NULL);
+  APP_ERROR_CHECK(err_code);
 
   storage_checksum_check();
 }
 
 void storage_on_sys_evt(uint32_t sys_evt) {
+  #ifdef S130
   fs_sys_event_handler(sys_evt);
+  #endif
 }
 
 void storage_read_pin_configuration(uint8_t *buffer) {
@@ -176,9 +168,7 @@ void storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
   *length_ = length;
 }
 
-void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t reboot) {
-  fs_ret_t ret_code;
-
+void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, const uint8_t reboot) {
   // PIN_CONFIGURATION_LENGTH bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
   const uint32_t size = OFFSET_CHECKSUM;
 
@@ -196,15 +186,17 @@ void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t rebo
 
   storage_erase();
 
-  static uint8_t context = false;
-  context = reboot;
+  void (*callback)() = NULL;
+  if(reboot) {
+    callback = NVIC_SystemReset;
+  }
 
-  ret_code = fs_store(
-    &fs_config,
-    fs_config.p_start_addr,
+  uint32_t ret_code = nrf_fstorage_write(
+    &m_storage,
+    m_storage.start_addr,
     (uint32_t *)storage_data,
     data_size_32,
-    &context
+    callback
   );
 
   APP_ERROR_CHECK(ret_code);
@@ -214,11 +206,11 @@ void storage_store_pin_configuration(uint8_t *data) {
   storage_store(OFFSET_PIN_CONFIGURATION, data, PIN_CONFIGURATION_LENGTH, true);
 }
 
-void storage_store_connection_params_configuration(uint8_t *data) {
+void storage_store_connection_params_configuration(const uint8_t *data) {
   storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, true);
 }
 
-void storage_store_device_name(uint8_t *name, int length) {
+void storage_store_device_name(const uint8_t *name, int length) {
   uint8_t name_buffer[LENGTH_DEVICE_NAME];
   memcpy(name_buffer, name, MIN(length, LENGTH_DEVICE_NAME));
   if(length < LENGTH_DEVICE_NAME){

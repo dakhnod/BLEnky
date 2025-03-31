@@ -16,12 +16,12 @@ uint16_t ble_temperature_characteristic_handle = BLE_GATT_HANDLE_INVALID;
 
 uint16_t ble_temperature_cccd_handle = BLE_GATT_HANDLE_INVALID;
 
-void ble_temperature_on_connect(ble_evt_t *p_ble_evt)
+void ble_temperature_on_connect(const ble_evt_t *p_ble_evt)
 {
     ble_temperature_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_temperature_on_disconnect(ble_evt_t *p_ble_evt)
+void ble_temperature_on_disconnect(const ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_temperature_connection_handle = BLE_CONN_HANDLE_INVALID;
@@ -49,8 +49,8 @@ ret_code_t ble_temperature_characteristic_add()
     return ble_helper_characteristic_add(&init);
 }
 
-void ble_temperature_authorize_temperature(ble_evt_t *p_ble_evt){
-    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+void ble_temperature_authorize_temperature(const ble_evt_t *p_ble_evt){
+    const ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
                                                       ->evt.gatts_evt
                                                       .params
                                                       .authorize_request);
@@ -92,7 +92,7 @@ void ble_temperature_authorize_temperature(ble_evt_t *p_ble_evt){
     );
 }
 
-void ble_temperature_on_ble_evt(ble_evt_t *p_ble_evt)
+void ble_temperature_on_ble_evt(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {

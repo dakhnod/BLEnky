@@ -1131,8 +1131,10 @@ void services_init(void) {
     APP_ERROR_CHECK(err_code);
     #endif
 
+    #ifdef S130
     err_code = dfu_init();
     APP_ERROR_CHECK(err_code);
+    #endif
 
     #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     err_code = ble_csc_init();

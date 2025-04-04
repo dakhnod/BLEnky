@@ -44,6 +44,12 @@ SECTIONS
 
 SECTIONS
 {
+  /* Place the bootloader settings page in flash. */
+  .bootloaderSettings(NOLOAD) :
+  {
+
+  } > BOOTLOADER_SETTINGS
+  
   .pwr_mgmt_data :
   {
     PROVIDE(__start_pwr_mgmt_data = .);

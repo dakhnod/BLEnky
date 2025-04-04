@@ -15,7 +15,7 @@
 
 // the +4 bytes are for storing a checksum
 // the +2 bytes are to allign to 4 bytes since the size comes out to 50 or 66
-#define CONFIGURATION_SIZE OFFSET_CHECKSUM + 4 + 2
+#define CONFIGURATION_SIZE (OFFSET_CHECKSUM + 4 + 2)
 
 void storage_init();
 #ifdef S130

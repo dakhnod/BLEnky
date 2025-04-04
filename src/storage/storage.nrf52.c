@@ -9,6 +9,8 @@
 NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
 {
     .evt_handler    = fs_evt_handler,
+    // addresses taken from linker script
+    // which in turn takes those from the bootloader start
     .start_addr     = (0x00075000 - (4 * 0x1000)),
     .end_addr       = (0x00075000 - (3 * 0x1000))
 };
@@ -31,9 +33,10 @@ void fs_evt_handler(nrf_fstorage_evt_t * p_evt) {
                       p_evt->result, p_evt->addr, p_evt->len);
     }
 
-    if (p_evt->p_param)
-    {
-        ((void (*)())p_evt->p_param)(p_evt);
+    if ((*(uint8_t *)(p_evt->p_param)) == 0x01) {
+      // reboot requested
+      NVIC_SystemReset();
+      return;
     }
 }
 
@@ -109,7 +112,7 @@ void storage_checksum_check(){
 
 void storage_init() {
   nrf_fstorage_api_t * p_api_impl;
-  bool sd_irq_initialized = false;
+  bool sd_irq_initialized = true;
 
   NRF_LOG_DEBUG("Calling nrf_dfu_flash_init(sd_irq_initialized=%s)...",
                 sd_irq_initialized ? "true" : "false");
@@ -172,8 +175,6 @@ void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, const 
   // PIN_CONFIGURATION_LENGTH bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
   const uint32_t size = OFFSET_CHECKSUM;
 
-  const uint32_t data_size_32 = CONFIGURATION_SIZE / 4; // calculate size in 32-bit-words
-
   static uint8_t storage_data[CONFIGURATION_SIZE]; 
   storage_read(0, storage_data, size); // read whole storage
 
@@ -186,17 +187,15 @@ void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, const 
 
   storage_erase();
 
-  void (*callback)() = NULL;
-  if(reboot) {
-    callback = NVIC_SystemReset;
-  }
+  static uint8_t context;
+  context = reboot ? 1 : 0;
 
   uint32_t ret_code = nrf_fstorage_write(
     &m_storage,
     m_storage.start_addr,
     (uint32_t *)storage_data,
-    data_size_32,
-    callback
+    CONFIGURATION_SIZE,
+    &context
   );
 
   APP_ERROR_CHECK(ret_code);

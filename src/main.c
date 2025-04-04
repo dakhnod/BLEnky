@@ -37,6 +37,10 @@ void main_handle_input_change(int highest_changed_index)
 int main(void) {
     (void) NRF_LOG_INIT(NULL);
 
+    #ifdef NRF52840_XXAA
+    *((uint32_t*)0x40000558) = 0x5A;
+    #endif
+
     #ifndef S130
     NRF_LOG_DEFAULT_BACKENDS_INIT();
     #endif
@@ -57,7 +61,7 @@ int main(void) {
 
     gpio_init(main_handle_input_change);
 
-    watchdog_init();
+    // watchdog_init();
 
     ble_init();
 

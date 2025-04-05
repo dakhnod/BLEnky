@@ -154,6 +154,48 @@ void peer_manager_event_handler(pm_evt_t const *p_evt)
     case PM_EVT_SERVICE_CHANGED_IND_CONFIRMED:
         NRF_LOG_DEBUG("PM_EVT_SERVICE_CHANGED_IND_CONFIRMED");
         break;
+    #ifndef S130
+    case PM_EVT_CONN_SEC_PARAMS_REQ:
+        {
+            ble_gap_sec_params_t sec_param;
+
+            memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
+
+            bool mitm = false;
+            uint32_t caps = BLE_GAP_IO_CAPS_NONE;
+
+            #if STATIC_PASSKEY_ENABLED == 1
+            if(strlen(BLE_BONDIG_PASSKEY) != 6){
+                NRF_LOG_ERROR("Passkey needs to be six digits long");
+            }
+            mitm = true;
+            caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
+            static ble_opt_t passkey_opt;
+            passkey_opt.gap_opt.passkey.p_passkey = (uint8_t*) BLE_BONDIG_PASSKEY;
+            err_code = sd_ble_opt_set(BLE_GAP_OPT_PASSKEY, &passkey_opt);
+            APP_ERROR_CHECK(err_code);
+            #endif
+
+            // Security parameters to be used for all security procedures.
+            sec_param.bond           = true;
+            sec_param.mitm           = mitm;
+            sec_param.io_caps        = caps;
+            sec_param.min_key_size   = 7;
+            sec_param.max_key_size   = 16;
+            sec_param.kdist_own.enc  = 1;
+            sec_param.kdist_own.id   = 1;
+            sec_param.kdist_peer.enc = 1;
+            sec_param.kdist_peer.id  = 1;
+
+            err_code = pm_conn_sec_params_reply(p_evt->conn_handle,
+                                               &sec_param,
+                                                p_evt->params.conn_sec_params_req.p_context);
+            APP_ERROR_CHECK(err_code);
+        } break;
+    #endif
+    default:
+        NRF_LOG_DEBUG("unhandled PM event:%d\n", p_evt->evt_id);
+
     }
 }
 

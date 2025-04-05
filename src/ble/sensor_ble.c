@@ -41,6 +41,8 @@
 
 #define NRF_BLE_MAX_MTU_SIZE    64
 
+#define APP_BLE_OBSERVER_PRIO       3                                   /**< Application's BLE observer priority. You shouldn't need to modify this value. */
+
 ble_dfu_t dfu;
 
 bool is_advertising = false;
@@ -1192,7 +1194,11 @@ advertising_stop() {
     if (!is_advertising) {
         return;
     }
+    #ifdef S130
     uint32_t err = sd_ble_gap_adv_stop();
+    #else
+    uint32_t err = sd_ble_gap_adv_stop(m_advertising.adv_handle);
+    #endif
     APP_ERROR_CHECK(err);
     is_advertising = false;
 }

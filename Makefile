@@ -16,6 +16,8 @@ ADB_DIRECTORY ?= /sdcard/dfu
 
 FIRMWARE_VERSION := \"0.8.5\"
 
+CONFIG_SUBDIR = $(shell echo $(FAMILY) | tr A-Z a-z)
+
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
@@ -42,10 +44,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c \
   $(SDK_ROOT)/components/libraries/util/nrf_assert.c \
   $(SDK_ROOT)/components/libraries/uart/retarget.c \
-  $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c \
-  $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
-  $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
-  $(SDK_ROOT)/components/drivers_nrf/spi_master/nrf_drv_spi.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/ble/common/ble_advdata.c \
@@ -53,17 +51,12 @@ SRC_FILES += \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings.c \
-  $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
   $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
-  $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
-  $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
-  $(SDK_ROOT)/components/drivers_nrf/wdt/nrf_drv_wdt.c \
   $(SDK_ROOT)/components/ble/ble_services/ble_dis/ble_dis.c \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service/battery.c \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service/ble_dfu.c \
-  $(CUSTOM_INCLUDES_DIR)/libraries/gpiote/nrf_drv_gpiote.c \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \
   $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
   $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
@@ -86,8 +79,6 @@ SRC_FILES += \
 
 # Include folders common to all targets
 INC_FOLDERS += \
-  $(SDK_ROOT)/components/drivers_nrf/comp \
-  $(SDK_ROOT)/components/drivers_nrf/twi_master \
   $(SDK_ROOT)/components/ble/ble_services/ble_ancs_c \
   $(SDK_ROOT)/components/ble/ble_services/ble_ias_c \
   $(SDK_ROOT)/components/libraries/pwm \
@@ -98,11 +89,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/ble/ble_services/ble_gls \
   $(SDK_ROOT)/components/libraries/fstorage \
-  $(SDK_ROOT)/components/drivers_nrf/i2s \
-  $(SDK_ROOT)/components/libraries/gpiote \
-  $(SDK_ROOT)/components/drivers_nrf/gpiote \
   $(SDK_ROOT)/components/libraries/fifo \
-  $(SDK_ROOT)/components/drivers_nrf/common \
   $(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ble/ble_services/ble_bas_c \
   $(SDK_ROOT)/components/ble/ble_services/ble_hrs_c \
@@ -110,10 +97,10 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/ble/ble_dtm \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
   $(SDK_ROOT)/components/ble/ble_services/ble_rscs_c \
-  $(SDK_ROOT)/components/drivers_nrf/uart \
+  $(SDK_ROOT)/components/drivers_nrf/twi_master \
+  $(SDK_ROOT)/components/drivers_nrf/spi_master \
   $(SDK_ROOT)/components/ble/common \
   $(SDK_ROOT)/components/ble/ble_services/ble_lls \
-  $(SDK_ROOT)/components/drivers_nrf/wdt \
   $(SDK_ROOT)/components/libraries/bsp \
   $(SDK_ROOT)/components/ble/ble_services/ble_bas \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
@@ -121,67 +108,45 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/slip \
   $(SDK_ROOT)/external/segger_rtt \
   $(SDK_ROOT)/components/libraries/csense_drv \
-  $(SDK_ROOT)/components/drivers_nrf/hal \
-  $(SDK_ROOT)/components/drivers_nrf/rtc \
   $(SDK_ROOT)/components/ble/ble_services/ble_ias \
   $(SDK_ROOT)/components/libraries/usbd/class/hid/mouse \
-  $(SDK_ROOT)/components/drivers_nrf/ppi \
-  $(SDK_ROOT)/components/drivers_nrf/twis_slave \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/ble/ble_services/ble_lbs \
   $(SDK_ROOT)/components/ble/ble_services/ble_hts \
-  $(SDK_ROOT)/components/drivers_nrf/delay \
-  $(SDK_ROOT)/components/drivers_nrf/spi_master \
   $(SDK_ROOT)/components/libraries/crc16 \
-  $(SDK_ROOT)/components/drivers_nrf/timer \
   $(SDK_ROOT)/components/libraries/util \
-  $(SDK_ROOT)/components/drivers_nrf/pwm \
   $(SDK_ROOT)/components/libraries/usbd/class/cdc \
   $(SDK_ROOT)/components/libraries/csense \
-  $(SDK_ROOT)/components/drivers_nrf/rng \
   $(SDK_ROOT)/components/libraries/low_power_pwm \
   $(SDK_ROOT)/components/libraries/hardfault \
   $(SDK_ROOT)/components/ble/ble_services/ble_cscs \
   $(SDK_ROOT)/components/libraries/uart \
   $(SDK_ROOT)/components/libraries/hci \
   $(SDK_ROOT)/components/libraries/usbd/class/hid/kbd \
-  $(SDK_ROOT)/components/drivers_nrf/spi_slave \
-  $(SDK_ROOT)/components/drivers_nrf/lpcomp \
   $(SDK_ROOT)/components/libraries/timer \
-  $(SDK_ROOT)/components/drivers_nrf/power \
   $(SDK_ROOT)/components/libraries/usbd/config \
   $(SDK_ROOT)/components/toolchain \
   $(SDK_ROOT)/components/libraries/led_softblink \
-  $(SDK_ROOT)/components/drivers_nrf/qdec \
   $(SDK_ROOT)/components/ble/ble_services/ble_cts_c \
-  $(SDK_ROOT)/components/drivers_nrf/spi_master \
   $(SDK_ROOT)/components/ble/ble_services/ble_hids \
-  $(SDK_ROOT)/components/drivers_nrf/pdm \
   $(SDK_ROOT)/components/libraries/crc32 \
   $(SDK_ROOT)/components/libraries/usbd/class/audio \
   $(SDK_ROOT)/components/ble/peer_manager \
-  $(SDK_ROOT)/components/drivers_nrf/swi \
   $(SDK_ROOT)/components/ble/ble_services/ble_tps \
   $(SDK_ROOT)/components/ble/ble_services/ble_dis \
-  $(SDK_ROOT)/components/device \
   $(SDK_ROOT)/components/ble/nrf_ble_qwr \
   $(SDK_ROOT)/components/libraries/button \
   $(SDK_ROOT)/components/libraries/usbd \
-  $(SDK_ROOT)/components/drivers_nrf/saadc \
   $(SDK_ROOT)/components/ble/ble_services/ble_lbs_c \
   $(SDK_ROOT)/components/ble/ble_racp \
   $(SDK_ROOT)/components/toolchain/gcc \
   $(SDK_ROOT)/components/libraries/fds \
-  $(SDK_ROOT)/components/libraries/twi \
-  $(SDK_ROOT)/components/drivers_nrf/clock \
   $(SDK_ROOT)/components/ble/ble_services/ble_rscs \
-  $(SDK_ROOT)/components/drivers_nrf/usbd \
   $(SDK_ROOT)/components/ble/ble_services/ble_hrs \
   $(SDK_ROOT)/components/libraries/bootloader/ble_dfu \
   $(SDK_ROOT)/components/libraries/bootloader/dfu \
   $(SDK_ROOT)/components/libraries/bootloader \
-  $(SDK_ROOT)/components/drivers_nrf/hal \
   $(SDK_ROOT)/components/libraries/crc32 \
   $(PROJ_DIR)/src/ble/services/automation_io/ \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ \
@@ -193,6 +158,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/helpers/ \
+  $(PROJ_DIR)/src/config/$(CONFIG_SUBDIR)/ \
   $(PROJ_DIR)/src/config/ \
   $(PROJ_DIR)/src/gpio/ \
   $(PROJ_DIR)/src/storage/ \
@@ -221,15 +187,51 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/fstorage/fstorage.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
+  $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c \
+  $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
+  $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
+  $(SDK_ROOT)/components/drivers_nrf/spi_master/nrf_drv_spi.c \
+  $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
+  $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
+  $(SDK_ROOT)/components/drivers_nrf/wdt/nrf_drv_wdt.c \
+  $(SDK_ROOT)/libraries/gpiote/nrf_drv_gpiote.c \
+  $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(PROJ_DIR)/src/storage/storage.nrf51.c \
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s130/headers \
   $(SDK_ROOT)/components/softdevice/s130/headers/nrf51 \
-  $(SDK_ROOT)/components/drivers_nrf/adc \
   $(SDK_ROOT)/components/softdevice/common/softdevice_handler \
   $(SDK_ROOT)/components/libraries/log \
   $(SDK_ROOT)/components/libraries/log/src \
+  $(SDK_ROOT)/components/drivers_nrf/uart \
+  $(SDK_ROOT)/components/drivers_nrf/gpiote \
+  $(SDK_ROOT)/components/drivers_nrf/i2s \
+  $(SDK_ROOT)/components/drivers_nrf/common \
+  $(SDK_ROOT)/components/drivers_nrf/wdt \
+  $(SDK_ROOT)/components/drivers_nrf/hal \
+  $(SDK_ROOT)/components/drivers_nrf/rtc \
+  $(SDK_ROOT)/components/drivers_nrf/ppi \
+  $(SDK_ROOT)/components/drivers_nrf/twis_slave \
+  $(SDK_ROOT)/components/drivers_nrf/pwm \
+  $(SDK_ROOT)/components/drivers_nrf/delay \
+  $(SDK_ROOT)/components/drivers_nrf/timer \
+  $(SDK_ROOT)/components/drivers_nrf/rng \
+  $(SDK_ROOT)/components/drivers_nrf/spi_slave \
+  $(SDK_ROOT)/components/drivers_nrf/power \
+  $(SDK_ROOT)/components/drivers_nrf/qdec \
+  $(SDK_ROOT)/components/drivers_nrf/pdm \
+  $(SDK_ROOT)/components/drivers_nrf/swi \
+  $(SDK_ROOT)/components/drivers_nrf/lpcomp \
+  $(SDK_ROOT)/components/drivers_nrf/clock \
+  $(SDK_ROOT)/components/drivers_nrf/usbd \
+  $(SDK_ROOT)/components/drivers_nrf/hal \
+  $(SDK_ROOT)/components/drivers_nrf/saadc \
+  $(SDK_ROOT)/components/drivers_nrf/comp \
+  $(SDK_ROOT)/components/drivers_nrf/adc \
+  $(SDK_ROOT)/components/libraries/twi \
+  $(SDK_ROOT)/components/libraries/gpiote \
+  $(SDK_ROOT)/components/device \
 
 BOARD ?= BLE400
 SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
@@ -294,8 +296,8 @@ endif
 
 ifeq ($(FAMILY), NRF52)
 SRC_FILES += \
-  $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf52.S \
-  $(SDK_ROOT)/components/toolchain/system_nrf52.c \
+  $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
+  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(PROJ_DIR)/src/storage/storage.nrf52.c \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
@@ -313,11 +315,18 @@ SRC_FILES += \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_ppi.c \
+  $(SDK_ROOT)/modules/nrfx/hal/nrf_nvmc.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
 
 INC_FOLDERS += \
+  $(SDK_ROOT)/modules/nrfx/mdk \
+  $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/components/softdevice/common \
   $(SDK_ROOT)/components/libraries/experimental_log \
@@ -327,86 +336,18 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/svc \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
+  $(SDK_ROOT)/components/libraries/atomic_flags \
+  $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt \
+  $(SDK_ROOT)/modules/nrfx \
+  $(SDK_ROOT)/modules/nrfx/drivers/include \
+  $(SDK_ROOT)/integration/nrfx \
+  $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/external/fprintf \
 
 BOARD ?= HOLYIOT_17095
 
 CFLAGS += -DNRF_SD_BLE_API_VERSION=3
-CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=1024
-
-CFLAGS += -DAPP_TIMER_CONFIG_RTC_FREQUENCY=0
-CFLAGS += -DAPP_TIMER_CONFIG_IRQ_PRIORITY=7
-CFLAGS += -DAPP_TIMER_CONFIG_USE_SCHEDULER=1
-CFLAGS += -DAPP_TIMER_CONFIG_OP_QUEUE_SIZE=10
-
-CFLAGS += -DSEGGER_RTT_CONFIG_DEFAULT_MODE=0
-CFLAGS += -DNRF_LOG_BACKEND_RTT_ENABLED=1
-
-CFLAGS += -DPM_MAX_REGISTRANTS=3
-CFLAGS += -DPM_FLASH_BUFFERS=3
-CFLAGS += -DNRF_SDH_STATE_OBSERVER_PRIO_LEVELS=2
-CFLAGS += -DCLOCK_CONFIG_SOC_OBSERVER_PRIO=0
-CFLAGS += -DCLOCK_CONFIG_STATE_OBSERVER_PRIO=0
-CFLAGS += -DFDS_BACKEND=2
-
-CFLAGS += -DNRF_SDH_BLE_OBSERVER_PRIO_LEVELS=3
-CFLAGS += -DPM_BLE_OBSERVER_PRIO=2
-CFLAGS += -DBLE_CONN_STATE_BLE_OBSERVER_PRIO=0
-CFLAGS += -DAPP_BLE_OBSERVER_PRIO=1
-CFLAGS += -DBLE_ADV_BLE_OBSERVER_PRIO=2
-CFLAGS += -DNRF_BLE_GATT_BLE_OBSERVER_PRIO=2
-CFLAGS += -DBLE_CONN_PARAMS_BLE_OBSERVER_PRIO=2
-
-CFLAGS += -DNRF_SDH_BLE_ENABLED=1
-CFLAGS += -DNRF_SDH_BLE_PERIPHERAL_LINK_COUNT=1
-CFLAGS += -DNRF_SDH_BLE_CENTRAL_LINK_COUNT=0
-CFLAGS += -DNRF_SDH_BLE_TOTAL_LINK_COUNT=1
-CFLAGS += -DNRF_SDH_BLE_GATT_MAX_MTU_SIZE=64
-CFLAGS += -DNRF_SDH_BLE_VS_UUID_COUNT=3
-CFLAGS += -DNRF_SDH_REQ_OBSERVER_PRIO_LEVELS=2
-
-CFLAGS += -DNRF_SDH_SOC_ENABLED=1 # little fuckah
-CFLAGS += -DNRF_SDH_SOC_OBSERVER_PRIO_LEVELS=2
-CFLAGS += -DBLE_ADV_SOC_OBSERVER_PRIO=1
-CFLAGS += -DNRF_SDH_SOC_STACK_OBSERVER_PRIO=0
-
-CFLAGS += -DNRF_LOG_BUFSIZE=4096
-CFLAGS += -DNRF_LOG_MSGPOOL_ELEMENT_COUNT=8
-CFLAGS += -DNRF_LOG_MSGPOOL_ELEMENT_SIZE=20
-CFLAGS += -DNRF_LOG_ALLOW_OVERFLOW=1
-CFLAGS += -DNRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE=128
-CFLAGS += -DNRF_FPRINTF_ENABLED=1
-
-CFLAGS += -DNRF_FSTORAGE_ENABLED=1
-CFLAGS += -DNRF_FSTORAGE_SD_QUEUE_SIZE=4
-CFLAGS += -DNRF_FSTORAGE_SD_MAX_RETRIES=8
-CFLAGS += -DNRF_FSTORAGE_SD_MAX_WRITE_SIZE=4096
-
-CFLAGS += -DNRF_SDH_CLOCK_LF_SRC=1
-CFLAGS += -DNRF_SDH_CLOCK_LF_RC_CTIV=0
-CFLAGS += -DNRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0
-CFLAGS += -DNRF_SDH_CLOCK_LF_XTAL_ACCURACY=7
-CFLAGS += -DNRF_SDH_BLE_GAP_EVENT_LENGTH=3
-CFLAGS += -DNRF_SDH_BLE_GATTS_ATTR_TAB_SIZE=1408
-CFLAGS += -DNRF_SDH_BLE_SERVICE_CHANGED=0
-CFLAGS += -DNRF_SDH_BLE_STACK_OBSERVER_PRIO=0
-CFLAGS += -DNRF_SDH_STACK_OBSERVER_PRIO_LEVELS=2
-
-CFLAGS += -DNRF_BLE_GATT_ENABLED=1
-
-CFLAGS += -DNRF_SDH_ENABLED=1
-
-CFLAGS += -DNRF_SECTION_ITER_ENABLED=1
-
-CFLAGS += -DNRF_BALLOC_ENABLED=1
-CFLAGS += -DNRF_BALLOC_CONFIG_HEAD_GUARD_WORDS=1
-CFLAGS += -DNRF_BALLOC_CONFIG_TAIL_GUARD_WORDS=1
-
-CFLAGS += -DNRF_BLE_CONN_PARAMS_ENABLED=1
-CFLAGS += -DNRF_BLE_CONN_PARAMS_MAX_SLAVE_LATENCY_DEVIATION=499
-CFLAGS += -DNRF_BLE_CONN_PARAMS_MAX_SUPERVISION_TIMEOUT_DEVIATION=65535
-
 CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time\)
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
@@ -418,7 +359,7 @@ ASMFLAGS += -DNRF_SD_BLE_API_VERSION=3
 LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_14.2.0_17b948a
+SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_15.0.0_a53641a
 endif
 
 # Libraries common to all targets
@@ -466,6 +407,9 @@ LDFLAGS += --specs=nano.specs -lc -lnosys
 
 # Default target - first one defined
 default: $(TARGETS)
+
+family:
+	echo $(PROJ_DIR)/src/config/$(CONFIG_SUBDIR)
 
 # Print all targets that can be built
 help:

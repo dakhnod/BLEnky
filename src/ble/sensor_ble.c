@@ -970,34 +970,7 @@ void ble_stack_init(void) {
     err_code = nrf_sdh_ble_app_ram_start_get(&ram_start);
     APP_ERROR_CHECK(err_code);
 
-    // Overwrite some of the default configurations for the BLE stack.
-    ble_cfg_t ble_cfg;
-    // Overwrite some of the default configurations for the BLE stack.
-
-    // Configure the maximum number of connections.
-    memset(&ble_cfg, 0, sizeof(ble_cfg));
-    ble_cfg.gap_cfg.role_count_cfg.periph_role_count  = 1;
-    ble_cfg.gap_cfg.role_count_cfg.central_role_count = 0;
-    ble_cfg.gap_cfg.role_count_cfg.central_sec_count  = 0;
-    err_code = sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT, &ble_cfg, ram_start);
-    APP_ERROR_CHECK(err_code);
-
-    memset(&ble_cfg, 0, sizeof(ble_cfg));
-    ble_cfg.conn_cfg.conn_cfg_tag                 = 1;
-    ble_cfg.gatts_cfg.attr_tab_size.attr_tab_size = BLE_GATTS_ATTR_TAB_SIZE_DEFAULT;
-    err_code = sd_ble_cfg_set(BLE_GATTS_CFG_ATTR_TAB_SIZE, &ble_cfg, ram_start);
-    APP_ERROR_CHECK(err_code);
-
-    memset(&ble_cfg, 0, sizeof(ble_cfg));
-    ble_cfg.conn_cfg.conn_cfg_tag                 = 1;
-    ble_cfg.conn_cfg.params.gatt_conn_cfg.att_mtu = NRF_BLE_MAX_MTU_SIZE;
-    err_code = sd_ble_cfg_set(BLE_CONN_CFG_GATT, &ble_cfg, ram_start);
-    APP_ERROR_CHECK(err_code);
-
-    memset(&ble_cfg, 0, sizeof(ble_cfg));
-    ble_cfg.common_cfg.vs_uuid_cfg.vs_uuid_count = 3;
-    err_code = sd_ble_cfg_set(BLE_COMMON_CFG_VS_UUID, &ble_cfg, ram_start);
-    APP_ERROR_CHECK(err_code);
+    err_code = nrf_sdh_ble_default_cfg_set(1, &ram_start);
 
     // Enable BLE stack.
     err_code = nrf_sdh_ble_enable(&ram_start);

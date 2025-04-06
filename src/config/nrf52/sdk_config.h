@@ -11106,7 +11106,7 @@
  
  // <o> SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS - Maximum number of upstream buffers. 
  #ifndef SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS
- #define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 2
+ #define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 4
  #endif
  
  // <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN - Size of downstream buffer. 
@@ -11198,7 +11198,7 @@
  
  // <o> NRF_SDH_BLE_VS_UUID_COUNT - The number of vendor-specific UUIDs. 
  #ifndef NRF_SDH_BLE_VS_UUID_COUNT
- #define NRF_SDH_BLE_VS_UUID_COUNT 0
+ #define NRF_SDH_BLE_VS_UUID_COUNT 3
  #endif
  
  // <q> NRF_SDH_BLE_SERVICE_CHANGED  - Include the Service Changed characteristic in the Attribute Table.

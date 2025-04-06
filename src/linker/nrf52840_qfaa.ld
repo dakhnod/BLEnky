@@ -8,7 +8,7 @@ MEMORY
   /* flash length is calculated using the flash origin of the bootloader_secure */
   /* last subtraction is to have some free flash for pin configuration settings and peer manager */
   FLASH (rx) : ORIGIN = 0x26000, LENGTH = 0x00100000 - 0x26000
-  RAM (rwx) :  ORIGIN = 0x20002390, LENGTH = 0x3DC70
+  RAM (rwx) :  ORIGIN = 0x20002b88, LENGTH = 0x3d478
 
   bootloader_settings_page (r) : ORIGIN = 0x000FF000, LENGTH = 0x1000
 }

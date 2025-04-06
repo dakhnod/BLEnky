@@ -282,7 +282,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s140/headers \
   $(SDK_ROOT)/components/softdevice/s140/headers/nrf52
 
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.0_softdevice.hex
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_softdevice.hex
 
 CFLAGS += -DS140
 CFLAGS += -DNRF52840_XXAA
@@ -321,10 +321,13 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/ringbuf/nrf_ringbuf.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/util/app_error_handler_gcc.c \
+  $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_ecc.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+  $(SDK_ROOT)/components/ble/peer_manager/nrf_ble_lesc.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
@@ -334,6 +337,7 @@ SRC_FILES += \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
   $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+  $(SDK_ROOT)/components/ble/peer_manager/auth_status_tracker.c \
 
 
 INC_FOLDERS += \
@@ -352,17 +356,29 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/components/libraries/mutex \
   $(SDK_ROOT)/components/libraries/ringbuf \
+  $(SDK_ROOT)/components/libraries/crypto \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310 \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310_bl \
+  $(SDK_ROOT)/components/libraries/crypto/backend/mbedtls \
+  $(SDK_ROOT)/components/libraries/crypto/backend/oberon \
+  $(SDK_ROOT)/components/libraries/crypto/backend/optiga \
+  $(SDK_ROOT)/components/libraries/crypto/backend/micro_ecc \
+  $(SDK_ROOT)/components/libraries/crypto/backend/nrf_sw \
+  $(SDK_ROOT)/components/libraries/crypto/backend/nrf_hw \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cifra \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt \
   $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/integration/nrfx \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/external/fprintf \
+  $(SDK_ROOT)/external/nrf_cc310/include \
 
 BOARD ?= HOLYIOT_17095
 
 CFLAGS += -DNRF_SD_BLE_API_VERSION=3
 CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time\)
+CFLAGS += -DNRF_DFU_SETTINGS_COMPATIBILITY_MODE=1
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
@@ -374,7 +390,7 @@ LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 LDFLAGS += -mthumb -mabi=aapcs -L $(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
 
-SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_15.2.0_9412b96
+SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_15.3.0_59ac345
 endif
 
 # Libraries common to all targets

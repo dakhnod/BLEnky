@@ -235,7 +235,7 @@ INC_FOLDERS += \
 
 BOARD ?= BLE400
 SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
-SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 CFLAGS += -DNRF51
 CFLAGS += -DS130
@@ -253,6 +253,7 @@ ASMFLAGS += -DNRF51822
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=2
 
 LDFLAGS += -mcpu=cortex-m0
+LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
 
 else ifeq ($(CHIP), NRF52832)
 FAMILY=NRF52
@@ -264,7 +265,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
   $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
 
-SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex
 
 CFLAGS += -DS132
 CFLAGS += -DNRF52
@@ -282,7 +283,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s140/headers \
   $(SDK_ROOT)/components/softdevice/s140/headers/nrf52
 
-SOFTDEVICE_HEX := $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.0.0_softdevice.hex
 
 CFLAGS += -DS140
 CFLAGS += -DNRF52840_XXAA
@@ -298,6 +299,11 @@ ifeq ($(FAMILY), NRF52)
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_ppi.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_timer.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_wdt.c \
   $(PROJ_DIR)/src/storage/storage.nrf52.c \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
@@ -311,6 +317,10 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_default_backends.c \
   $(SDK_ROOT)/components/libraries/experimental_log/src/nrf_log_str_formatter.c \
   $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c \
+  $(SDK_ROOT)/components/libraries/atomic/nrf_atomic.c \
+  $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c \
+  $(SDK_ROOT)/components/libraries/crc32/crc32.c \
+  $(SDK_ROOT)/components/libraries/util/app_error_handler_gcc.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
@@ -323,6 +333,8 @@ SRC_FILES += \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
+  $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+
 
 INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/mdk \
@@ -358,6 +370,7 @@ ASMFLAGS += -DNRF_SD_BLE_API_VERSION=3
 
 LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LDFLAGS += -mthumb -mabi=aapcs -L $(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
 
 SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_15.0.0_a53641a
 endif
@@ -395,8 +408,6 @@ ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DSWI_DISABLE0
 
-# Linker flags
-LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
 # let linker to dump unused sections
 LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
@@ -430,9 +441,9 @@ flash: $(APPLICATION_HEX)
 	# echo -e "program /home/home/ram/$(TARGETS).hex verify reset \n exit" | nc home 4444
 
 # Flash softdevice
-flash_softdevice: $(SOFTDEVICE_HEX)
+flash_softdevice:
 	@echo Flashing: $(SOFTDEVICE_HEX)
-	nrfjprog --program $(SOFTDEVICE_HEX) -f $(FAMILY) --verify
+	nrfjprog --program $(SOFTDEVICE_HEX) -f $(FAMILY) --verify --sectorerase
 	nrfjprog --reset -f $(FAMILY)
 
 erase:
@@ -495,7 +506,7 @@ dongle.zip: $(APPLICATION_HEX)
 	--hw-version 52 \
 	--sd-id 0x00 \
 	--sd-req 0x00 \
-	--softdevice $(BLE_ROOT)/nRF5_SDK_13.0.0/components/softdevice/s140/hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex \
+	--softdevice $(SOFTDEVICE_HEX) \
 	dongle.zip
 
 serial: dongle.zip

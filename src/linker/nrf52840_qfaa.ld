@@ -7,8 +7,8 @@ MEMORY
 {
   /* flash length is calculated using the flash origin of the bootloader_secure */
   /* last subtraction is to have some free flash for pin configuration settings and peer manager */
-  FLASH (rx) : ORIGIN = 0x22000, LENGTH = 0x00100000 - 0x22000
-  RAM (rwx) :  ORIGIN = 0x20002208, LENGTH = 0x3ddf8
+  FLASH (rx) : ORIGIN = 0x26000, LENGTH = 0x00100000 - 0x26000
+  RAM (rwx) :  ORIGIN = 0x20002b88, LENGTH = 0x3d478
 
   bootloader_settings_page (r) : ORIGIN = 0x000FF000, LENGTH = 0x1000
 }
@@ -103,12 +103,24 @@ SECTIONS
     KEEP(*(SORT(.sdh_stack_observers*)))
     PROVIDE(__stop_sdh_stack_observers = .);
   } > FLASH
+  .nrf_queue :
+  {
+    PROVIDE(__start_nrf_queue = .);
+    KEEP(*(.nrf_queue))
+    PROVIDE(__stop_nrf_queue = .);
+  } > FLASH
   .cli_command :
   {
     PROVIDE(__start_cli_command = .);
     KEEP(*(.cli_command))
     PROVIDE(__stop_cli_command = .);
   } > FLASH
+  .crypto_data :
+  {
+    PROVIDE(__start_crypto_data = .);
+    KEEP(*(SORT(.crypto_data*)))
+    PROVIDE(__stop_crypto_data = .);
+  } > FLASH
 } INSERT AFTER .text
 
-INCLUDE "nrf5x_common.ld"
+INCLUDE "nrf_common.ld"

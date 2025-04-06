@@ -517,8 +517,24 @@ void on_ble_evt(const ble_evt_t *p_ble_evt) {
             APP_ERROR_CHECK(err_code);
             break;
         }
+        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+        {
+            NRF_LOG_DEBUG("PHY update request.");
+            ble_gap_phys_t const phys =
+            {
+                .rx_phys = BLE_GAP_PHY_AUTO,
+                .tx_phys = BLE_GAP_PHY_AUTO,
+            };
+            err_code = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys);
+            APP_ERROR_CHECK(err_code);
+        } break;
+        case BLE_GAP_EVT_PHY_UPDATE:
+            NRF_LOG_DEBUG("PHY update.");
+            break;
         case BLE_GAP_EVT_TIMEOUT:
             NRF_LOG_DEBUG("BLE_GAP_EVT_TIMEOUT\n");
+            break;
+        case BLE_GAP_EVT_ADV_SET_TERMINATED:
             break;
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE: 
             // nothing to do

@@ -248,6 +248,8 @@ void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t act
   uint32_t pin_index = 0;
   gpio_config_input_digital_t *config = NULL;
 
+  uint8_t is_high = nrf_gpio_pin_read(pin);
+
   for (uint32_t i = 0; i < TOTAL_PIN_COUNT_MAX; i++) {
     gpio_config_t *cfg = gpio_configs + i;
     // ignore output configs
@@ -262,8 +264,6 @@ void gpio_pin_toggle_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t act
     }
     break;
   }
-
-  uint8_t is_high = (action == NRF_GPIOTE_POLARITY_LOTOHI);
   is_high ^= config->invert;
   config->ignored_state = is_high;
 

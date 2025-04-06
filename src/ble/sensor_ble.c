@@ -1143,11 +1143,7 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
 ret_code_t dis_init(){
     char *manufacturer = "https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge";
     char *version_fw = FIRMWARE_VERSION;
-    ble_srv_security_mode_t sec_mode;
-    SET_MODE_SECURE(&sec_mode.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode.write_perm);
     ble_dis_init_t init = {
-        .dis_attr_md = sec_mode,
         .fw_rev_str = {
             .p_str = (uint8_t*) version_fw,
             .length = strlen(version_fw)
@@ -1157,6 +1153,15 @@ ret_code_t dis_init(){
             .length = strlen(manufacturer)
         }
     };
+
+    #ifdef S130
+    ble_srv_security_mode_t sec_mode;
+    SET_MODE_SECURE(&sec_mode.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode.write_perm);
+    init.dis_attr_md = sec_mode;
+    #else
+    init.dis_char_rd_sec = SEC_OPEN;
+    #endif
 
     return ble_dis_init(&init);
 }

@@ -8,7 +8,7 @@ MEMORY
   /* flash length is calculated using the flash origin of the bootloader_secure */
   /* last subtraction is to have some free flash for pin configuration settings and peer manager */
   FLASH (rx) : ORIGIN = 0x26000, LENGTH = 0x00100000 - 0x26000
-  RAM (rwx) :  ORIGIN = 0x20002b88, LENGTH = 0x3d478
+  RAM (rwx) :  ORIGIN = 0x20002390, LENGTH = 0x3DC70
 
   bootloader_settings_page (r) : ORIGIN = 0x000FF000, LENGTH = 0x1000
 }
@@ -34,6 +34,12 @@ SECTIONS
     PROVIDE(__start_log_dynamic_data = .);
     KEEP(*(SORT(.log_dynamic_data*)))
     PROVIDE(__stop_log_dynamic_data = .);
+  } > RAM
+  .log_filter_data :
+  {
+    PROVIDE(__start_log_filter_data = .);
+    KEEP(*(SORT(.log_filter_data*)))
+    PROVIDE(__stop_log_filter_data = .);
   } > RAM
   .cli_sorted_cmd_ptrs :
   {
@@ -85,6 +91,12 @@ SECTIONS
     KEEP(*(SORT(.log_const_data*)))
     PROVIDE(__stop_log_const_data = .);
   } > FLASH
+  .log_backends :
+  {
+    PROVIDE(__start_log_backends = .);
+    KEEP(*(SORT(.log_backends*)))
+    PROVIDE(__stop_log_backends = .);
+  } > FLASH
   .sdh_req_observers :
   {
     PROVIDE(__start_sdh_req_observers = .);
@@ -102,6 +114,12 @@ SECTIONS
     PROVIDE(__start_sdh_stack_observers = .);
     KEEP(*(SORT(.sdh_stack_observers*)))
     PROVIDE(__stop_sdh_stack_observers = .);
+  } > FLASH 
+  .nrf_balloc :
+  {
+    PROVIDE(__start_nrf_balloc = .);
+    KEEP(*(.nrf_balloc))
+    PROVIDE(__stop_nrf_balloc = .);
   } > FLASH
   .nrf_queue :
   {

@@ -45,6 +45,8 @@ int main(void) {
     NRF_LOG_DEFAULT_BACKENDS_INIT();
     #endif
 
+    nrf_gpio_cfg_output(13);
+
     NRF_LOG_INFO("starting\n");
 
     ble_stack_init();

@@ -19,7 +19,7 @@ FIRMWARE_VERSION := \"0.8.5\"
 CONFIG_SUBDIR = $(shell echo $(FAMILY) | tr A-Z a-z)
 
 # Source files common to all targets
-SRC_FILES += \
+SRC_FILES_COMMON += \
   $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
   $(SDK_ROOT)/components/ble/peer_manager/peer_data_storage.c \
   $(SDK_ROOT)/components/ble/peer_manager/peer_database.c \
@@ -175,8 +175,9 @@ TARGETS = nrf51822_xxac
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
-SRC_FILES += \
+SRC_FILES = 
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
+  $(SRC_FILES_COMMON) \
   $(SDK_ROOT)/components/toolchain/system_nrf51.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer_appsh.c \
   $(SDK_ROOT)/components/libraries/util/sdk_errors.c \
@@ -295,8 +296,9 @@ $(error please specify CHIP=NRF51822 / NRF52832 / NRF52840)
 endif
 
 ifeq ($(FAMILY), NRF52)
-SRC_FILES += \
+SRC_FILES = \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
+  $(SRC_FILES_COMMON) \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \

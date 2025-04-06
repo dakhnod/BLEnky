@@ -39,6 +39,8 @@ app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
 
       #ifdef NRF51
       NRF_LOG_ERROR("Error description: %s\n", (uint32_t)ERR_TO_STR(((error_info_t *)(info))->err_code));
+      #else
+      NRF_LOG_ERROR("Error description: %s\n", (uint32_t)nrf_strerror_get(((error_info_t *)(info))->err_code));
       #endif
       break;
   }

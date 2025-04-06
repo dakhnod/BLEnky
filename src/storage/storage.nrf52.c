@@ -11,8 +11,13 @@ NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
     .evt_handler    = fs_evt_handler,
     // addresses taken from linker script
     // which in turn takes those from the bootloader start
+    #ifdef NRF51
     .start_addr     = (0x00075000 - (4 * 0x1000)),
     .end_addr       = (0x00075000 - (3 * 0x1000))
+    #else
+    .start_addr     = (0xA1000),
+    .end_addr       = (0xA2000)
+    #endif
 };
 
 void fs_evt_handler(nrf_fstorage_evt_t * p_evt) {

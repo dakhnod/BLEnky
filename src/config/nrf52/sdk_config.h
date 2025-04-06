@@ -11101,12 +11101,12 @@
  // <i> or this value is actually used. It depends on which one is bigger.
  
  #ifndef SEGGER_RTT_CONFIG_BUFFER_SIZE_UP
- #define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 2048
+ #define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 4096
  #endif
  
  // <o> SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS - Maximum number of upstream buffers. 
  #ifndef SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS
- #define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 4
+ #define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 2
  #endif
  
  // <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN - Size of downstream buffer. 

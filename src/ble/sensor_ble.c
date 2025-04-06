@@ -542,6 +542,14 @@ void on_ble_evt(const ble_evt_t *p_ble_evt) {
         case BLE_GAP_EVT_CONN_PARAM_UPDATE:
             // nothing to do
             break;
+        case BLE_GAP_EVT_PASSKEY_DISPLAY:
+            // nothing to do
+            break;
+        case BLE_GAP_EVT_CONN_SEC_UPDATE:
+            NRF_LOG_DEBUG("BLE evt BLE_GAP_EVT_CONN_SEC_UPDATE");
+            break;
+        case BLE_GAP_EVT_AUTH_STATUS:
+            break;
 #endif
 
         default:
@@ -560,7 +568,7 @@ void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
     ble_conn_state_on_ble_evt(p_ble_evt);
     #endif
 
-    #if FEATURE_ENABLED(BLE_BONDING)
+    #if defined S130 && FEATURE_ENABLED(BLE_BONDING)
     pm_on_ble_evt(p_ble_evt);
     #endif
 

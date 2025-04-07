@@ -492,7 +492,7 @@ void on_ble_evt(const ble_evt_t *p_ble_evt) {
         }
         break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
 
-#if (NRF_SD_BLE_API_VERSION == 3)
+#if (NRF_SD_BLE_API_VERSION >= 3)
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
             err_code = sd_ble_gatts_exchange_mtu_reply(p_ble_evt->evt.gatts_evt.conn_handle,
                 NRF_BLE_MAX_MTU_SIZE);
@@ -963,7 +963,7 @@ void ble_stack_init(void) {
     APP_ERROR_CHECK(err_code);
 
     // Enable BLE stack.
-#if (NRF_SD_BLE_API_VERSION == 3)
+#if (NRF_SD_BLE_API_VERSION >= 3)
     ble_enable_params.gatt_enable_params.att_mtu = NRF_BLE_MAX_MTU_SIZE;
 #endif
     err_code = softdevice_enable(&ble_enable_params);

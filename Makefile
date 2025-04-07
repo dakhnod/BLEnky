@@ -16,8 +16,6 @@ ADB_DIRECTORY ?= /sdcard/dfu
 
 FIRMWARE_VERSION := \"0.8.5\"
 
-CONFIG_SUBDIR = $(shell echo $(FAMILY) | tr A-Z a-z)
-
 # Source files common to all targets
 SRC_FILES_COMMON += \
   $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
@@ -175,7 +173,7 @@ TARGETS = nrf51822_xxac
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
-SRC_FILES = 
+SRC_FILES = \
   $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.S \
   $(SRC_FILES_COMMON) \
   $(SDK_ROOT)/components/toolchain/system_nrf51.c \
@@ -194,7 +192,7 @@ SRC_FILES =
   $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
   $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
   $(SDK_ROOT)/components/drivers_nrf/wdt/nrf_drv_wdt.c \
-  $(SDK_ROOT)/libraries/gpiote/nrf_drv_gpiote.c \
+  $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
   $(SDK_ROOT)/components/drivers_nrf/hal/nrf_nvmc.c \
   $(PROJ_DIR)/src/storage/storage.nrf51.c \
 
@@ -256,7 +254,7 @@ LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
 
 else ifeq ($(CHIP), NRF52832)
-FAMILY=NRF52
+FAMILY = NRF52
 TARGETS = nrf52832_xxac
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
@@ -288,8 +286,8 @@ CFLAGS += -DNRF_CRYPTO_BACKEND_MBEDTLS_ENABLED=1
 ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
 else ifeq ($(CHIP), NRF52840)
-FAMILY=NRF52
-TARGETS=nrf52840_xxaa
+FAMILY = NRF52
+TARGETS = nrf52840_xxaa
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52840_qfaa.ld
 
@@ -471,9 +469,6 @@ LDFLAGS += --specs=nano.specs -lc -lnosys
 
 # Default target - first one defined
 default: $(TARGETS)
-
-family:
-	echo $(PROJ_DIR)/src/config/$(CONFIG_SUBDIR)
 
 # Print all targets that can be built
 help:

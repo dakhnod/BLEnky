@@ -16,6 +16,8 @@ ADB_DIRECTORY ?= /sdcard/dfu
 
 FIRMWARE_VERSION := \"0.8.5\"
 
+CONFIG_SUBDIR = $(shell echo $(FAMILY) | tr A-Z a-z)
+
 # Source files common to all targets
 SRC_FILES_COMMON += \
   $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \

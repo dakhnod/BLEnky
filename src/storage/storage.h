@@ -1,4 +1,4 @@
-#ifdef S130
+#if FAMILY == 51
 #include "fstorage.h"
 #else
 #include "nrf_fstorage.h"
@@ -18,7 +18,7 @@
 #define CONFIGURATION_SIZE (OFFSET_CHECKSUM + 4 + 2)
 
 void storage_init();
-#ifdef S130
+#if FAMILY == 51
 void fs_evt_handler(fs_evt_t const *const evt, fs_ret_t result);
 #else
 void fs_evt_handler(nrf_fstorage_evt_t * p_evt);

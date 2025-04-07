@@ -82,10 +82,12 @@ void timer_gpioasm_start(uint64_t millis) {
 void timer_init() {
     APP_SCHED_INIT(sizeof(app_timer_event_t), APP_SCHEDULER_QUEUE_SIZE);
 
-    #ifdef NRF51
+    ret_code_t err_code;
+
+    #if FAMILY == 51
     APP_TIMER_APPSH_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, true);
     #else
-    ret_code_t err_code = app_timer_init();
+    err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
     #endif
 

@@ -917,14 +917,13 @@ void advertising_start() {
     APP_ERROR_CHECK(err_code);
 }
 
-#ifdef S130
+#if FAMILY == 51
 void sys_evt_dispatch(uint32_t sys_evt) {
     storage_on_sys_evt(sys_evt);
     ble_advertising_on_sys_evt(sys_evt);
 }
 #else
 void sys_evt_dispatch(uint32_t sys_evt, void * p_contextt) {
-    storage_on_sys_evt(sys_evt);
     ble_advertising_on_sys_evt(sys_evt, &m_advertising);
 }
 #endif
@@ -940,8 +939,8 @@ void ble_disable_rf(){
 void ble_stack_init(void) {
     uint32_t err_code;
 
-    #ifdef NRF51
-    // nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
+    #if FAMILY == 51
+    nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
 
     // Initialize the SoftDevice handler module.
     SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);
@@ -983,10 +982,10 @@ void ble_stack_init(void) {
     // Enable BLE stack.
     err_code = nrf_sdh_ble_enable(&ram_start);
     APP_ERROR_CHECK(err_code);
-    #endif
 
     NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_dispatch, NULL);
     NRF_SDH_SOC_OBSERVER(m_adv_soc_obs, BLE_ADV_SOC_OBSERVER_PRIO, sys_evt_dispatch, NULL);
+    #endif
 }
 
 /**@brief Function for the GAP initialization.

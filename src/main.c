@@ -1,4 +1,4 @@
-#ifdef S130
+#if FAMILY == 51
 #define NRF_LOG_MODULE_NAME "APP"
 #else
 #define NRF_LOG_MODULE_NAME APP
@@ -7,14 +7,14 @@
 #include <stdint.h>
 #include <string.h>
 
-#if S130
+#if FAMILY == 51
 #include "fstorage.h"
 #else
 #include "nrf_fstorage.h"
+#include "nrf_log_default_backends.h"
 #endif
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
 
 #include "sensor_ble.h"
 #include "sensor_gpio.h"
@@ -24,7 +24,9 @@
 #include "feature_config.h"
 #include "watchdog.h"
 
+#if FAMILY == 52
 NRF_LOG_MODULE_REGISTER();
+#endif
 
 void main_handle_input_change(int highest_changed_index)
 {
@@ -49,7 +51,7 @@ int main(void) {
 
     ble_stack_init();
 
-    #ifdef S130
+    #if FAMILY == 51
     fs_init();
     #endif
 

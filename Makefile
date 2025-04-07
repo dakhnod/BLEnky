@@ -73,7 +73,6 @@ SRC_FILES_COMMON += \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
   $(PROJ_DIR)/src/sleep/sleep.c \
   $(PROJ_DIR)/src/watchdog/watchdog.c \
-  $(PROJ_DIR)/src/dfu/nrf_dfu_flash.c \
   $(PROJ_DIR)/src/main.c \
 
 # Include folders common to all targets
@@ -184,6 +183,7 @@ SRC_FILES = \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/fstorage/fstorage.c \
+  $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_flash.c \
   $(SDK_ROOT)/components/ble/peer_manager/pm_mutex.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
@@ -240,6 +240,7 @@ SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_sof
 CFLAGS += -DNRF51
 CFLAGS += -DS130
 CFLAGS += -DNRF51822
+CFLAGS += -DFAMILY=51
 CFLAGS += -DNRF_SD_BLE_API_VERSION=2
 CFLAGS += -DFDS_VIRTUAL_PAGE_SIZE=256
 CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time,prescaler\)
@@ -327,7 +328,6 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_ppi.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_timer.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_wdt.c \
-  $(PROJ_DIR)/src/storage/storage.nrf52.c \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
@@ -364,6 +364,8 @@ SRC_FILES += \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
   $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
   $(SDK_ROOT)/components/ble/peer_manager/auth_status_tracker.c \
+  $(PROJ_DIR)/src/storage/storage.nrf52.c \
+  $(PROJ_DIR)/src/dfu/nrf_dfu_flash.c \
 
 
 INC_FOLDERS += \
@@ -414,6 +416,9 @@ CFLAGS += -DNRF_SD_BLE_API_VERSION=3
 CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time\)
 CFLAGS += -DNRF_DFU_SETTINGS_COMPATIBILITY_MODE=1
 CFLAGS += -DCONFIG_NFCT_PINS_AS_GPIOS=1
+CFLAGS += -DMBEDTLS_MEMORY_BUFFER_ALLOC_C
+CFLAGS += -DMBEDTLS_PLATFORM_MEMORY
+CFLAGS += -DFAMILY=52
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 

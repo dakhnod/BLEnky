@@ -261,6 +261,18 @@ TARGETS = nrf52832_xxac
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
 
+SRC_FILES = \
+  $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
+  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/mbedtls/mbedtls_backend_ecc.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/mbedtls/mbedtls_backend_init.c \
+  $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
+  $(SDK_ROOT)/external/mbedtls/library/ecp.c \
+  $(SDK_ROOT)/external/mbedtls/library/bignum.c \
+  $(SDK_ROOT)/external/mbedtls/library/ecp_curves.c \
+  $(SDK_ROOT)/external/mbedtls/library/platform.c \
+
+
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
   $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
@@ -270,6 +282,8 @@ SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_sof
 CFLAGS += -DS132
 CFLAGS += -DNRF52
 CFLAGS += -DHARDWARE_PIN_COUNT=32
+CFLAGS += -DNRF_CRYPTO_ALLOCATOR=3
+CFLAGS += -DNRF_CRYPTO_BACKEND_MBEDTLS_ENABLED=1
 
 ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
@@ -278,6 +292,15 @@ FAMILY=NRF52
 TARGETS=nrf52840_xxaa
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52840_qfaa.ld
+
+SRC_FILES = \
+  $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
+  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_rng.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_init.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_shared.c \
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s140/headers \
@@ -288,6 +311,7 @@ SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_sof
 CFLAGS += -DS140
 CFLAGS += -DNRF52840_XXAA
 CFLAGS += -DHARDWARE_PIN_COUNT=64
+CFLAGS += -DNRF_CRYPTO_BACKEND_CC310_ENABLED=1
 
 ASMFLAGS += -DS140
 ASMFLAGS += -DNRF52840_XXAA
@@ -296,10 +320,8 @@ $(error please specify CHIP=NRF51822 / NRF52832 / NRF52840)
 endif
 
 ifeq ($(FAMILY), NRF52)
-SRC_FILES = \
-  $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
+SRC_FILES += \
   $(SRC_FILES_COMMON) \
-  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_ppi.c \
@@ -326,11 +348,7 @@ SRC_FILES = \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_ecc.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_rng.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_init.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_rng.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_init.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_shared.c \
+  $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
@@ -365,6 +383,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/mutex \
   $(SDK_ROOT)/components/libraries/ringbuf \
   $(SDK_ROOT)/components/libraries/stack_info \
+  $(SDK_ROOT)/components/libraries/mem_manager \
   $(SDK_ROOT)/components/libraries/crypto \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310 \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310_bl \
@@ -382,6 +401,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/external/nrf_cc310/include \
+  $(SDK_ROOT)/external/mbedtls/include \
 
 LIB_FILES += \
   $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a \

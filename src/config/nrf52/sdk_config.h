@@ -664,7 +664,7 @@
  // <i> The CC310 hardware-accelerated cryptography backend (only available on nRF52840).
  //==========================================================
  #ifndef NRF_CRYPTO_BACKEND_CC310_ENABLED
- #define NRF_CRYPTO_BACKEND_CC310_ENABLED 1
+ #define NRF_CRYPTO_BACKEND_CC310_ENABLED 0
  #endif
  // <q> NRF_CRYPTO_BACKEND_CC310_AES_CBC_ENABLED  - Enable the AES CBC mode using CC310.
   

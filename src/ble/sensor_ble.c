@@ -1122,7 +1122,7 @@ void ble_handle_connection_parameters_configuration_update(ble_configuration_con
 }
 
 ret_code_t dis_init(){
-    char *manufacturer = "https://github.com/dakhnod/nRF51-GPIO-BLE-Bridge";
+    char *manufacturer = "https://github.com/dakhnod/BLEnky";
     char *version_fw = FIRMWARE_VERSION;
     ble_dis_init_t init = {
         .fw_rev_str = {

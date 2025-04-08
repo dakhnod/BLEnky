@@ -1136,7 +1136,7 @@
  // <i> The nRF HW backend provide access to RNG peripheral in nRF5x devices.
  //==========================================================
  #ifndef NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED
- #define NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED 1
+ #define NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED 0
  #endif
  // <q> NRF_CRYPTO_BACKEND_NRF_HW_RNG_MBEDTLS_CTR_DRBG_ENABLED  - Enable mbed TLS CTR-DRBG algorithm.
   

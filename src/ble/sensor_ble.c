@@ -1140,7 +1140,11 @@ ret_code_t dis_init(){
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode.write_perm);
     init.dis_attr_md = sec_mode;
     #else
+    #if STATIC_PASSKEY_ENABLED == 1
+    init.dis_char_rd_sec = SEC_MITM;
+    #else
     init.dis_char_rd_sec = SEC_OPEN;
+    #endif
     #endif
 
     return ble_dis_init(&init);

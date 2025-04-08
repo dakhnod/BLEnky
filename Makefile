@@ -266,18 +266,14 @@ $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
 SRC_FILES = \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/mbedtls/mbedtls_backend_ecc.c \
-  $(SDK_ROOT)/components/libraries/crypto/backend/mbedtls/mbedtls_backend_init.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
-  $(SDK_ROOT)/external/mbedtls/library/ecp.c \
-  $(SDK_ROOT)/external/mbedtls/library/bignum.c \
-  $(SDK_ROOT)/external/mbedtls/library/ecp_curves.c \
-  $(SDK_ROOT)/external/mbedtls/library/platform.c \
 
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
-  $(SDK_ROOT)/components/softdevice/s132/headers/nrf52
+  $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
 
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex
 
@@ -285,7 +281,7 @@ CFLAGS += -DS132
 CFLAGS += -DNRF52
 CFLAGS += -DHARDWARE_PIN_COUNT=32
 CFLAGS += -DNRF_CRYPTO_ALLOCATOR=3
-CFLAGS += -DNRF_CRYPTO_BACKEND_MBEDTLS_ENABLED=1
+CFLAGS += -DNRF_CRYPTO_BACKEND_OBERON_ENABLED=1
 
 ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
@@ -329,6 +325,7 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_ppi.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_timer.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_wdt.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_rng.c \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
   $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
@@ -350,6 +347,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_rng.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_init.c \
   $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
+  $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+  $(SDK_ROOT)/components/libraries/queue/nrf_queue.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
@@ -359,11 +358,11 @@ SRC_FILES += \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_ppi.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_rng.c \
   $(SDK_ROOT)/modules/nrfx/hal/nrf_nvmc.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
-  $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
   $(SDK_ROOT)/components/ble/peer_manager/auth_status_tracker.c \
   $(PROJ_DIR)/src/storage/storage.nrf52.c \
   $(PROJ_DIR)/src/dfu/nrf_dfu_flash.c \
@@ -404,6 +403,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/external/nrf_cc310/include \
+  $(SDK_ROOT)/external/nrf_oberon \
+  $(SDK_ROOT)/external/nrf_oberon/include \
   $(SDK_ROOT)/external/mbedtls/include \
 
 LIB_FILES += \

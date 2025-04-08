@@ -454,6 +454,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
     NRF_LOG_INFO("no digital input pins configured\n");
   }
 
+  /*
   for (int i = 0; i < gpio_output_digital_pin_count; i++) {
     gpio_config_output_digital_t *config = find_gpio_output_by_index(i);
     NRF_LOG_DEBUG("pin output: %d\n", config->pin);
@@ -467,6 +468,7 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
     NRF_LOG_DEBUG("pin pull: %d\n", config->pull);
     NRF_LOG_DEBUG("pin invert: %d\n", config->invert);
   }
+  */
 
   gpio_input_change_handler = input_change_handler;
 }

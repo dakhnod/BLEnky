@@ -63,7 +63,7 @@ int main(void) {
 
     gpio_init(main_handle_input_change);
 
-    // watchdog_init();
+    watchdog_init();
 
     ble_init();
 

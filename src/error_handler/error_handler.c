@@ -2,6 +2,7 @@
 #include "nrf_log.h"
 #include "nrf.h"
 #include "app_error.h"
+#include "watchdog.h"
 
 #define DEAD_BEEF 0xDEADBEEF /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
@@ -45,6 +46,8 @@ app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
       break;
   }
 #ifdef DEBUG
-  for (;;);
+  for (;;) {
+    watchdog_feed();
+  };
 #endif
 }

@@ -414,8 +414,6 @@ CFLAGS += -DFAMILY=52
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-CFLAGS += -DDEBUG
-
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=6
 
 LDFLAGS += -mcpu=cortex-m4
@@ -441,7 +439,6 @@ CFLAGS += -DNRF_DFU_SETTINGS_VERSION=1
 CFLAGS += -DUSE_DFU
 #CFLAGS += -DUSE_SPI
 #CFLAGS += -DUSE_UART
-CFLAGS += -DDEBUG
 CFLAGS += -DBUTTON_PIN=BUTTON_0
 CFLAGS += -DFIRMWARE_VERSION=$(FIRMWARE_VERSION)
 
@@ -459,6 +456,10 @@ CFLAGS += -DNRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0
 CFLAGS += -DNRF_SDH_CLOCK_LF_ACCURACY=7
 else
 $(error please specify LFCLK_SRC_XTAL=0 / 1)
+endif
+
+ifeq ($(DEBUG), 1)
+CFLAGS += -DDEBUG=1
 endif
 
 # C++ flags common to all targets

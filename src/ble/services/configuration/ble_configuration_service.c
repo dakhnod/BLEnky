@@ -299,6 +299,10 @@ void ble_configuration_on_authorize(const ble_evt_t *p_ble_evt) {
       ble_configuration_authorize_reboot(write_req);
       return;
     }
+  }else if(req->type == BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
+    const ble_gatts_evt_read_t *read_req = &(req->request.read);
+
+    error(implement);
   }
 }
 

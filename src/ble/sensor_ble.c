@@ -43,8 +43,6 @@
 
 #define APP_BLE_OBSERVER_PRIO       3                                   /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
-ble_dfu_t dfu;
-
 bool is_advertising = false;
 
 uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
@@ -634,8 +632,6 @@ void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
         #endif
     }
 
-    ble_dfu_on_ble_evt(&dfu, p_ble_evt);
-
     #if FEATURE_ENABLED(BATTERY_PROFILE)
     ble_bas_on_ble_evt(p_ble_evt);
     #endif
@@ -1078,14 +1074,6 @@ uint32_t bas_init() {
     return ble_bas_init(&bas_init);
 }
 
-
-uint32_t dfu_init() {
-    ble_dfu_init_t init = {
-        .evt_handler = NULL
-    };
-    return ble_dfu_init(&dfu, &init);
-}
-
 void ble_handle_connection_parameters_configuration_update(ble_configuration_connection_params_packet_t *packet) {
     // should to some validation here
 
@@ -1188,9 +1176,6 @@ void services_init(void) {
     err_code = ble_hid_init();
     APP_ERROR_CHECK(err_code);
     #endif
-
-    err_code = dfu_init();
-    APP_ERROR_CHECK(err_code);
 
     #if FEATURE_ENABLED(CYCLING_SPEED_CADENCE)
     err_code = ble_csc_init();

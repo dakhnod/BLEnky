@@ -6,7 +6,6 @@
 #include "ble_advdata.h"
 #include "sensor_gpio.h"
 #include "battery.h"
-#include "ble_dfu.h"
 #include "app_timer.h"
 #include "ble_hci.h"
 #include "ble_advertising.h"
@@ -51,7 +50,6 @@ void advertising_start(void);
 void ble_stack_init(void);
 void gap_params_init(uint8_t *device_name, uint32_t device_name_length);
 uint32_t bas_init(void);
-uint32_t dfu_init(void);
 void services_init(void);
 void advertising_stop(void);
 void ble_init(void);

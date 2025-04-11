@@ -49,13 +49,11 @@ SRC_FILES_COMMON += \
   $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_settings.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
   $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/ble/ble_services/ble_dis/ble_dis.c \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service/battery.c \
-  $(CUSTOM_INCLUDES_DIR)/services/dfu_service/ble_dfu.c \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \
   $(PROJ_DIR)/src/ble/services/automation_io/ble_automation_io_service.c \
   $(PROJ_DIR)/src/ble/services/configuration/ble_configuration_service.c \
@@ -141,9 +139,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/fds \
   $(SDK_ROOT)/components/ble/ble_services/ble_rscs \
   $(SDK_ROOT)/components/ble/ble_services/ble_hrs \
-  $(SDK_ROOT)/components/libraries/bootloader/ble_dfu \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu \
-  $(SDK_ROOT)/components/libraries/bootloader \
   $(SDK_ROOT)/components/libraries/crc32 \
   $(PROJ_DIR)/src/ble/services/automation_io/ \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ \
@@ -165,7 +160,6 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/watchdog/ \
   $(PROJ_DIR)/src/sleep/ \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service \
-  $(CUSTOM_INCLUDES_DIR)/services/dfu_service \
 
 ifeq ($(CHIP), NRF51822)
 FAMILY = NRF51
@@ -183,7 +177,6 @@ SRC_FILES = \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/fstorage/fstorage.c \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_flash.c \
   $(SDK_ROOT)/components/ble/peer_manager/pm_mutex.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
@@ -365,7 +358,6 @@ SRC_FILES += \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
   $(SDK_ROOT)/components/ble/peer_manager/auth_status_tracker.c \
   $(PROJ_DIR)/src/storage/storage.nrf52.c \
-  $(PROJ_DIR)/src/dfu/nrf_dfu_flash.c \
 
 
 INC_FOLDERS += \

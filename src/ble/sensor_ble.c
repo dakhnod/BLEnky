@@ -51,6 +51,8 @@ uint16_t connection_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the curr
 
 uint16_t advertising_interval = APP_ADV_INTERVAL_SLOW;
 
+bool advertising_initialized = false;
+
 #ifndef S130                                        /**< GATT module instance. */
 BLE_ADVERTISING_DEF(m_advertising);
 NRF_BLE_GATT_DEF(m_gatt);
@@ -901,12 +903,18 @@ void advertising_init() {
     #endif
 
     APP_ERROR_CHECK(err_code);
+
+    advertising_initialized = true;
 }
 
 
 /**@brief Function for starting advertising.
  */
 void advertising_start() {
+    if(!advertising_initialized) {
+        return;
+    }
+
     ret_code_t err_code;
 
     #ifdef S130
@@ -967,10 +975,6 @@ void ble_stack_init(void) {
     err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
 
-    // Enable BLE stack.
-#if (NRF_SD_BLE_API_VERSION >= 3)
-    ble_enable_params.gatt_enable_params.att_mtu = NRF_BLE_MAX_MTU_SIZE;
-#endif
     err_code = softdevice_enable(&ble_enable_params);
     APP_ERROR_CHECK(err_code);
     #else

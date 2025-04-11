@@ -20,7 +20,7 @@ jobs:
         output_file: src/config/feature_config.template.h
     - name: build firmware
       run: |
-        make BLE_ROOT=../../../../ CHIP=NRF51822
+        make BLE_ROOT=../../../../ CHIP=NRF51822 LFCLK_SRC_XTAL=1
     - name: store firmware
       uses: actions/upload-artifact@v4
       with:

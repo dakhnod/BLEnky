@@ -165,12 +165,12 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/watchdog/ \
   $(PROJ_DIR)/src/sleep/ \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service \
-  $(CUSTOM_INCLUDES_DIR)/boards \
   $(CUSTOM_INCLUDES_DIR)/services/dfu_service \
 
 ifeq ($(CHIP), NRF51822)
 FAMILY = NRF51
 TARGETS = nrf51822_xxac
+
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
@@ -233,7 +233,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/gpiote \
   $(SDK_ROOT)/components/device \
 
-BOARD ?= BLE400
 SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
@@ -413,8 +412,6 @@ LIB_FILES += \
   $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/hard-float/liboberon_2.0.7.a \
   $(SDK_ROOT)/components/nfc/t2t_lib/nfc_t2t_lib_gcc.a \
 
-BOARD ?= HOLYIOT_17095
-
 CFLAGS += -DNRF_SD_BLE_API_VERSION=6
 CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time\)
 CFLAGS += -DNRF_DFU_SETTINGS_COMPATIBILITY_MODE=1
@@ -440,7 +437,6 @@ endif
 LIB_FILES += \
 
 # C flags common to all targets
-CFLAGS += -DBOARD_$(BOARD)
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DSWI_DISABLE0
@@ -453,17 +449,30 @@ CFLAGS += -DNRF_DFU_SETTINGS_VERSION=1
 CFLAGS += -DUSE_DFU
 #CFLAGS += -DUSE_SPI
 #CFLAGS += -DUSE_UART
-ifeq ($(BOARD), BLE400)
 CFLAGS += -DDEBUG
-endif
 CFLAGS += -DBUTTON_PIN=BUTTON_0
 CFLAGS += -DFIRMWARE_VERSION=$(FIRMWARE_VERSION)
+
+ifeq ($(LFCLK_SRC_XTAL), 0)
+CFLAGS += -DCLOCK_CONFIG_LF_SRC=0
+CFLAGS += -DNRF_SDH_CLOCK_LF_SRC=0
+CFLAGS += -DNRF_SDH_CLOCK_LF_RC_CTIV=16
+CFLAGS += -DNRF_SDH_CLOCK_LF_RC_TEMP_CTIV=2
+CFLAGS += -DNRF_SDH_CLOCK_LF_ACCURACY=1
+else ifeq ($(LFCLK_SRC_XTAL), 1)
+CFLAGS += -DCLOCK_CONFIG_LF_SRC=1
+CFLAGS += -DNRF_SDH_CLOCK_LF_SRC=1
+CFLAGS += -DNRF_SDH_CLOCK_LF_RC_CTIV=0
+CFLAGS += -DNRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0
+CFLAGS += -DNRF_SDH_CLOCK_LF_ACCURACY=7
+else
+$(error please specify LFCLK_SRC_XTAL=0 / 1)
+endif
 
 # C++ flags common to all targets
 CXXFLAGS += \
 
 # Assembler flags common to all targets
-ASMFLAGS += -DBOARD_$(BOARD)
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DSWI_DISABLE0
@@ -535,10 +544,10 @@ reset:
 
 bin: 
 	rm -f without_crtystal.bin with_crtystal.bin nrf51822_xxac.bin
-	make clean default sign BOARD=BOARD_BEACON_BIG
+	make clean default sign
 	unzip $(PROJECT_ID).zip nrf51822_xxac.bin
 	mv nrf51822_xxac.bin "$(BIN_OUTPUT_FOLDER)$(BIN_OUTPUT_WITHOUT_CRYSTAL)"
-	make clean default sign  BOARD=BOARD_BEACON_SMALL
+	make clean default sign
 	unzip $(PROJECT_ID).zip nrf51822_xxac.bin
 	mv nrf51822_xxac.bin "$(BIN_OUTPUT_FOLDER)$(BIN_OUTPUT_WITH_CRYSTAL)"
 	rm $(PROJECT_ID).zip

@@ -940,7 +940,12 @@ void ble_stack_init(void) {
     uint32_t err_code;
 
     #if FAMILY == 51
-    nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
+    nrf_clock_lf_cfg_t clock_lf_cfg = {
+        .source        = NRF_SDH_CLOCK_LF_SRC,
+        .rc_ctiv       = NRF_SDH_CLOCK_LF_RC_CTIV,
+        .rc_temp_ctiv  = NRF_SDH_CLOCK_LF_RC_TEMP_CTIV,
+        .xtal_accuracy = NRF_SDH_CLOCK_LF_ACCURACY
+    };
 
     // Initialize the SoftDevice handler module.
     SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);

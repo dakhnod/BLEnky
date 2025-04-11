@@ -59,7 +59,7 @@ ret_code_t ble_reboot_characteristic_add() {
     .is_readable = true,
     .authorize_write = true,
     .authorize_read = true,
-    .max_length = 4,
+    .max_length = 1,
     .value_handle = &ble_reboot_handle,
   };
   return ble_helper_characteristic_add(&init);
@@ -170,14 +170,42 @@ void ble_configuration_handle_connection_params_configuration_data(const uint8_t
   // ble_configuration_connection_params_update_handler(packet);
 }
 
-void ble_configuration_authorize_reboot(const ble_gatts_evt_write_t *write_req) {
-  uint32_t newValue = 0;
-  memcpy(&newValue, write_req->data, MIN(write_req->len, 4));
+void ble_configuration_authorize_read_reboot(const ble_gatts_evt_read_t *read_req) {
+  uint32_t value;
+
   #ifdef S130
-  sd_power_gpregret_set(newValue);
+  sd_power_gpregret_get(&value);
   #else
-  sd_power_gpregret_set(0, newValue);
+  sd_power_gpregret_get(0, &value);
   #endif
+
+  ble_gatts_rw_authorize_reply_params_t authorize_params = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
+      .params.read = {
+        .gatt_status = BLE_GATT_STATUS_SUCCESS,
+        .update = 1,
+        .offset = 0,
+        .len = 1,
+        .p_data = (uint8_t*) &value
+      }
+  };
+
+  sd_ble_gatts_rw_authorize_reply(
+    ble_configuration_connection_handle,
+    &authorize_params
+  );
+}
+
+void ble_configuration_authorize_write_reboot(const ble_gatts_evt_write_t *write_req) {
+  if(write_req->len > 0) {
+    #ifdef S130
+    APP_ERROR_CHECK(sd_power_gpregret_clr(~0));
+    APP_ERROR_CHECK(sd_power_gpregret_set(write_req->data[0]));
+    #else
+    APP_ERROR_CHECK(sd_power_gpregret_clr(0, ~0));
+    APP_ERROR_CHECK(sd_power_gpregret_set(0, write_req->data[0]));
+    #endif
+  }
 
   reboot_scheduled = true;
 
@@ -296,13 +324,16 @@ void ble_configuration_on_authorize(const ble_evt_t *p_ble_evt) {
     }
 
     if (handle == ble_reboot_handle) {
-      ble_configuration_authorize_reboot(write_req);
+      ble_configuration_authorize_write_reboot(write_req);
       return;
     }
-  }else if(req->type == BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
+  }else if(req->type == BLE_GATTS_AUTHORIZE_TYPE_READ) {
     const ble_gatts_evt_read_t *read_req = &(req->request.read);
 
-    error(implement);
+    if(handle == ble_reboot_handle) {
+      ble_configuration_authorize_read_reboot(read_req);
+      return;
+    }
   }
 }
 

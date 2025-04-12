@@ -4,8 +4,9 @@ BLE_ROOT ?= ..
 
 APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE ?= $(BLE_ROOT)/private.pem
-PROJECT_ID ?= $(shell basename `pwd`)
-OUT_ZIP ?= $(PROJECT_ID)_$(FAMILY).zip
+PROJECT_ID ?= BLEnky
+OUT_ZIP_SD ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_SD_$(SOFTDEVICE_VERSION).zip
+OUT_ZIP ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL).zip
 
 SHELL := /bin/bash
 
@@ -14,7 +15,7 @@ CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET ?= Pixel-5
 ADB_DIRECTORY ?= /sdcard/dfu
 
-FIRMWARE_VERSION := \"0.8.5\"
+FIRMWARE_VERSION := \"0.9.0\"
 
 CONFIG_SUBDIR = $(shell echo $(FAMILY) | tr A-Z a-z)
 
@@ -165,6 +166,9 @@ ifeq ($(CHIP), NRF51822)
 FAMILY = NRF51
 TARGETS = nrf51822_xxac
 
+SOFTDEVICE_VERSION = S130_2.0.1
+SOFTDEVICE_ID = 0x87
+
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf51822_qfac.ld
 
@@ -252,6 +256,10 @@ LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
 else ifeq ($(CHIP), NRF52832)
 FAMILY = NRF52
 TARGETS = nrf52832_xxac
+
+SOFTDEVICE_VERSION = S132_6.1.1
+SOFTDEVICE_ID = 0xB7
+
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
 
@@ -281,6 +289,10 @@ ASMFLAGS += -DNRF52
 else ifeq ($(CHIP), NRF52840)
 FAMILY = NRF52
 TARGETS = nrf52840_xxaa
+
+SOFTDEVICE_VERSION = S140_6.1.1
+SOFTDEVICE_ID = 0xAE
+
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52840_qfaa.ld
 
@@ -448,12 +460,14 @@ CFLAGS += -DNRF_SDH_CLOCK_LF_SRC=0
 CFLAGS += -DNRF_SDH_CLOCK_LF_RC_CTIV=16
 CFLAGS += -DNRF_SDH_CLOCK_LF_RC_TEMP_CTIV=2
 CFLAGS += -DNRF_SDH_CLOCK_LF_ACCURACY=1
+XTAL_LABEL = INTERNAL_RC
 else ifeq ($(LFCLK_SRC_XTAL), 1)
 CFLAGS += -DCLOCK_CONFIG_LF_SRC=1
 CFLAGS += -DNRF_SDH_CLOCK_LF_SRC=1
 CFLAGS += -DNRF_SDH_CLOCK_LF_RC_CTIV=0
 CFLAGS += -DNRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0
 CFLAGS += -DNRF_SDH_CLOCK_LF_ACCURACY=7
+XTAL_LABEL = EXTERNAL_XTAL
 else
 $(error please specify LFCLK_SRC_XTAL=0 / 1)
 endif
@@ -476,7 +490,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += --specs=nano.specs -lc -lnosys
 
 
-.PHONY: $(TARGETS) default all clean help flash flash_softdevice erase merge_softdevice applicaiton_zip push sign reset config feature_config
+.PHONY: $(TARGETS) default all clean help flash flash_softdevice erase merge_softdevice applicaiton_zip push sign sign_sd reset config feature_config
 
 # Default target - first one defined
 default: $(TARGETS)
@@ -517,9 +531,28 @@ merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 $(OUT_ZIP): $(APPLICATION_HEX)
 	rm -f $(OUT_ZIP)
 	ls -lh $(APPLICATION_HEX)
-	nrfutil pkg generate --application $(APPLICATION_HEX) --debug-mode $(OUT_ZIP) --key-file $(KEY_FILE)
+	nrfutil pkg generate \
+    --application $(APPLICATION_HEX) \
+    --debug-mode \
+    --key-file $(KEY_FILE) \
+    --sd-req 0x00 \
+    $(OUT_ZIP) \
+
+$(OUT_ZIP_SD): $(APPLICATION_HEX)
+	rm -f $(OUT_ZIP_SD)
+	ls -lh $(APPLICATION_HEX)
+	nrfutil pkg generate \
+    --application $(APPLICATION_HEX) \
+    --debug-mode \
+    --key-file $(KEY_FILE) \
+    --sd-req 0x00 \
+    --sd-id $(SOFTDEVICE_ID) \
+    --softdevice $(SOFTDEVICE_HEX) \
+    $(OUT_ZIP_SD) \
 
 sign: $(OUT_ZIP)
+
+sign_sd: $(OUT_ZIP_SD)
 
 push: $(OUT_ZIP)
 	adb connect $(ADB_TARGET)

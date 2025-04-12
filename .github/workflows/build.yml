@@ -1,0 +1,71 @@
+name: Reusable build workflow
+
+on: 
+  workflow_call:
+    inputs:
+      chip:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: [self-hosted, firmware-builder]
+    env:
+      BLE_ROOT: ../../../../
+
+    steps:
+    - name: extract code version
+      id: code-version
+      run: echo "VERSION=$(echo ${{ github.ref }} | cut -c 12-)" >> $GITHUB_OUTPUT
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: check code version
+      run: grep ${{ steps.code-version.outputs.VERSION }} Makefile
+    - name: parse feature template
+      uses: cuchi/jinja2-action@v1.2.2
+      with:
+        template: src/config/feature_config.template.h.jinja
+        output_file: src/config/feature_config.template.h
+
+    - name: set PATH
+      run: echo "../../../../" >> $GITHUB_PATH
+
+    - name: build firmware (no crystal)
+      run: make sign
+      env:
+        CHIP: ${{ inputs.chip }}
+        LFCLK_SRC_XTAL: 0
+    - name: build firmware + SD (no crystal)
+      run: make sign_sd
+      env:
+        CHIP: ${{ inputs.chip }}
+        LFCLK_SRC_XTAL: 0
+    - name: build firmware (crystal)
+      run: make sign
+      env:
+        CHIP: ${{ inputs.chip }}
+        LFCLK_SRC_XTAL: 1
+    - name: backup hex file
+      run: cp _build/*.hex uf2_ready.hex
+    - name: build firmware + SD (crystal)
+      run: make sign_sd
+      env:
+        CHIP: ${{ inputs.chip }}
+        LFCLK_SRC_XTAL: 1
+
+    - name: Download uf2conv.py
+      run: |
+        wget https://raw.githubusercontent.com/microsoft/uf2/refs/heads/master/utils/uf2families.json
+        wget https://raw.githubusercontent.com/microsoft/uf2/refs/heads/master/utils/uf2conv.py
+
+    - name: Create uf2 file
+      run: |
+        python uf2conv.py -c -o BLEnky_${{ steps.code-version.outputs.VERSION }}_${{ inputs.chip }}.uf2 _build/*.hex
+
+    - name: Upload firmwares to latest release
+      uses: svenstaro/upload-release-action@2.7.0
+      with:
+        file: BLEnky*
+        file_glob: true
+        overwrite: true

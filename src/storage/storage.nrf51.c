@@ -4,11 +4,6 @@
 #include "nrf_delay.h"
 #include "feature_config.h"
 
-#define OFFSET_PIN_CONFIGURATION 0x00
-#define OFFSET_CONNECTION_PARAMS_CONFIGURATION 0x10
-#define OFFSET_DEVICE_NAME 0x1A
-#define OFFSET_CHECKSUM (OFFSET_DEVICE_NAME + LENGTH_DEVICE_NAME)
-
 FS_REGISTER_CFG(fs_config_t fs_config) =
 {
     .callback = fs_evt_handler, // Function for event callbacks.
@@ -145,7 +140,7 @@ void storage_on_sys_evt(uint32_t sys_evt) {
 }
 
 void storage_read_pin_configuration(uint8_t *buffer) {
-  storage_read(OFFSET_PIN_CONFIGURATION, buffer, 16);
+  storage_read(OFFSET_PIN_CONFIGURATION, buffer, PIN_CONFIGURATION_LENGTH);
 }
 
 void storage_read_connection_params_configuration(uint8_t *buffer) {
@@ -172,20 +167,15 @@ void storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
   *length_ = length;
 }
 
-void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t reboot) {
+void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, uint8_t reboot) {
   fs_ret_t ret_code;
 
-  // 16 bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
+  // PIN_CONFIGURATION_LENGTH bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
   const uint32_t size = OFFSET_CHECKSUM;
-  
-  // should should be done dynamically, but at compile-time
-  // we are also allocating 4 bytes for checksum + 2 bytes for alignment
-  const uint32_t size_aligned = 52; // calculate 4-byte-alignet size
 
-  const uint32_t data_size_32 = size_aligned / 4; // calculate size in 32-bit-words
+  const uint32_t data_size_32 = CONFIGURATION_SIZE / 4; // calculate size in 32-bit-words
 
-  // we should use size_aligned as the size, but that isn't constant enough for the compiler...
-  static uint8_t storage_data[52]; 
+  static uint8_t storage_data[CONFIGURATION_SIZE]; 
   storage_read(0, storage_data, size); // read whole storage
 
   memcpy(storage_data + offset, data, length);
@@ -212,14 +202,14 @@ void storage_store(uint32_t offset, uint8_t *data, uint32_t length, uint8_t rebo
 }
 
 void storage_store_pin_configuration(uint8_t *data) {
-  storage_store(OFFSET_PIN_CONFIGURATION, data, 16, true);
+  storage_store(OFFSET_PIN_CONFIGURATION, data, PIN_CONFIGURATION_LENGTH, true);
 }
 
-void storage_store_connection_params_configuration(uint8_t *data) {
+void storage_store_connection_params_configuration(const uint8_t *data) {
   storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, true);
 }
 
-void storage_store_device_name(uint8_t *name, int length) {
+void storage_store_device_name(const uint8_t *name, int length) {
   uint8_t name_buffer[LENGTH_DEVICE_NAME];
   memcpy(name_buffer, name, MIN(length, LENGTH_DEVICE_NAME));
   if(length < LENGTH_DEVICE_NAME){

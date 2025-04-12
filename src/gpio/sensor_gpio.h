@@ -3,8 +3,6 @@
 
 #include "nrf_drv_gpiote.h"
 #include "nrf_log.h"
-#include "boards.h"
-#include "bsp.h"
 #include "pin_configuration.h"
 
 #define BATTERY_VOLTAGE_MAX 3000.0

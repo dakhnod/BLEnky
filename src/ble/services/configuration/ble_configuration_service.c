@@ -4,6 +4,7 @@
 #include "sensor_timer.h"
 #include "storage.h"
 #include "ble_hci.h"
+#include "nrf_soc.h"
 
 uint8_t configuration_custom_uuid_type;
 
@@ -11,8 +12,11 @@ uint16_t ble_configuration_service_handle;
 
 uint16_t ble_configuration_pin_configuration_handle = BLE_GATT_HANDLE_INVALID;
 uint16_t ble_configuration_connection_parameters_handle = BLE_GATT_HANDLE_INVALID;
+uint16_t ble_reboot_handle = BLE_GATT_HANDLE_INVALID;
 
 uint16_t ble_configuration_connection_handle = BLE_CONN_HANDLE_INVALID;
+
+bool reboot_scheduled = false;
 
 ble_configuration_connection_params_update_handler_t ble_configuration_connection_params_update_handler;
 
@@ -24,7 +28,7 @@ ret_code_t ble_configuration_characteristic_pin_configuration_add() {
     .description_str = "Pin configuration",
     .is_writable = true,
     .is_readable = true,
-    .max_length = 16,
+    .max_length = PIN_CONFIGURATION_LENGTH,
     .value_handle = &ble_configuration_pin_configuration_handle,
   };
   return ble_helper_characteristic_add(&init);
@@ -45,6 +49,22 @@ ret_code_t ble_configuration_characteristic_connections_parameters_add() {
   return ble_helper_characteristic_add(&init);
 }
 
+ret_code_t ble_reboot_characteristic_add() {
+  ble_helper_characteristic_init_t init = {
+    .service_handle = ble_configuration_service_handle,
+    .uuid = UUID_CHARACTERISTIC_REBOOT,
+    .uuid_type = configuration_custom_uuid_type,
+    .description_str = "Write to GPREGRET and reboot",
+    .is_writable = true,
+    .is_readable = true,
+    .authorize_write = true,
+    .authorize_read = true,
+    .max_length = 1,
+    .value_handle = &ble_reboot_handle,
+  };
+  return ble_helper_characteristic_add(&init);
+}
+
 ret_code_t ble_configuration_characteristic_data_set(uint32_t handle, uint8_t *data, uint32_t data_length) {
   ble_gatts_value_t value = {
       .offset = 0,
@@ -59,11 +79,11 @@ ret_code_t ble_configuration_characteristic_data_set(uint32_t handle, uint8_t *d
   );
 }
 
-ret_code_t ble_configuration_pin_configuraion_data_set(uint8_t data[16]) {
+ret_code_t ble_configuration_pin_configuraion_data_set(uint8_t data[]) {
   return ble_configuration_characteristic_data_set(
     ble_configuration_pin_configuration_handle,
     data,
-    16
+    PIN_CONFIGURATION_LENGTH
   );
 }
 
@@ -78,7 +98,7 @@ ret_code_t ble_configuration_connection_params_configuraion_data_set(uint8_t dat
 void ble_configuration_restore_values() {
   ret_code_t err_code;
 
-  uint8_t storage_data[16]; // size 16 to cover both endpoints
+  uint8_t storage_data[PIN_CONFIGURATION_LENGTH]; // size 16 to cover both endpoints
   storage_read_pin_configuration(storage_data);
   err_code = ble_configuration_pin_configuraion_data_set(storage_data);
   APP_ERROR_CHECK(err_code);
@@ -114,6 +134,9 @@ ret_code_t ble_configuration_service_init(ble_configuration_connection_params_up
   err_code = ble_configuration_characteristic_connections_parameters_add();
   APP_ERROR_CHECK(err_code);
 
+  err_code = ble_reboot_characteristic_add();
+  APP_ERROR_CHECK(err_code);
+
   ble_configuration_restore_values();
 
   ble_configuration_connection_params_update_handler = connection_params_update_handler;
@@ -121,15 +144,19 @@ ret_code_t ble_configuration_service_init(ble_configuration_connection_params_up
   return NRF_SUCCESS;
 }
 
-void ble_configuration_on_connect(ble_evt_t *p_ble_evt) {
+void ble_configuration_on_connect(const ble_evt_t *p_ble_evt) {
   ble_configuration_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_configuration_on_disconnect(ble_evt_t *p_ble_evt) {
+void ble_configuration_on_disconnect(const ble_evt_t *p_ble_evt) {
   ble_configuration_connection_handle = BLE_CONN_HANDLE_INVALID;
+
+  if(reboot_scheduled) {
+    NVIC_SystemReset();
+  }
 }
 
-void ble_configuration_handle_connection_params_configuration_data(uint8_t *data) {
+void ble_configuration_handle_connection_params_configuration_data(const uint8_t *data) {
   // ble_configuration_connection_params_packet_t *packet = (ble_configuration_connection_params_packet_t *)data;
 
   storage_store_connection_params_configuration(data);
@@ -143,7 +170,70 @@ void ble_configuration_handle_connection_params_configuration_data(uint8_t *data
   // ble_configuration_connection_params_update_handler(packet);
 }
 
-void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *write_req) {
+void ble_configuration_authorize_read_reboot(const ble_gatts_evt_read_t *read_req) {
+  uint32_t value;
+
+  #ifdef S130
+  sd_power_gpregret_get(&value);
+  #else
+  sd_power_gpregret_get(0, &value);
+  #endif
+
+  ble_gatts_rw_authorize_reply_params_t authorize_params = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
+      .params.read = {
+        .gatt_status = BLE_GATT_STATUS_SUCCESS,
+        .update = 1,
+        .offset = 0,
+        .len = 1,
+        .p_data = (uint8_t*) &value
+      }
+  };
+
+  sd_ble_gatts_rw_authorize_reply(
+    ble_configuration_connection_handle,
+    &authorize_params
+  );
+}
+
+void ble_configuration_authorize_write_reboot(const ble_gatts_evt_write_t *write_req) {
+  if(write_req->len > 0) {
+    #ifdef S130
+    APP_ERROR_CHECK(sd_power_gpregret_clr(~0));
+    APP_ERROR_CHECK(sd_power_gpregret_set(write_req->data[0]));
+    #else
+    APP_ERROR_CHECK(sd_power_gpregret_clr(0, ~0));
+    APP_ERROR_CHECK(sd_power_gpregret_set(0, write_req->data[0]));
+    #endif
+  }
+
+  reboot_scheduled = true;
+
+  ble_gatts_rw_authorize_reply_params_t authorize_params = {
+    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    .params = {
+      .write = {
+        .gatt_status = BLE_GATT_STATUS_SUCCESS,
+        .update = 1,
+        .offset = 0,
+        .len = write_req->len,
+        .p_data = write_req->data
+      }
+    }
+  };
+
+  sd_ble_gatts_rw_authorize_reply(
+    ble_configuration_connection_handle,
+    &authorize_params
+  );
+
+  sd_ble_gap_disconnect(
+    ble_configuration_connection_handle,
+    BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION
+  );
+}
+
+void ble_configuration_authorize_connection_params_write(const ble_gatts_evt_write_t *write_req) {
   uint16_t status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
 
   ble_gatts_rw_authorize_reply_params_t authorize_params = {
@@ -216,8 +306,8 @@ void ble_configuration_authorize_connection_params_write(ble_gatts_evt_write_t *
   );
 }
 
-void ble_configuration_on_authorize(ble_evt_t *p_ble_evt) {
-  ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+void ble_configuration_on_authorize(const ble_evt_t *p_ble_evt) {
+  const ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
     ->evt.gatts_evt
     .params
     .authorize_request);
@@ -227,25 +317,37 @@ void ble_configuration_on_authorize(ble_evt_t *p_ble_evt) {
     .handle;
 
   if (req->type == BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
-    ble_gatts_evt_write_t *write_req = &(req->request.write);
+    const ble_gatts_evt_write_t *write_req = &(req->request.write);
     if (handle == ble_configuration_connection_parameters_handle) {
       ble_configuration_authorize_connection_params_write(write_req);
+      return;
+    }
+
+    if (handle == ble_reboot_handle) {
+      ble_configuration_authorize_write_reboot(write_req);
+      return;
+    }
+  }else if(req->type == BLE_GATTS_AUTHORIZE_TYPE_READ) {
+    const ble_gatts_evt_read_t *read_req = &(req->request.read);
+
+    if(handle == ble_reboot_handle) {
+      ble_configuration_authorize_read_reboot(read_req);
       return;
     }
   }
 }
 
 
-void ble_configuration_handle_pin_configuration_write(ble_gatts_evt_write_t *write_evt) {
-  uint8_t *data = write_evt->data;
-  uint32_t len = write_evt->len;
+void ble_configuration_handle_pin_configuration_write(const ble_gatts_evt_write_t *write_evt) {
+  const uint8_t *data = write_evt->data;
+  const uint32_t len = write_evt->len;
 
-  uint32_t writable_data_length = MIN(16, len);
-  static uint8_t data_to_write[16];
+  uint32_t writable_data_length = MIN(PIN_CONFIGURATION_LENGTH, len);
+  static uint8_t data_to_write[PIN_CONFIGURATION_LENGTH];
 
   memcpy(data_to_write, data, writable_data_length);
 
-  for (uint32_t i = writable_data_length; i < 16; i++) {
+  for (uint32_t i = writable_data_length; i < PIN_CONFIGURATION_LENGTH; i++) {
     data_to_write[i] = 0xFF;
   }
 
@@ -258,9 +360,9 @@ void ble_configuration_handle_pin_configuration_write(ble_gatts_evt_write_t *wri
   );
 }
 
-void ble_configuration_handle_connection_params_configuration_write(ble_gatts_evt_write_t *write_evt) {
-  uint8_t *data = write_evt->data;
-  uint32_t len = write_evt->len;
+void ble_configuration_handle_connection_params_configuration_write(const ble_gatts_evt_write_t *write_evt) {
+  const uint8_t *data = write_evt->data;
+  const uint32_t len = write_evt->len;
 
   NRF_LOG_DEBUG("fehler\n");
 
@@ -272,8 +374,8 @@ void ble_configuration_handle_connection_params_configuration_write(ble_gatts_ev
   ble_configuration_handle_connection_params_configuration_data(data);
 }
 
-void ble_configuration_on_write(ble_evt_t *p_ble_evt) {
-  ble_gatts_evt_write_t *write_evt = &p_ble_evt
+void ble_configuration_on_write(const ble_evt_t *p_ble_evt) {
+  const ble_gatts_evt_write_t *write_evt = &p_ble_evt
     ->evt
     .gatts_evt
     .params
@@ -291,7 +393,7 @@ void ble_configuration_on_write(ble_evt_t *p_ble_evt) {
   }
 }
 
-void ble_configuration_on_ble_event(ble_evt_t *p_ble_evt) {
+void ble_configuration_on_ble_event(const ble_evt_t *p_ble_evt) {
 
   switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONNECTED:

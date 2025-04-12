@@ -26,19 +26,19 @@ uint16_t ble_aio_analog_out_write_handles[GPIO_OUTPUT_ANALOG_PIN_LIMIT];
 uint8_t ble_aio_send_digital_input_updates = false;
 uint32_t ble_aio_output_analog_pin_count;
 
-void ble_aio_on_connect(ble_evt_t *p_ble_evt)
+void ble_aio_on_connect(const ble_evt_t *p_ble_evt)
 {
     ble_aio_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_aio_on_disconnect(ble_evt_t *p_ble_evt)
+void ble_aio_on_disconnect(const ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_aio_connection_handle = BLE_CONN_HANDLE_INVALID;
     ble_aio_send_digital_input_updates = false;
 }
 
-void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt)
+void handle_pin_digital_in_cccd_write(const ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len == 2)
     {
@@ -47,7 +47,7 @@ void handle_pin_digital_in_cccd_write(ble_gatts_evt_write_t *write_evt)
 }
 
 void ble_aio_handle_pin_digital_data(
-    uint8_t *pin_data,
+    const uint8_t *pin_data,
     uint32_t pin_data_length)
 {
     uint32_t available_output_count = gpio_get_output_digital_pin_count();
@@ -78,15 +78,15 @@ void ble_aio_handle_pin_analog_data(
     gpio_write_output_analog_pin_us(index, duty_cycle);
 }
 
-void handle_digital_out_write(ble_gatts_evt_write_t *write_evt)
+void handle_digital_out_write(const ble_gatts_evt_write_t *write_evt)
 {
-    uint8_t *data = write_evt->data;
+    const uint8_t *data = write_evt->data;
     uint32_t len = write_evt->len;
 
     ble_aio_handle_pin_digital_data(data, len);
 }
 
-void handle_pin_analog_out_write(uint32_t index, ble_gatts_evt_write_t *write_evt)
+void handle_pin_analog_out_write(uint32_t index, const ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len != 2)
     {
@@ -188,9 +188,9 @@ ret_code_t ble_aio_characteristic_digital_input_add()
     return ble_helper_characteristic_add(&init);
 }
 
-void ble_aio_on_write(ble_evt_t *p_ble_evt)
+void ble_aio_on_write(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
+    const ble_gatts_evt_write_t *write_evt = &p_ble_evt
                                             ->evt
                                             .gatts_evt
                                             .params
@@ -316,9 +316,9 @@ void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buff
     }
 }
 
-void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
+void ble_aio_on_authorize(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+    const ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
                                                       ->evt.gatts_evt
                                                       .params
                                                       .authorize_request);
@@ -345,7 +345,7 @@ void ble_aio_on_authorize(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt)
+void ble_aio_on_ble_evt(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {
@@ -421,43 +421,31 @@ ret_code_t ble_aio_init()
 
     BLE_UUID_BLE_ASSIGN(ble_uuid, UUID_AUTOMATION_IO_SERVICE);
 
-    uint32_t output_digital_pin_count = gpio_get_output_digital_pin_count();
+    // uint32_t output_digital_pin_count = gpio_get_output_digital_pin_count();
     uint32_t output_analog_pin_count = gpio_get_output_analog_pin_count();
-    uint32_t input_digital_pin_count = gpio_get_input_digital_pin_count();
+    // uint32_t input_digital_pin_count = gpio_get_input_digital_pin_count();
 
     ble_aio_output_analog_pin_count = output_analog_pin_count;
 
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &ble_aio_service_handle);
     APP_ERROR_CHECK(err_code);
 
-    if (output_digital_pin_count > 0)
+    err_code = ble_aio_characteristic_digital_input_add();
+    APP_ERROR_CHECK(err_code);
+
+    err_code = ble_aio_characteristic_digital_output_add();
+    APP_ERROR_CHECK(err_code);
+
+    for (uint32_t i = 0; i < output_analog_pin_count; i++)
     {
-        err_code = ble_aio_characteristic_digital_output_add();
-        APP_ERROR_CHECK(err_code);
+        err_code = ble_aio_characteristic_analog_output_add(i);
     }
 
-    if (output_analog_pin_count > 0)
-    {
-        for (uint32_t i = 0; i < output_analog_pin_count; i++)
-        {
-            err_code = ble_aio_characteristic_analog_output_add(i);
-        }
-    }
-
-    if (input_digital_pin_count > 0)
-    {
-        err_code = ble_aio_characteristic_digital_input_add();
-        APP_ERROR_CHECK(err_code);
-
-        ble_aio_update_digital_in_states();
-    }
+    ble_aio_update_digital_in_states();
     
     #if FEATURE_ENABLED(BINARY_SENSOR)
-    if (input_digital_pin_count > 0)
-    {
-        err_code = ble_bss_init();
-        APP_ERROR_CHECK(err_code);
-    }
+    err_code = ble_bss_init();
+    APP_ERROR_CHECK(err_code);
     #endif
 
     return NRF_SUCCESS;

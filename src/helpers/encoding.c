@@ -2,7 +2,7 @@
 
 #include "sdk_common.h"
 
-uint8_t encoding_get_pin_bits(uint8_t *pin_data, uint32_t pin_data_length, uint32_t pin_index){
+uint8_t encoding_get_pin_bits(const uint8_t *pin_data, uint32_t pin_data_length, uint32_t pin_index){
         uint32_t bit_index_full = pin_index * 2;
 
         uint32_t byte_index = bit_index_full / 8;

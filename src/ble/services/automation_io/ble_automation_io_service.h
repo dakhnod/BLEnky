@@ -24,13 +24,13 @@ extern "C" {
     uint32_t ble_aio_init();
 
 
-    void ble_aio_on_ble_evt(ble_evt_t *p_ble_evt);
+    void ble_aio_on_ble_evt(const ble_evt_t *p_ble_evt);
 
-    void ble_aio_on_authorize(ble_evt_t *p_ble_evt);
+    void ble_aio_on_authorize(const ble_evt_t *p_ble_evt);
     void encode_states_to_bytes(uint8_t *states, uint32_t state_count, uint8_t *buffer, uint16_t buffer_len);
     uint32_t ble_aio_get_byte_count_from_pins(uint32_t pin_count);
     void ble_aio_handle_input_change(int highest_changed_index);
-    void ble_aio_handle_pin_digital_data(uint8_t *pin_data, uint32_t pin_data_length);
+    void ble_aio_handle_pin_digital_data(const uint8_t *pin_data, uint32_t pin_data_length);
     void ble_aio_handle_pin_analog_data(uint32_t index, uint16_t duty_cycle);
 
 #ifdef __cplusplus

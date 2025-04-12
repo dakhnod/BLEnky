@@ -16,7 +16,7 @@ extern "C" {
 
     uint32_t ble_temperature_init();
 
-    void ble_temperature_on_ble_evt(ble_evt_t *p_ble_evt);
+    void ble_temperature_on_ble_evt(const ble_evt_t *p_ble_evt);
 #ifdef __cplusplus
 }
 #endif

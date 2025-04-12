@@ -7,6 +7,7 @@
 #include "ble_helpers.h"
 #include "ble_temperature_service.h"
 #include "ble.h"
+#include "nrf_soc.h"
 
 uint16_t ble_temperature_connection_handle = BLE_CONN_HANDLE_INVALID;
 

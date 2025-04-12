@@ -40,10 +40,11 @@ int main(void) {
     (void) NRF_LOG_INIT(NULL);
 
     #ifdef NRF52840_XXAA
+    // disable APPROTECT
     *((uint32_t*)0x40000558) = 0x5A;
     #endif
 
-    #ifndef S130
+    #if FAMILY == 52
     NRF_LOG_DEFAULT_BACKENDS_INIT();
     #endif
 

@@ -67,13 +67,11 @@ void ble_temperature_authorize_temperature(const ble_evt_t *p_ble_evt){
     if (handle != ble_temperature_characteristic_handle){
         return;
     }
+    
+    int32_t raw_value;
+    sd_temp_get(&raw_value);
 
-    // sd_temp_get(&temperature);
-    // accessing register directly since SD is issuing measurements all the time anyway...
-
-    int16_t calculated = (NRF_TEMP->TEMP * 10) / 4;
-
-    NRF_LOG_INFO("temp: %d\n", NRF_TEMP->TEMP);
+    int16_t calculated = (raw_value * 10) / 4;
 
     ble_gatts_rw_authorize_reply_params_t authorize_params = {
         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,

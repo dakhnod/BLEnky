@@ -5,8 +5,15 @@ BLE_ROOT ?= ..
 APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE ?= $(BLE_ROOT)/private.pem
 PROJECT_ID ?= BLEnky
-OUT_ZIP_SD ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_SD_$(SOFTDEVICE_VERSION).zip
-OUT_ZIP ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL).zip
+
+ifdef BOARD
+OUT_ZIP_SD ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(BOARD).zip
+OUT_UF2 ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(BOARD).uf2
+else
+OUT_ZIP_SD ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_SD_$(SOFTDEVICE_VERSION)_generic.zip
+OUT_ZIP ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_generic.zip
+OUT_UF2 ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_generic.uf2
+endif
 
 SHELL := /bin/bash
 
@@ -15,7 +22,7 @@ CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET ?= Pixel-5
 ADB_DIRECTORY ?= /sdcard/dfu
 
-FIRMWARE_VERSION ?= $(shell git rev-parse HEAD | cut -c -6)
+FIRMWARE_VERSION ?= $(shell git describe --tags --abbrev=0)
 
 CONFIG_SUBDIR = $(shell echo nrf$(FAMILY) | tr A-Z a-z)
 
@@ -70,6 +77,7 @@ SRC_FILES_COMMON += \
   $(PROJ_DIR)/src/error_handler/error_handler.c \
   $(PROJ_DIR)/src/gpioasm/gpioasm.c \
   $(PROJ_DIR)/src/persistence/pin_configuration.c \
+  $(PROJ_DIR)/src/storage/preconfiguration.c \
   $(PROJ_DIR)/src/sleep/sleep.c \
   $(PROJ_DIR)/src/watchdog/watchdog.c \
   $(PROJ_DIR)/src/main.c \
@@ -259,6 +267,7 @@ TARGETS = nrf52832_xxac
 
 SOFTDEVICE_VERSION = S132_6.1.1
 SOFTDEVICE_ID = 0xB7
+UF2_FAMILY = 0x72721d4e
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52832_qfaa.ld
@@ -292,6 +301,7 @@ TARGETS = nrf52840_xxaa
 
 SOFTDEVICE_VERSION = S140_6.1.1
 SOFTDEVICE_ID = 0xAE
+UF2_FAMILY = 0xada52840
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
   LINKER_SCRIPT  := src/linker/nrf52840_qfaa.ld
@@ -476,6 +486,10 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -DDEBUG=1
 endif
 
+ifdef BOARD
+CFLAGS += -DBLENKY_BSP_FILE=\"bsp/$(BOARD).h\"
+endif
+
 # C++ flags common to all targets
 CXXFLAGS += \
 
@@ -552,9 +566,14 @@ $(OUT_ZIP_SD): $(APPLICATION_HEX)
     --hw-version $(FAMILY) \
     $(OUT_ZIP_SD) \
 
+$(OUT_UF2): $(APPLICATION_HEX)
+	python uf2conv.py -f $(UF2_FAMILY) -c -o $(OUT_UF2) _build/*.hex
+
 sign: $(OUT_ZIP)
 
 sign_sd: $(OUT_ZIP_SD)
+
+uf2: $(OUT_UF2)
 
 push: $(OUT_ZIP)
 	adb connect $(ADB_TARGET)
@@ -570,17 +589,6 @@ feature_config: src/config/feature_config.h
 reset:
 	nrfjprog --reset
 
-bin: 
-	rm -f without_crtystal.bin with_crtystal.bin nrf51822_xxac.bin
-	make clean default sign
-	unzip $(PROJECT_ID).zip nrf51822_xxac.bin
-	mv nrf51822_xxac.bin "$(BIN_OUTPUT_FOLDER)$(BIN_OUTPUT_WITHOUT_CRYSTAL)"
-	make clean default sign
-	unzip $(PROJECT_ID).zip nrf51822_xxac.bin
-	mv nrf51822_xxac.bin "$(BIN_OUTPUT_FOLDER)$(BIN_OUTPUT_WITH_CRYSTAL)"
-	rm $(PROJECT_ID).zip
-	make clean
-
 rtt_viewer_start:
 	sed -i -r 's/(Frame[XY]) = .*/\1 = 0/' ~/.config/SEGGERJLinkRTTViewerSettings.ini
 	nohup JLinkRTTViewer --autoconnect &
@@ -589,9 +597,3 @@ rtt_viewer_start:
 rtt_viewer_stop:
 	killall JLinkRTTViewer || true
 	sleep 0.5
-
-python_script_run:
-	test/venv/bin/python test/send.py
-
-serial: dongle.zip
-	nrfutil dfu usb-serial -pkg dongle.zip --port /dev/tty.usbmodemCDEEB788250C1

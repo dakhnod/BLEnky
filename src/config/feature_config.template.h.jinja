@@ -3,6 +3,10 @@
 
 #define APP_TIMER_PRESCALER 0
 
+#ifdef BLENKY_BSP_FILE
+#include BLENKY_BSP_FILE
+#endif
+
 #define FEATURE_ENABLED(feature) FEATURE_##feature##_ENABLED == 1
 
 // <<< Use Configuration Wizard in Context Menu >>>

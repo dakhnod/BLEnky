@@ -14,10 +14,10 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF52832
-      uf2_identifier: 0x72721d4e
+      uf2_identifier: '0x72721d4e'
 
   build_nrf52840:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF52840
-      uf2_identifier: 0xada52840
+      uf2_identifier: '0xada52840'

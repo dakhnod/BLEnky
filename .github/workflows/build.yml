@@ -6,6 +6,9 @@ on:
       chip:
         required: true
         type: string
+      uf2_identifier:
+        required: false
+        type: string
 
 jobs:
   build:
@@ -55,13 +58,15 @@ jobs:
         LFCLK_SRC_XTAL: 1
 
     - name: Download uf2conv.py
+      if: ${{ inputs.uf2_identifier != '' }}
       run: |
         wget https://raw.githubusercontent.com/microsoft/uf2/refs/heads/master/utils/uf2families.json
         wget https://raw.githubusercontent.com/microsoft/uf2/refs/heads/master/utils/uf2conv.py
 
     - name: Create uf2 file
+      if: ${{ inputs.uf2_identifier != '' }}
       run: |
-        python uf2conv.py -c -o BLEnky_${{ steps.code-version.outputs.VERSION }}_${{ inputs.chip }}.uf2 _build/*.hex
+        python uf2conv.py -f ${{ inputs.uf2_identifier }} -c -o BLEnky_${{ steps.code-version.outputs.VERSION }}_${{ inputs.chip }}.uf2 _build/*.hex
 
     - name: Upload firmwares to latest release
       uses: svenstaro/upload-release-action@2.7.0

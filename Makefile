@@ -17,7 +17,7 @@ ADB_DIRECTORY ?= /sdcard/dfu
 
 FIRMWARE_VERSION ?= unknown
 
-CONFIG_SUBDIR = $(shell echo $(FAMILY) | tr A-Z a-z)
+CONFIG_SUBDIR = $(shell echo nrf$(FAMILY) | tr A-Z a-z)
 
 # Source files common to all targets
 SRC_FILES_COMMON += \
@@ -163,7 +163,7 @@ INC_FOLDERS += \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service \
 
 ifeq ($(CHIP), NRF51822)
-FAMILY = NRF51
+FAMILY = 51
 TARGETS = nrf51822_xxac
 
 SOFTDEVICE_VERSION = S130_2.0.1
@@ -254,7 +254,7 @@ LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
 
 else ifeq ($(CHIP), NRF52832)
-FAMILY = NRF52
+FAMILY = 52
 TARGETS = nrf52832_xxac
 
 SOFTDEVICE_VERSION = S132_6.1.1
@@ -287,7 +287,7 @@ CFLAGS += -DNRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED=1
 ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
 else ifeq ($(CHIP), NRF52840)
-FAMILY = NRF52
+FAMILY = 52
 TARGETS = nrf52840_xxaa
 
 SOFTDEVICE_VERSION = S140_6.1.1
@@ -322,7 +322,7 @@ else
 $(error please specify CHIP=NRF51822 / NRF52832 / NRF52840)
 endif
 
-ifeq ($(FAMILY), NRF52)
+ifeq ($(FAMILY), 52)
 SRC_FILES += \
   $(SRC_FILES_COMMON) \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
@@ -516,11 +516,11 @@ flash: $(APPLICATION_HEX)
 # Flash softdevice
 flash_softdevice:
 	@echo Flashing: $(SOFTDEVICE_HEX)
-	nrfjprog --program $(SOFTDEVICE_HEX) -f $(FAMILY) --verify --sectorerase
-	nrfjprog --reset -f $(FAMILY)
+	nrfjprog --program $(SOFTDEVICE_HEX) -f nrf$(FAMILY) --verify --sectorerase
+	nrfjprog --reset -f nrf$(FAMILY)
 
 erase:
-	nrfjprog --eraseall -f $(FAMILY)
+	nrfjprog --eraseall -f nrf$(FAMILY)
 
 merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 	mergehex -m \

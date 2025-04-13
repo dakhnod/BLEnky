@@ -45,7 +45,7 @@ jobs:
     env:
       CHIP: ${{ inputs.chip }}
       BLE_ROOT: ../../../../
-      BOARD: board
+      BOARD: ${{ inputs.board }}
 
     steps:
     - uses: actions/checkout@v4

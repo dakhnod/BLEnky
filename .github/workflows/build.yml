@@ -6,9 +6,38 @@ on:
       chip:
         required: true
         type: string
-      uf2_identifier:
+      publish_hex_no_crystal:
+        required: false
+        type: boolean
+        default: true
+      publish_hex_crystal:
+        required: false
+        type: boolean
+        default: true
+      publish_zip_no_crystal:
+        required: false
+        type: boolean
+        default: true
+      publish_zip_no_crystal_with_sd:
+        required: false
+        type: boolean
+        default: true
+      publish_zip_crystal:
+        required: false
+        type: boolean
+        default: true
+      publish_zip_crystal_with_sd:
+        required: false
+        type: boolean
+        default: true
+      publish_uf2:
+        required: false
+        type: boolean
+        default: true
+      board:
         required: false
         type: string
+        default: generic
 
 jobs:
   build:
@@ -16,11 +45,9 @@ jobs:
     env:
       CHIP: ${{ inputs.chip }}
       BLE_ROOT: ../../../../
+      BOARD: board
 
     steps:
-    - name: extract code version
-      id: code-version
-      run: echo "VERSION=$(echo ${{ github.ref }} | cut -c 12-)" >> $GITHUB_OUTPUT
     - uses: actions/checkout@v4
       with:
         submodules: true
@@ -33,39 +60,54 @@ jobs:
     - name: set PATH
       run: echo "../../../../" >> $GITHUB_PATH
 
-    - name: build firmware (no crystal)
+    - name: build firmware zip (no crystal)
+      if: ${{ inputs.publish_zip_no_crystal }}
       run: make sign
       env:
         LFCLK_SRC_XTAL: 0
-        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
-    - name: build firmware + SD (no crystal)
+
+    - name: build firmware hex (no crystal)
+      if: ${{ inputs.publish_hex_no_crystal }}
+      run: make hex
+      env:
+        LFCLK_SRC_XTAL: 0
+
+    - name: build firmware + SD zip (no crystal)
+      if: ${{ inputs.publish_zip_no_crystal_with_sd }}
       run: make sign_sd
       env:
         LFCLK_SRC_XTAL: 0
-        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
-    - name: build firmware (crystal)
+
+    - name: build firmware zip (crystal)
+      if: ${{ inputs.publish_zip_crystal }}
       run: make sign
       env:
         LFCLK_SRC_XTAL: 1
-        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
-    - name: backup hex file
-      run: cp _build/*.hex uf2_ready.hex
-    - name: build firmware + SD (crystal)
-      run: make sign_sd
+
+    - name: build firmware hex (crystal)
+      if: ${{ inputs.publish_hex_crystal }}
+      run: make hex
       env:
         LFCLK_SRC_XTAL: 1
-        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
 
     - name: Download uf2conv.py
-      if: ${{ inputs.uf2_identifier != '' }}
+      if: ${{ inputs.publish_uf2 }}
       run: |
         wget https://raw.githubusercontent.com/microsoft/uf2/refs/heads/master/utils/uf2families.json
         wget https://raw.githubusercontent.com/microsoft/uf2/refs/heads/master/utils/uf2conv.py
 
     - name: Create uf2 file
-      if: ${{ inputs.uf2_identifier != '' }}
+      if: ${{ inputs.publish_uf2 }}
       run: |
-        python uf2conv.py -f ${{ inputs.uf2_identifier }} -c -o BLEnky_${{ steps.code-version.outputs.VERSION }}_${{ inputs.chip }}.uf2 _build/*.hex
+        make uf2
+      env:
+        LFCLK_SRC_XTAL: 1
+
+    - name: build firmware + SD (crystal)
+      if: ${{ inputs.publish_zip_crystal_with_sd }}
+      run: make sign_sd
+      env:
+        LFCLK_SRC_XTAL: 1
 
     - name: Upload firmwares to latest release
       uses: svenstaro/upload-release-action@2.7.0

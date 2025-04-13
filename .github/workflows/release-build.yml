@@ -14,10 +14,21 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF52832
-      uf2_identifier: '0x72721d4e'
 
   build_nrf52840:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF52840
-      uf2_identifier: '0xada52840'
+
+  build_nrf21540-DK:
+    uses: ./.github/workflows/build.yml
+    with:
+      chip: NRF52840
+      publish_hex_no_crystal: false
+      publish_hex_crystal: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: false
+      publish_uf2: false
+      board: nRF21540-DK

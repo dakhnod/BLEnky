@@ -535,7 +535,7 @@ $(OUT_ZIP): $(APPLICATION_HEX)
     --application $(APPLICATION_HEX) \
     --debug-mode \
     --key-file $(KEY_FILE) \
-    --sd-req 0x00 \
+    --sd-req 0x00,$(SOFTDEVICE_ID) \
     --hw-version $(FAMILY) \
     $(OUT_ZIP) \
 
@@ -546,7 +546,7 @@ $(OUT_ZIP_SD): $(APPLICATION_HEX)
     --application $(APPLICATION_HEX) \
     --debug-mode \
     --key-file $(KEY_FILE) \
-    --sd-req 0x00 \
+    --sd-req 0x00,$(SOFTDEVICE_ID) \
     --sd-id $(SOFTDEVICE_ID) \
     --softdevice $(SOFTDEVICE_HEX) \
     --hw-version $(FAMILY) \
@@ -592,16 +592,6 @@ rtt_viewer_stop:
 
 python_script_run:
 	test/venv/bin/python test/send.py
-
-dongle.zip: $(APPLICATION_HEX)
-	nrfutil pkg generate \
-	--application $(APPLICATION_HEX) \
-	--debug-mode \
-	--hw-version 52 \
-	--sd-id 0x00 \
-	--sd-req 0x00 \
-	--softdevice $(SOFTDEVICE_HEX) \
-	dongle.zip
 
 serial: dongle.zip
 	nrfutil dfu usb-serial -pkg dongle.zip --port /dev/tty.usbmodemCDEEB788250C1

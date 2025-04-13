@@ -14,6 +14,7 @@ jobs:
   build:
     runs-on: [self-hosted, firmware-builder]
     env:
+      CHIP: ${{ inputs.chip }}
       BLE_ROOT: ../../../../
 
     steps:
@@ -23,8 +24,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-    - name: check code version
-      run: grep ${{ steps.code-version.outputs.VERSION }} Makefile
     - name: parse feature template
       uses: cuchi/jinja2-action@v1.2.2
       with:
@@ -37,25 +36,25 @@ jobs:
     - name: build firmware (no crystal)
       run: make sign
       env:
-        CHIP: ${{ inputs.chip }}
         LFCLK_SRC_XTAL: 0
+        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
     - name: build firmware + SD (no crystal)
       run: make sign_sd
       env:
-        CHIP: ${{ inputs.chip }}
         LFCLK_SRC_XTAL: 0
+        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
     - name: build firmware (crystal)
       run: make sign
       env:
-        CHIP: ${{ inputs.chip }}
         LFCLK_SRC_XTAL: 1
+        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
     - name: backup hex file
       run: cp _build/*.hex uf2_ready.hex
     - name: build firmware + SD (crystal)
       run: make sign_sd
       env:
-        CHIP: ${{ inputs.chip }}
         LFCLK_SRC_XTAL: 1
+        FIRMWARE_VERSION: ${{ steps.code-version.outputs.VERSION }}
 
     - name: Download uf2conv.py
       if: ${{ inputs.uf2_identifier != '' }}

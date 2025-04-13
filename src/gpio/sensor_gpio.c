@@ -345,8 +345,6 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
-  uint32_t current_index = 0;
-
   // initialize virtual inputs first
   gpio_input_digital_pin_count = preconfigured_pin_count = VIRTUAL_INPUT_PIN_COUNT;
 
@@ -357,65 +355,6 @@ void gpio_init(gpio_input_change_handler_t input_change_handler) {
     config->pin.input.virtual = true;
     config->pin.input.pin = 0xFF;
   }
-
-  // this is in a macro instead of a function
-  // to make it usable with the configuration macros
-  #define GPIO_CONFIGURATION_CHECK(pin_index) \
-  do{ \
-    current_index = gpio_input_digital_pin_count + gpio_output_digital_pin_count; \
-    gpio_config_t *gpio_config = gpio_configs + current_index; \
-    if(GPIO_CONFIGURATION_PIN_##pin_index##_MODE == GPIO_CONFIGURATION_PIN_MODE_INPUT){ \
-      gpio_input_digital_pin_count++; \
-      preconfigured_pin_count++; \
-      gpio_config->direction = INPUT; \
-      gpio_config->pin.input.pin = pin_index; \
-      gpio_config->pin.input.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
-      gpio_config->pin.input.pull = GPIO_CONFIGURATION_PIN_##pin_index##_PULL; \
-    }else if(GPIO_CONFIGURATION_PIN_##pin_index##_MODE == GPIO_CONFIGURATION_PIN_MODE_OUTPUT){ \
-      gpio_output_digital_pin_count++; \
-      preconfigured_pin_count++; \
-      gpio_config->direction = OUTPUT; \
-      gpio_config->pin.output.pin = pin_index; \
-      gpio_config->pin.output.invert = GPIO_CONFIGURATION_PIN_##pin_index##_INVERT; \
-      gpio_config->pin.output.default_state = GPIO_CONFIGURATION_PIN_##pin_index##_DEFAULT_OUTPUT; \
-      gpio_config->pin.output.state = 0xff; \
-    } \
-  }while (false)
-
-  // is this neccessary?
-  // well, i see no other way of dealing with preprocessor-based configuration...
-  GPIO_CONFIGURATION_CHECK(0);
-  GPIO_CONFIGURATION_CHECK(1);
-  GPIO_CONFIGURATION_CHECK(2);
-  GPIO_CONFIGURATION_CHECK(3);
-  GPIO_CONFIGURATION_CHECK(4);
-  GPIO_CONFIGURATION_CHECK(5);
-  GPIO_CONFIGURATION_CHECK(6);
-  GPIO_CONFIGURATION_CHECK(7);
-  GPIO_CONFIGURATION_CHECK(8);
-  GPIO_CONFIGURATION_CHECK(9);
-  GPIO_CONFIGURATION_CHECK(10);
-  GPIO_CONFIGURATION_CHECK(11);
-  GPIO_CONFIGURATION_CHECK(12);
-  GPIO_CONFIGURATION_CHECK(13);
-  GPIO_CONFIGURATION_CHECK(14);
-  GPIO_CONFIGURATION_CHECK(15);
-  GPIO_CONFIGURATION_CHECK(16);
-  GPIO_CONFIGURATION_CHECK(17);
-  GPIO_CONFIGURATION_CHECK(18);
-  GPIO_CONFIGURATION_CHECK(19);
-  GPIO_CONFIGURATION_CHECK(20);
-  GPIO_CONFIGURATION_CHECK(21);
-  GPIO_CONFIGURATION_CHECK(22);
-  GPIO_CONFIGURATION_CHECK(23);
-  GPIO_CONFIGURATION_CHECK(24);
-  GPIO_CONFIGURATION_CHECK(25);
-  GPIO_CONFIGURATION_CHECK(26);
-  GPIO_CONFIGURATION_CHECK(27);
-  GPIO_CONFIGURATION_CHECK(28);
-  GPIO_CONFIGURATION_CHECK(29);
-  GPIO_CONFIGURATION_CHECK(30);
-  GPIO_CONFIGURATION_CHECK(31);
 
   pin_configuration_init();
 

@@ -5,6 +5,7 @@
 #include "feature_config.h"
 #include "nrf_fstorage_sd.h"
 #include "nrf_fstorage_nvmc.h"
+#include "preconfiguration.h"
 
 NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
 {
@@ -19,6 +20,8 @@ NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
     .end_addr = 0x62000
     #endif
 };
+
+bool is_erased = true;
 
 void fs_evt_handler(nrf_fstorage_evt_t * p_evt) {
 
@@ -76,10 +79,8 @@ void storage_checksum_check(){
   // read 4 more to capcure checksum
   storage_read(0x00, data, length + 4);
 
-  bool is_erased = true;
-
-  for(uint32_t i = 0; i < length; i++){
-    if(data[i] != 0xFF){
+  for(uint32_t i = 0; i < 4; i++){
+    if(data[OFFSET_CHECKSUM + i] != 0xFF){
       is_erased = false;
       break;
     }
@@ -144,6 +145,10 @@ void storage_init() {
 
 void storage_read_pin_configuration(uint8_t *buffer) {
   storage_read(OFFSET_PIN_CONFIGURATION, buffer, PIN_CONFIGURATION_LENGTH);
+
+  if(is_erased) {
+    preconfiguration_load(buffer);
+  }
 }
 
 void storage_read_connection_params_configuration(uint8_t *buffer) {
@@ -176,6 +181,10 @@ void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, const 
 
   static uint8_t storage_data[CONFIGURATION_SIZE]; 
   storage_read(0, storage_data, size); // read whole storage
+
+  if(is_erased) {
+    preconfiguration_load(storage_data + OFFSET_PIN_CONFIGURATION);
+  }
 
   memcpy(storage_data + offset, data, length);
 

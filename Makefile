@@ -6,13 +6,19 @@ APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE ?= $(BLE_ROOT)/private.pem
 PROJECT_ID ?= BLEnky
 
-ifdef BOARD
+ifndef BOARD
+BOARD := generic
+endif
+
+ifneq ($(BOARD), generic)
 OUT_ZIP_SD ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(BOARD).zip
 OUT_UF2 ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(BOARD).uf2
+OUT_HEX ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(BOARD).hex
 else
 OUT_ZIP_SD ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_SD_$(SOFTDEVICE_VERSION)_generic.zip
 OUT_ZIP ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_generic.zip
 OUT_UF2 ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_generic.uf2
+OUT_HEX ?= $(PROJECT_ID)_$(FIRMWARE_VERSION)_$(CHIP)_$(XTAL_LABEL)_generic.hex
 endif
 
 SHELL := /bin/bash
@@ -486,7 +492,7 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -DDEBUG=1
 endif
 
-ifdef BOARD
+ifneq ($(BOARD), generic)
 CFLAGS += -DBLENKY_BSP_FILE=\"bsp/$(BOARD).h\"
 endif
 
@@ -567,13 +573,18 @@ $(OUT_ZIP_SD): $(APPLICATION_HEX)
     $(OUT_ZIP_SD) \
 
 $(OUT_UF2): $(APPLICATION_HEX)
-	python uf2conv.py -f $(UF2_FAMILY) -c -o $(OUT_UF2) _build/*.hex
+	python uf2conv.py -f $(UF2_FAMILY) -c -o $(OUT_UF2) $(APPLICATION_HEX)
+
+$(OUT_HEX): $(APPLICATION_HEX)
+	cp $(APPLICATION_HEX) $(OUT_HEX)
 
 sign: $(OUT_ZIP)
 
 sign_sd: $(OUT_ZIP_SD)
 
 uf2: $(OUT_UF2)
+
+hex: $(OUT_HEX)
 
 push: $(OUT_ZIP)
 	adb connect $(ADB_TARGET)

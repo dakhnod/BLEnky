@@ -536,6 +536,7 @@ $(OUT_ZIP): $(APPLICATION_HEX)
     --debug-mode \
     --key-file $(KEY_FILE) \
     --sd-req 0x00 \
+    --hw-version $(FAMILY) \
     $(OUT_ZIP) \
 
 $(OUT_ZIP_SD): $(APPLICATION_HEX)
@@ -548,6 +549,7 @@ $(OUT_ZIP_SD): $(APPLICATION_HEX)
     --sd-req 0x00 \
     --sd-id $(SOFTDEVICE_ID) \
     --softdevice $(SOFTDEVICE_HEX) \
+    --hw-version $(FAMILY) \
     $(OUT_ZIP_SD) \
 
 sign: $(OUT_ZIP)

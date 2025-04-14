@@ -9,6 +9,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF51822
+      publish_uf2: false
 
   build_nrf52832:
     uses: ./.github/workflows/build.yml

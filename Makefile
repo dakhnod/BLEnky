@@ -28,7 +28,7 @@ CUSTOM_INCLUDES_DIR = $(PROJ_DIR)/src/common
 ADB_TARGET ?= Pixel-5
 ADB_DIRECTORY ?= /sdcard/dfu
 
-FIRMWARE_VERSION ?= $(shell git describe --tags --abbrev=0)
+FIRMWARE_VERSION ?= $(shell git describe --tags --abbrev=0 | cut -c 2-)
 
 CONFIG_SUBDIR = $(shell echo nrf$(FAMILY) | tr A-Z a-z)
 

@@ -141,6 +141,11 @@ void storage_on_sys_evt(uint32_t sys_evt) {
 
 void storage_read_pin_configuration(uint8_t *buffer) {
   storage_read(OFFSET_PIN_CONFIGURATION, buffer, PIN_CONFIGURATION_LENGTH);
+
+  if(is_erased) {
+    NRF_LOG_DEBUG("loading preconfigured pin values");
+    preconfiguration_load(buffer);
+  }
 }
 
 void storage_read_connection_params_configuration(uint8_t *buffer) {
@@ -177,6 +182,11 @@ void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, uint8_
 
   static uint8_t storage_data[CONFIGURATION_SIZE]; 
   storage_read(0, storage_data, size); // read whole storage
+
+  if(is_erased) {
+    NRF_LOG_DEBUG("loading preconfigured pin values");
+    preconfiguration_load(storage_data + OFFSET_PIN_CONFIGURATION);
+  }
 
   memcpy(storage_data + offset, data, length);
 

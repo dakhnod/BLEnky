@@ -3,6 +3,7 @@
 #include "crc32.h"
 #include "nrf_delay.h"
 #include "feature_config.h"
+#include "preconfiguration.h"
 
 bool is_erased = true;
 

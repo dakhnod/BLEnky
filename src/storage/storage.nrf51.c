@@ -3,6 +3,9 @@
 #include "crc32.h"
 #include "nrf_delay.h"
 #include "feature_config.h"
+#include "preconfiguration.h"
+
+bool is_erased = true;
 
 FS_REGISTER_CFG(fs_config_t fs_config) =
 {
@@ -80,8 +83,6 @@ void storage_checksum_check(){
 
   // read 4 more to capcure checksum
   storage_read(0x00, data, length + 4);
-
-  bool is_erased = true;
 
   for(uint32_t i = 0; i < length; i++){
     if(data[i] != 0xFF){

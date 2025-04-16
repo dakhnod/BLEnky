@@ -624,10 +624,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_bmd300eval:
+  build_u_blox_ubx_bmd300eval:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_bmd300eval
+      board: u_blox_ubx_bmd300eval
       chip: NRF52832
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -636,10 +636,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_bmd340eval:
+  build_u_blox_ubx_bmd340eval:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_bmd340eval
+      board: u_blox_ubx_bmd340eval
       chip: NRF52840
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -648,10 +648,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_bmd345eval:
+  build_u_blox_ubx_bmd345eval:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_bmd345eval
+      board: u_blox_ubx_bmd345eval
       chip: NRF52840
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -660,10 +660,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_bmd380eval:
+  build_u_blox_ubx_bmd380eval:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_bmd380eval
+      board: u_blox_ubx_bmd380eval
       chip: NRF52840
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -672,10 +672,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_evkannab1:
+  build_u_blox_ubx_evkannab1:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_evkannab1
+      board: u_blox_ubx_evkannab1
       chip: NRF52832
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -684,10 +684,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_evkninab1:
+  build_u_blox_ubx_evkninab1:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_evkninab1
+      board: u_blox_ubx_evkninab1
       chip: NRF52832
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -696,10 +696,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_u-blox_ubx_evkninab3:
+  build_u_blox_ubx_evkninab3:
     uses: ./.github/workflows/build.yml
     with:
-      board: u-blox_ubx_evkninab3
+      board: u_blox_ubx_evkninab3
       chip: NRF52840
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -744,10 +744,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_we_we_proteus2ev:
+  build_wurth_we_proteus2ev:
     uses: ./.github/workflows/build.yml
     with:
-      board: we_we_proteus2ev
+      board: wurth_we_proteus2ev
       chip: NRF52832
       publish_hex_crystal: true
       publish_hex_no_crystal: false
@@ -756,10 +756,10 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
-  build_we_we_proteus3ev:
+  build_wurth_we_proteus3ev:
     uses: ./.github/workflows/build.yml
     with:
-      board: we_we_proteus3ev
+      board: wurth_we_proteus3ev
       chip: NRF52840
       publish_hex_crystal: true
       publish_hex_no_crystal: false

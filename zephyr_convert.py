@@ -91,7 +91,8 @@ def main():
                         continue
 
                     chip_identifier = f'{board.get("vendor", "other")}_{board["name"]}'
-                    filename = f'src/config/bsp/generated/{re.sub(r"[^a-zA-Z0-9]+", "_", chip_identifier)}.h'
+                    chip_identifier = re.sub(r"[^a-zA-Z0-9]+", "_", chip_identifier)
+                    filename = f'src/config/bsp/generated/{chip_identifier}.h'
                     with open(filename, 'w') as fs:
                         for line in lines:
                             fs.write(f'{line}\n')

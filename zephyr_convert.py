@@ -120,7 +120,7 @@ def main():
             socs = board['socs']
             for soc in socs:
                 name = soc['name']
-                if name.startswith('nrf'):
+                if name.startswith('nrf5'):
                     extract_pins(path, board, name)
                     return
                 continue

@@ -1,6 +1,6 @@
 name: Automated firmware build for release
 
-on:
+'on':
   release:
     types: [released, prereleased]
 

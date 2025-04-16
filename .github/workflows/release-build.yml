@@ -1,9 +1,3 @@
-name: Automated firmware build for release
-true:
-  release:
-    types:
-    - released
-    - prereleased
 jobs:
   build_96boards_96b_nitrogen:
     uses: ./.github/workflows/build.yml
@@ -1230,3 +1224,9 @@ jobs:
       publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
+name: Automated firmware build for release
+'on':
+  release:
+    types:
+    - released
+    - prereleased

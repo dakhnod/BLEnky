@@ -167,6 +167,8 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/helpers/ \
   $(PROJ_DIR)/src/config/$(CONFIG_SUBDIR)/ \
   $(PROJ_DIR)/src/config/ \
+  $(PROJ_DIR)/src/config/bsp/ \
+  $(PROJ_DIR)/src/config/bsp/generated/ \
   $(PROJ_DIR)/src/gpio/ \
   $(PROJ_DIR)/src/storage/ \
   $(PROJ_DIR)/src/gpioasm/ \
@@ -493,7 +495,7 @@ CFLAGS += -DDEBUG=1
 endif
 
 ifneq ($(BOARD), generic)
-CFLAGS += -DBLENKY_BSP_FILE=\"bsp/$(BOARD).h\"
+CFLAGS += -DBLENKY_BSP_FILE=\"$(BOARD).h\"
 endif
 
 # C++ flags common to all targets

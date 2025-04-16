@@ -5,7 +5,7 @@ import os.path
 import re
 
 def main():
-    boards_path = '/home/daniel/Projects/zephyrproject/zephyr/boards'
+    boards_path = sys.argv[1]
 
     gpio_expression = re.compile('gpios = <&gpio([0-9]) ([0-9]+)')
     name_expression = re.compile('[^a-zA-Z0-9_]')
@@ -91,7 +91,7 @@ def main():
                         continue
 
                     chip_identifier = f'{board.get("vendor", "other")}_{board["name"]}'
-                    filename = f'src/config/bsp/{re.sub(r"[^a-zA-Z0-9]+", "_", chip_identifier)}.h'
+                    filename = f'src/config/bsp/generated/{re.sub(r"[^a-zA-Z0-9]+", "_", chip_identifier)}.h'
                     with open(filename, 'w') as fs:
                         for line in lines:
                             fs.write(f'{line}\n')
@@ -120,7 +120,7 @@ def main():
             socs = board['socs']
             for soc in socs:
                 name = soc['name']
-                if name.startswith('nrf5'):
+                if name in ['nrf51822', 'nrf52832', 'nrf52840']:
                     extract_pins(path, board, name)
                     return
                 continue

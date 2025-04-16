@@ -1,35 +1,1232 @@
 name: Automated firmware build for release
-
-on:
+true:
   release:
-    types: [released, prereleased]
-
+    types:
+    - released
+    - prereleased
 jobs:
+  build_96boards_96b_nitrogen:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: 96boards_96b_nitrogen
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_aconno_acn52832:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: aconno_acn52832
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_actinius_actinius_icarus:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: actinius_actinius_icarus
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_actinius_actinius_icarus_bee:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: actinius_actinius_icarus_bee
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_actinius_actinius_icarus_som_dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: actinius_actinius_icarus_som_dk
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_adafruit_adafruit_feather_nrf52840:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: adafruit_adafruit_feather_nrf52840
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_adafruit_adafruit_itsybitsy:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: adafruit_adafruit_itsybitsy
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_adafruit_nrf52_adafruit_feather:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: adafruit_nrf52_adafruit_feather
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_arduino_arduino_nano_33_ble:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: arduino_arduino_nano_33_ble
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_arduino_arduino_nicla_sense_me:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: arduino_arduino_nicla_sense_me
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_atmarktechno_degu_evk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: atmarktechno_degu_evk
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_bbc_bbc_microbit:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: bbc_bbc_microbit
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_bbc_bbc_microbit_v2:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: bbc_bbc_microbit_v2
+      chip: NRF52833
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_bcdevices_blueclover_plt_demo_v2:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: bcdevices_blueclover_plt_demo_v2
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_circuitdojo_circuitdojo_feather:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: circuitdojo_circuitdojo_feather
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_croxel_croxel_cx1825:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: croxel_croxel_cx1825
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ebyte_ebyte_e73_tbb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ebyte_ebyte_e73_tbb
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_electronut_nrf52840_blip:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: electronut_nrf52840_blip
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_electronut_nrf52840_papyr:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: electronut_nrf52840_papyr
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bl5340_dvk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bl5340_dvk
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bl652_dvk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bl652_dvk
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bl653_dvk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bl653_dvk
+      chip: NRF52833
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bl654_dvk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bl654_dvk
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bl654_sensor_board:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bl654_sensor_board
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bl654_usb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bl654_usb
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bt510:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bt510
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_bt610:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_bt610
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_mg100:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_mg100
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_pinnacle_100_dvk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_pinnacle_100_dvk
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ezurio_rm1xx_dvk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ezurio_rm1xx_dvk
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_holyiot_holyiot_yj16019:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: holyiot_holyiot_yj16019
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_innblue_innblue21:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: innblue_innblue21
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_innblue_innblue22:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: innblue_innblue22
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_makerdiary_nrf52832_mdk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: makerdiary_nrf52832_mdk
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_makerdiary_nrf52840_mdk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: makerdiary_nrf52840_mdk
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_makerdiary_nrf52840_mdk_usb_dongle:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: makerdiary_nrf52840_mdk_usb_dongle
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf21540dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf21540dk
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf51dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf51dk
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf51dongle:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf51dongle
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf52833dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf52833dk
+      chip: NRF52820
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf52840dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf52840dk
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf52840dongle:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf52840dongle
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf52dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf52dk
+      chip: NRF52805
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf5340_audio_dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf5340_audio_dk
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf5340dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf5340dk
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf54h20dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf54h20dk
+      chip: NRF54H20
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf54l09pdk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf54l09pdk
+      chip: NRF54L09
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf54l15dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf54l15dk
+      chip: NRF54L05
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf54l20pdk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf54l20pdk
+      chip: NRF54L20
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf7002dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf7002dk
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf9131ek:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf9131ek
+      chip: NRF9131
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf9151dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf9151dk
+      chip: NRF9151
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf9160dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf9160dk
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf9161dk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf9161dk
+      chip: NRF9161
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_nrf9280pdk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_nrf9280pdk
+      chip: NRF9280
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_thingy52:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_thingy52
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_nordic_thingy53:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: nordic_thingy53
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_norik_octopus_som:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: norik_octopus_som
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
   build_nrf51822:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF51822
       publish_uf2: false
-
   build_nrf52832:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF52832
-
   build_nrf52840:
     uses: ./.github/workflows/build.yml
     with:
       chip: NRF52840
-
-  build_nrf21540-DK:
+  build_other_ctcc:
     uses: ./.github/workflows/build.yml
     with:
+      board: other_ctcc
       chip: NRF52840
-      publish_hex_no_crystal: false
       publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
       publish_zip_no_crystal: false
       publish_zip_no_crystal_with_sd: false
+  build_others_promicro_nrf52840:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: others_promicro_nrf52840
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: true
       publish_zip_crystal: false
       publish_zip_crystal_with_sd: false
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1770_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1770_evb
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
       publish_uf2: false
-      board: nRF21540-DK
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1780_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1780_evb
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1781_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1781_evb
+      chip: NRF52820
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1782_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1782_evb
+      chip: NRF52833
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1783_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1783_evb
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1783a_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1783a_evb
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_pan1783a_pa_evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_pan1783a_pa_evb
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_panasonic_panb511evb:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: panasonic_panb511evb
+      chip: NRF54L15
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_particle_nrf51_blenano:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: particle_nrf51_blenano
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_particle_nrf52_blenano2:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: particle_nrf52_blenano2
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_phytec_reel_board:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: phytec_reel_board
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_pine64_pinetime_devkit0:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: pine64_pinetime_devkit0
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_qorvo_decawave_dwm1001_dev:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: qorvo_decawave_dwm1001_dev
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_qorvo_decawave_dwm3001cdk:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: qorvo_decawave_dwm3001cdk
+      chip: NRF52833
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_rakwireless_rak4631:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: rakwireless_rak4631
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_rakwireless_rak5010:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: rakwireless_rak5010
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_raytac_raytac_mdbt50q_db_33:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: raytac_raytac_mdbt50q_db_33
+      chip: NRF52833
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_raytac_raytac_mdbt50q_db_40:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: raytac_raytac_mdbt50q_db_40
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_raytac_raytac_mdbt53_db_40:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: raytac_raytac_mdbt53_db_40
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_raytac_raytac_mdbt53v_db_40:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: raytac_raytac_mdbt53v_db_40
+      chip: NRF5340
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_ruuvi_ruuvi_ruuvitag:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: ruuvi_ruuvi_ruuvitag
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_seeed_xiao_ble:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: seeed_xiao_ble
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: true
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: false
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_sparkfun_micromod:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: sparkfun_micromod
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_sparkfun_nrf52_sparkfun:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: sparkfun_nrf52_sparkfun
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_sparkfun_sparkfun_thing_plus:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: sparkfun_sparkfun_thing_plus
+      chip: NRF9160
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_bmd300eval:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_bmd300eval
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_bmd330eval:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_bmd330eval
+      chip: NRF52810
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_bmd340eval:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_bmd340eval
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_bmd345eval:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_bmd345eval
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_bmd360eval:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_bmd360eval
+      chip: NRF52811
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_bmd380eval:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_bmd380eval
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_evkannab1:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_evkannab1
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_evkninab1:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_evkninab1
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_evkninab3:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_evkninab3
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_u-blox_ubx_evkninab4:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: u-blox_ubx_evkninab4
+      chip: NRF52833
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_vngiotlab_nrf51_vbluno51:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: vngiotlab_nrf51_vbluno51
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_vngiotlab_nrf52_vbluno52:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: vngiotlab_nrf52_vbluno52
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_waveshare_nrf51_ble400:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: waveshare_nrf51_ble400
+      chip: NRF51822
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_wurth_we_ophelia1ev:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: wurth_we_ophelia1ev
+      chip: NRF52805
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_wurth_we_proteus2ev:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: wurth_we_proteus2ev
+      chip: NRF52832
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false
+  build_wurth_we_proteus3ev:
+    uses: ./.github/workflows/build.yml
+    with:
+      board: wurth_we_proteus3ev
+      chip: NRF52840
+      publish_hex_crystal: true
+      publish_hex_no_crystal: false
+      publish_uf2: false
+      publish_zip_crystal: false
+      publish_zip_crystal_with_sd: true
+      publish_zip_no_crystal: false
+      publish_zip_no_crystal_with_sd: false

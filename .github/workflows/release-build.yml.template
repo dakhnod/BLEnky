@@ -1,0 +1,22 @@
+name: Automated firmware build for release
+
+on:
+  release:
+    types: [released, prereleased]
+
+jobs:
+  build_nrf51822:
+    uses: ./.github/workflows/build.yml
+    with:
+      chip: NRF51822
+      publish_uf2: false
+
+  build_nrf52832:
+    uses: ./.github/workflows/build.yml
+    with:
+      chip: NRF52832
+
+  build_nrf52840:
+    uses: ./.github/workflows/build.yml
+    with:
+      chip: NRF52840

@@ -6,3 +6,4 @@ nohup.out
 *.hex
 *.bin
 .DS_Store
+venv

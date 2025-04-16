@@ -1,4 +1,3 @@
-import requests
 import sys
 import yaml
 import os
@@ -10,6 +9,9 @@ def main():
 
     gpio_expression = re.compile('gpios = <&gpio([0-9]) ([0-9]+)')
     name_expression = re.compile('[^a-zA-Z0-9_]')
+
+    with open('.github/workflows/release-build.yml.template', 'r') as fd:
+        release_workflow = yaml.safe_load(fd)
 
     def parse_board_yaml(path):
         with open(path, 'r') as fd:
@@ -88,15 +90,30 @@ def main():
                     if len(lines) == 0:
                         continue
 
-                    chip_identifier = f'{board["vendor"]}_{board["name"]}'
-                    filename = f'{re.sub(r"[^a-zA-Z0-9]+", "_", chip_identifier)}.h'
+                    chip_identifier = f'{board.get("vendor", "other")}_{board["name"]}'
+                    filename = f'src/config/bsp/{re.sub(r"[^a-zA-Z0-9]+", "_", chip_identifier)}.h'
                     with open(filename, 'w') as fs:
                         for line in lines:
                             fs.write(f'{line}\n')
 
-                    break
+                    build_uf2 = 'xiao' in chip_identifier or 'promicro' in chip_identifier
 
-                    print("\n".join(lines))
+                    release_workflow['jobs'][f'build_{chip_identifier}'] = {
+                        'uses': './.github/workflows/build.yml',
+                        'with': {
+                            'chip': soc.upper(),
+                            'publish_hex_no_crystal': False,
+                            'publish_hex_crystal': True,
+                            'publish_zip_no_crystal': False,
+                            'publish_zip_no_crystal_with_sd': False,
+                            'publish_zip_crystal': False,
+                            'publish_zip_crystal_with_sd': not build_uf2,
+                            'publish_uf2': build_uf2,
+                            'board': chip_identifier,
+                        }
+                    }
+
+                    break
             print(f'error at {full_path}')
 
         def find_nrf(path, board):
@@ -126,6 +143,9 @@ def main():
             parse_board_yaml(path)
 
     parse_dir(boards_path)
+
+    with open('.github/workflows/release-build.yml', 'w') as fd:
+        yaml.dump(release_workflow, fd)
     
 
 if __name__ == "__main__":

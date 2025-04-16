@@ -7,6 +7,8 @@
 
 Want to make a device smart and super low power withing minutes? Here you go!
 
+Got your hardware ready? Try [first steps](docs/FIRST_STEPS.md).
+
 You can see this Project in action [here](https://youtu.be/jnUlXBZHBno), [here](https://youtu.be/GZ5C588gBdo) and [here](https://youtu.be/10ko1Ppw78A).
 An exhaustive list of Projects can be found [here](https://daniel.nullco.de/) under `Projects/Software/Automation/BLEnky`.
 
@@ -19,16 +21,16 @@ To summarize, this is basically like Tasmota for the nRF51/52, that can be power
 
 |Board|Supported|LF-Crystal available|Pin configuration template available|Remarks|
 |-----|---------|-------|---------|-----|
-|nice!nano|✅|✅||only 0.xx pins work|
+|nice!nano|✅|✅|||
 |[Big beacon thing](https://de.aliexpress.com/item/32988225162.html?spm=a2g0o.productlist.main.3.1281Dxz4Dxz4uj&algo_pvid=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc&algo_exp_id=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc-1&pdp_npi=4%40dis%21EUR%213.09%213.09%21%21%213.14%213.14%21%402103890917383147672042275e555a%2166814403390%21sea%21DE%211858291489%21X&curPageLogUid=25giPJzksnGr&utparam-url=scene%3Asearch%7Cquery_from%3A)|✅||✅|
 |[Small beacon thing](https://de.aliexpress.com/item/32872483730.html?spm=a2g0o.productlist.main.41.1281Dxz4Dxz4uj&algo_pvid=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc&algo_exp_id=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc-20&pdp_npi=4%40dis%21EUR%215.51%214.79%21%21%215.59%214.86%21%402103890917383147672042275e555a%2165507258407%21sea%21DE%211858291489%21X&curPageLogUid=NJ5twh8e5mzM&utparam-url=scene%3Asearch%7Cquery_from%3A)|✅|✅|✅|
 |WS51822-S4AT|✅||✅|
-|HolyIOT 17095|?|||whole board is only 9x9mm!|
+|HolyIOT 17095|✅|||whole board is only 9x9mm!|
 |BLE400|✅|✅|✅|
-|[XIAO nRF52840](https://www.seeedstudio.com/Seeed-XIAO-BLE-nRF52840-p-5201.html)|✅|✅||only 0.xx pins work
-|[nRF52840 dongle](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-Dongle/Download?lang=en#infotabs)|✅|✅||only 0.xx pins work, use `dfu usb-serial -pkg dongle.zip --port /dev/ttyACMX` to flash.
+|[XIAO nRF52840](https://www.seeedstudio.com/Seeed-XIAO-BLE-nRF52840-p-5201.html)|✅|✅||
+|[nRF52840 dongle](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-Dongle/Download?lang=en#infotabs)|✅|✅||use `dfu usb-serial -pkg dongle.zip --port /dev/ttyACMX` to flash.
 |Any board with an nRF51|✅|?||
-|Any board with an nRF52|✅|?||only 0.xx pins work
+|Any board with an nRF52|✅|?||
 
 With this firmware you can use every available pin on the chip as an input or an output.
 Well, until a buffer overruns or the RAM runs out or something...

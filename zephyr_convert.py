@@ -51,13 +51,14 @@ def main():
 
 
                 yield (pin, line, (
+                    f'#ifndef GPIO_CONFIGURATION_PIN_{pin}_MODE',
                     f'#define GPIO_CONFIGURATION_PIN_{pin}_MODE {mode}',
-                    f'#define GPIO_CONFIGURATION_PIN_{pin}_INVERT {int(active_low)}'
+                    f'#define GPIO_CONFIGURATION_PIN_{pin}_INVERT {int(active_low)}',
                 ))
 
         def find_leds(dts_data):
             return map(
-                lambda set: set[2], 
+                lambda set: set[2] + ('#endif', ), 
                 find_gpios(dts_data, 'gpio-leds', 2)
             )
 
@@ -67,7 +68,7 @@ def main():
                 if 'GPIO_PULL' in dataset[1]:
                     pull = 1 if 'GPIO_PULL_UP' in dataset[1] else 2
 
-                yield dataset[2] + (f'#define GPIO_CONFIGURATION_PIN_{dataset[0]}_PULL {pull}', )
+                yield dataset[2] + (f'#define GPIO_CONFIGURATION_PIN_{dataset[0]}_PULL {pull}', '#endif')
 
         def extract_pins(path, board, soc):
             folder = os.path.dirname(path)

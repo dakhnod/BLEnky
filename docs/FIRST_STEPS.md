@@ -25,11 +25,19 @@ After, you just need to copy the right file onto the board, which appears as a f
 The firmware file to search for contains `xiao_ble.uf2`.
 Firmware files can be found [in the releases](https://github.com/dakhnod/BLEnky/releases/latest).
 
+Once the firmware is copied/flashed, the flash drive will disappear and you should be able to head to https://ble.nullco.de and connect to your board. You just saved yourself years of development!
+
+To get back into the bootloader, a quick doble reset should suffice.
+
 ## Pro micro / Nice nano
 
 These boards come pre-flashed with a uf2 bootloader, so you just need to copy the right file onto the board, which appears as a flash drive.
 The firmware file to search for contains `others_promicro_nrf52840.uf2`.
 Firmware files can be found [in the releases](https://github.com/dakhnod/BLEnky/releases/latest).
+
+Once the firmware is copied/flashed, the flash drive will disappear and you should be able to head to https://ble.nullco.de and connect to your board. You just saved yourself years of development!
+
+To get back into the bootloader, a quick doble reset should suffice.
 
 ## nRF52840 Dongle
 
@@ -43,12 +51,20 @@ nrfutil dfu serial -p DONGLE_PORT -pkg FIRMWARE_FILE.zip
 The file to look for contains `nordic_nrf52840dongle.zip`.
 Firmware files can be found [in the releases](https://github.com/dakhnod/BLEnky/releases/latest).
 
+Once the firmware is copied/flashed, the flash drive will disappear and you should be able to head to https://ble.nullco.de and connect to your board. You just saved yourself years of development!
+
+To get back into the bootloader, a quick doble reset should suffice.
+
 ## UF2 based boards
 
 For these boards, find the right `.uf2` firmware in [in the latest release](https://github.com/dakhnod/BLEnky/releases/latest) and copy it onto the drive that should appear once you connect the board.
 If you can't find anything suiting, get the generic build and configure it through the website.
 
 Just make sure, using the text file on the drive, that the Softdevice version is 6.1.1.
+
+Once the firmware is copied/flashed, the flash drive will disappear and you should be able to head to https://ble.nullco.de and connect to your board. You just saved yourself years of development!
+
+To get back into the bootloader, a quick doble reset should suffice.
 
 ## Nordic DFU based boards
 
@@ -61,7 +77,13 @@ Then get this file and run
 nrfutil dfu serial -p DONGLE_PORT -pkg FIRMWARE_FILE.zip
 ```
 
+Once the firmware is copied/flashed, the flash drive will disappear and you should be able to head to https://ble.nullco.de and connect to your board. You just saved yourself years of development!
+
+To get back into the bootloader, a quick doble reset should suffice.
+
 ## Generic board / without bootloader
 
 If your board does not appear to have a bootloader at all, get the hex file for your board, or the generic hex file.
 Then follow [these instruction](FLASHING.md).
+
+Once the firmware is copied/flashed, the flash drive will disappear and you should be able to head to https://ble.nullco.de and connect to your board. You just saved yourself years of development!

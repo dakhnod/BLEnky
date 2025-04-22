@@ -44,14 +44,14 @@ Learn about my other projects [here](https://daniel.nullco.de).
 
 ## Table of contents
 
-1. [Configuration](docs/CONFIGURATION.md)
-2. [Feature configuration](docs/FEATURES.md)
-3. [Pin inputs/outputs (Automation IO)](docs/AUTOMATION_IO_SERVICE.md)
-4. [Pin inputs (Binary Sensor Service)](docs/BINARY_SENSOR_SERVICE.md)
-5. [gpioASM](docs/GPIO_ASM_SERVICE.md)
-6. [Compilation](docs/COMPILATION.md)
-7. [Programming the chip](docs/FLASHING.md)
-8. [First steps](docs/FIRST_STEPS.md)
+1. [First steps](docs/FIRST_STEPS.md)
+2. [Configuration](docs/CONFIGURATION.md)
+3. [gpioASM](docs/GPIO_ASM_SERVICE.md)
+4. [Compilation](docs/COMPILATION.md)
+5. [Programming the chip](docs/FLASHING.md)
+6. [Feature configuration](docs/FEATURES.md)
+7. [Pin inputs/outputs (Automation IO)](docs/AUTOMATION_IO_SERVICE.md)
+8. [Pin inputs (Binary Sensor Service)](docs/BINARY_SENSOR_SERVICE.md)
 
 ## Roadmap
 

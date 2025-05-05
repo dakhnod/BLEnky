@@ -16,7 +16,20 @@ In order to get the lowest power ingest (microamperes), supply around 3V to the 
 
 ![Image](https://github.com/user-attachments/assets/85d85e85-a2dd-4b9f-a323-fdbf0cab0c24)
 
+Then, configure pin 0.13 as output and default low, to disable the LDO.
+I managed to get around 10uA of power consumption this way.
 As far as I have discovered so far, no other pin is connected to the 3V input of the nRF.
 As such, all other power pins consume more power.
 
+You can also use the B+/RAW pins to supply power, but that result in around 30uA of power consumption.
+
 Please open an Issue if I am wrong.
+
+Looks like providing 3V voltage to the B+/RAW pin also causes very low power consumption.
+I measured below 0.2mA on B+/RAW, so that may work out aswell.
+Setting 0.13 to low reduces to around 30uA, but you should provide around 3V I believe.
+
+With a Lithium battery connected to B+/RAW you should leave the LDO on (0.13 at high), which will lead to around 200uA power consumption.
+With a 1000mA battery this gives you around 200 days of battery life.
+
+That may require a little fix as described [here](https://github.com/joric/nrfmicro/wiki/Alternatives/dd5782fb56855cc7e24e884f1e423d664da34db1) under "Workarounds", though.

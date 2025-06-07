@@ -1,1 +1,1 @@
-feature_config.ringer.h
+feature_config.bell.h

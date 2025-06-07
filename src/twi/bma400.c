@@ -31,22 +31,28 @@ ret_code_t bma400_read(uint8_t register_address, uint8_t *data, uint8_t length) 
 }
 
 ret_code_t bma400_reset(){
-    uint8_t data[] = {0x7e, 0xb6};
+    uint8_t data[] = {
+        0x7e, 0xb6 // CMD, reset
+    };
     return bma400_write(data, sizeof(data));
 }
 
 ret_code_t bma400_set_low_power(){
-    uint8_t data[] = {0x19, 0x01};
+    uint8_t data[] = {
+        0x19, 0x01 // ACC_CONFIG0, low power
+    };
     return bma400_write(data, sizeof(data));
 }
 
 ret_code_t bma400_set_auto_wakeup(){
-    uint8_t wakeup_int_data[] = {0x2d, 0x02};
+    uint8_t wakeup_int_data[] = {
+        0x2d, 0x02 // AUTOWAKEUP_1, enable interrupt
+    };
     CHECK_ERROR(bma400_write(wakeup_int_data, sizeof(wakeup_int_data)));
 
     uint8_t data[] = {
-        0x2f, 0xe2, // WKUP_INT_CONFIG0, enable xyz, ref update every time
-        0x30, 0x28, // WKUP_INT_CONFIG1, threshold 40
+        0x2f, 0x82, // WKUP_INT_CONFIG0, sample count 0, enable xyz, ref update every time
+        0x30, 0x1A, // WKUP_INT_CONFIG1, threshold 40
         // 0x31, 0x00, // WKUP_INT_CONFIG2 refx 0
         // 0x32, 0x00, // WKUP_INT_CONFIG3 refy 0
         // 0x33, 0x40  // WKUP_INT_CONFIG4 refz 64
@@ -56,15 +62,17 @@ ret_code_t bma400_set_auto_wakeup(){
 }
 
 ret_code_t bma400_set_auto_low_power(){
-    uint8_t autolowpower_int_data[] = {0x2b, 0x02};
+    uint8_t autolowpower_int_data[] = {
+        0x2b, 0x02 // AUTOLOWPOW_1 gen1_int
+    };
     CHECK_ERROR(bma400_write(autolowpower_int_data, sizeof(autolowpower_int_data)));
     
     uint8_t data[] = {
-        0x3f, 0xf9, // GEN1INT_CONFIG0 all axes, filter source acc_filt2, gen1_act_refu every time, gen1_act_hyst 24mg
+        0x3f, 0x99, // GEN1INT_CONFIG0 all axes, filter source acc_filt2, gen1_act_refu every time, gen1_act_hyst 24mg
         0x40, 0x01, // GEN1INT_CONFIG1 logical AND
-        0x41, 0x05, // GEN1INT_CONFIG2 gen1_int_thres 5
+        0x41, 0x50, // GEN1INT_CONFIG2 gen1_int_thres 5
         0x42, 0x00, // GEN1INT_CONFIG3 duration 0
-        0x43, 0x32, // GEN1INT_CONFIG4 duration 50
+        0x43, 0xFF, // GEN1INT_CONFIG4 duration 50
     };
 
     CHECK_ERROR(bma400_write(data, sizeof(data)));
@@ -94,6 +102,8 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
     // bma400_read(0x0E, &interrupt_reg, 1);
 
     // NRF_LOG_DEBUG("int stat: %x\n", interrupt_reg);
+
+    /*
 
     (*continue_handling) = false;
 
@@ -181,6 +191,7 @@ void bma400_handle_gpio_event(uint32_t index, gpio_config_input_digital_t *confi
         gpio_config_input_digital_t *config = gpio_find_input_by_index(count);
         config->changed = false;
     }
+    */
 }
 
 ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change_handler){
@@ -200,9 +211,8 @@ ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change
     CHECK_ERROR(bma400_set_auto_low_power());
 
     uint8_t data[] = {
-        0x20, 0x00, // INT_CONFIG1
-        0x21, 0x04, // INT1_MAP gen1_int1
-        0x22, 0x00, // INT2_MAP
+        0x21, 0x00, // INT1_MAP gen1_int1
+        0x22, 0x01, // INT2_MAP wakeup
         0x23, 0x00, // INT12_MAP
     };
 
@@ -214,11 +224,15 @@ ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change
 
     CHECK_ERROR(bma400_write(data2, sizeof(data2)));
 
-    uint8_t gen1_int_en_data[] = {0x1f, 0x04};
+    uint8_t gen1_int_en_data[] = {
+        0x1f, 0x04, // INT_CONFIG0 gen1_int_enable
+        0x20, 0x00  // INT_CONFIG1
+    };
     CHECK_ERROR(bma400_write(gen1_int_en_data, sizeof(gen1_int_en_data)));
 
-    return NRF_SUCCESS;
+    NRF_LOG_INFO("BMA400 set up successfully.\n");
 
+    #if 0
     app_timer_create(
         &state_timer,
         APP_TIMER_MODE_REPEATED,
@@ -230,6 +244,7 @@ ret_code_t bma400_setup_orientation_detection(gpio_input_change_handler_t change
         APP_TIMER_TICKS(500, APP_TIMER_PRESCALER),
         NULL
     );
+    #endif
 
     return NRF_SUCCESS;
 }

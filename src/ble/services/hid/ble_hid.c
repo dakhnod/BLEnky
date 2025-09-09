@@ -18,6 +18,7 @@ uint16_t ble_hid_characteristic_information_handle;
 
 uint16_t ble_hid_characteristic_report_value_handle;
 uint16_t ble_hid_characteristic_report_cccd_handle;
+uint16_t ble_hid_characteristic_control_point_value_handle;
 
 bool ble_hid_report_notification_enabled = false;
 
@@ -181,19 +182,19 @@ void ble_hid_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
   APP_ERROR_CHECK(err_code);
 }
 
-void ble_hid_on_connect(ble_evt_t *p_ble_evt)
+void ble_hid_on_connect(const ble_evt_t *p_ble_evt)
 {
     ble_hid_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_hid_on_disconnect(ble_evt_t *p_ble_evt)
+void ble_hid_on_disconnect(const ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_hid_connection_handle = BLE_CONN_HANDLE_INVALID;
     ble_hid_report_notification_enabled = false;
 }
 
-void handle_hid_report_cccd_write(ble_gatts_evt_write_t *write_evt)
+void handle_hid_report_cccd_write(const ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len == 2)
     {
@@ -202,9 +203,9 @@ void handle_hid_report_cccd_write(ble_gatts_evt_write_t *write_evt)
     }
 }
 
-void ble_hid_on_write(ble_evt_t *p_ble_evt)
+void ble_hid_on_write(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
+    const ble_gatts_evt_write_t *write_evt = &p_ble_evt
                                             ->evt
                                             .gatts_evt
                                             .params
@@ -214,12 +215,21 @@ void ble_hid_on_write(ble_evt_t *p_ble_evt)
 
     if (handle == ble_hid_characteristic_report_cccd_handle)
     {
+        NRF_LOG_DEBUG("writing cccd");
         handle_hid_report_cccd_write(write_evt);
         return;
     }
+    
+    if (handle == ble_hid_characteristic_control_point_value_handle)
+    {
+        NRF_LOG_DEBUG("writing control point");
+        return;
+    }
+
+    NRF_LOG_DEBUG("writing unknown thingathing %d %d %d %d %d", handle, ble_hid_characteristic_information_handle, ble_hid_characteristic_report_cccd_handle, ble_hid_characteristic_report_value_handle, ble_hid_characteristic_control_point_value_handle);
 }
 
-void ble_hid_on_ble_evt(ble_evt_t *p_ble_evt)
+void ble_hid_on_ble_evt(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {
@@ -264,7 +274,8 @@ ret_code_t ble_hid_characteristic_report_map_add()
     .is_readable = true,
     .max_length = sizeof(descriptor_value),
     .initial_value_length = sizeof(descriptor_value),
-    .initial_value = descriptor_value
+    .initial_value = descriptor_value,
+    .value_handle = &ble_hid_characteristic_information_handle
   };
 
   return ble_helper_characteristic_add(&init);
@@ -276,6 +287,7 @@ ret_code_t ble_hid_characteristic_control_point_add()
     .service_handle = ble_hid_service_handle,
     .uuid = BLE_UUID_HID_CHARACTERISTIC_CONTROL_POINT,
     .is_writable = true,
+    .value_handle = &ble_hid_characteristic_control_point_value_handle,
     .max_length = 1
   };
 

@@ -91,8 +91,12 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
 
   APP_ERROR_CHECK(err_code);
 
-  *(init->value_handle) = p_handles.value_handle;
-  *(init->cccd_handle) = p_handles.cccd_handle;
+  if(init->value_handle != 0x00) {
+    *(init->value_handle) = p_handles.value_handle;
+  }
+  if(init->cccd_handle != 0x00) {
+    *(init->cccd_handle) = p_handles.cccd_handle;
+  }
 
   if (init->number_of_digitals > 0) {
     uint16_t number_of_digitals_handle;

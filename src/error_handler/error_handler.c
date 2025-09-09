@@ -4,6 +4,10 @@
 #include "app_error.h"
 #include "watchdog.h"
 
+#ifdef NRF52
+#include "nrf_strerror.h"
+#endif
+
 #define DEAD_BEEF 0xDEADBEEF /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
 void HardFault_Handler(){

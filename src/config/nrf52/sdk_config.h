@@ -3498,7 +3498,7 @@
  // <4=> Debug 
  
  #ifndef NRFX_SPIM_CONFIG_LOG_LEVEL
- #define NRFX_SPIM_CONFIG_LOG_LEVEL 3
+ #define NRFX_SPIM_CONFIG_LOG_LEVEL 4
  #endif
  
  // <o> NRFX_SPIM_CONFIG_INFO_COLOR  - ANSI escape code prefix.
@@ -5491,7 +5491,7 @@
  // <e> SPI_ENABLED - nrf_drv_spi - SPI/SPIM peripheral driver - legacy layer
  //==========================================================
  #ifndef SPI_ENABLED
- #define SPI_ENABLED 0
+ #define SPI_ENABLED 1
  #endif
  // <o> SPI_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
   
@@ -5523,7 +5523,7 @@
  // <e> SPI0_ENABLED - Enable SPI0 instance
  //==========================================================
  #ifndef SPI0_ENABLED
- #define SPI0_ENABLED 0
+ #define SPI0_ENABLED 1
  #endif
  // <q> SPI0_USE_EASY_DMA  - Use EasyDMA
   
@@ -7629,7 +7629,7 @@
  // <e> NRF_LOG_ENABLED - nrf_log - Logger
  //==========================================================
  #ifndef NRF_LOG_ENABLED
- #define NRF_LOG_ENABLED 0
+ #define NRF_LOG_ENABLED 1
  #endif
  // <h> Log message pool - Configuration of log message pool
  
@@ -8706,7 +8706,7 @@
  // <e> SPI_CONFIG_LOG_ENABLED - Enables logging in the module.
  //==========================================================
  #ifndef SPI_CONFIG_LOG_ENABLED
- #define SPI_CONFIG_LOG_ENABLED 0
+ #define SPI_CONFIG_LOG_ENABLED 1
  #endif
  // <o> SPI_CONFIG_LOG_LEVEL  - Default Severity level
   

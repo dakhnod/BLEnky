@@ -534,8 +534,9 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 flash: $(APPLICATION_HEX)
 	@echo Flashing: $<
 	# scp $(APPLICATION_HEX) home:ram
-	echo -e "program `realpath $(APPLICATION_HEX)` verify reset \n exit" | nc localhost 4444
-	
+	# echo -e "program `realpath $(APPLICATION_HEX)` verify reset \n exit" | nc localhost 4444
+	nrfjprog --program $(APPLICATION_HEX) -f nrf$(FAMILY) --verify --sectorerase --reset
+
 # Flash softdevice
 flash_softdevice:
 	@echo Flashing: $(SOFTDEVICE_HEX)

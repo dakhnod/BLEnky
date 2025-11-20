@@ -13,6 +13,7 @@
 #include "fds.h"
 #include "sleep.h"
 #include "ble_temperature_service.h"
+#include "fpc2534.h"
 #include "ble_helpers.h"
 
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS_COMPAT(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
@@ -492,6 +493,11 @@ void on_ble_evt(const ble_evt_t *p_ble_evt) {
         }
         break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
 
+        case BLE_GATTS_EVT_HVC:
+            NRF_LOG_DEBUG("indication confirmed");
+            break;
+        
+
 #if (NRF_SD_BLE_API_VERSION >= 3)
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
             err_code = sd_ble_gatts_exchange_mtu_reply(p_ble_evt->evt.gatts_evt.conn_handle,
@@ -651,6 +657,8 @@ void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
     #endif
 
     ble_temperature_on_ble_evt(p_ble_evt);
+
+    fpc2534_on_ble_evt(p_ble_evt);
 }
 
 
@@ -1183,6 +1191,9 @@ void services_init(void) {
     #endif
 
     err_code = ble_temperature_init();
+    APP_ERROR_CHECK(err_code);
+
+    err_code = fpc2534_init();
     APP_ERROR_CHECK(err_code);
 
     // TODO: add BSS init here

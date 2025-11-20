@@ -75,6 +75,7 @@ SRC_FILES_COMMON += \
   $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ble_cycling_speed_cadence.c \
   $(PROJ_DIR)/src/ble/services/hid/ble_hid.c \
   $(PROJ_DIR)/src/ble/services/temperature/ble_temperature_service.c \
+  $(PROJ_DIR)/src/ble/services/fpc2534/fpc2534.c \
   $(PROJ_DIR)/src/ble/helpers/ble_helpers.c \
   $(PROJ_DIR)/src/ble/sensor_ble.c \
   $(PROJ_DIR)/src/gpio/sensor_gpio.c \
@@ -162,6 +163,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/src/ble/services/cycling_speed_cadence/ \
   $(PROJ_DIR)/src/ble/services/hid/ \
   $(PROJ_DIR)/src/ble/services/temperature/ \
+  $(PROJ_DIR)/src/ble/services/fpc2534/ \
   $(PROJ_DIR)/src/ble/helpers/ \
   $(PROJ_DIR)/src/ble/ \
   $(PROJ_DIR)/src/helpers/ \
@@ -534,8 +536,8 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 flash: $(APPLICATION_HEX)
 	@echo Flashing: $<
 	# scp $(APPLICATION_HEX) home:ram
-	# echo -e "program `realpath $(APPLICATION_HEX)` verify reset \n exit" | nc localhost 4444
-	nrfjprog --program $(APPLICATION_HEX) -f nrf$(FAMILY) --verify --sectorerase --reset
+	echo -e "program `realpath $(APPLICATION_HEX)` verify reset \n exit" | socat - tcp:localhost:4444
+	# nrfjprog --program $(APPLICATION_HEX) -f nrf$(FAMILY) --verify --sectorerase --reset
 
 # Flash softdevice
 flash_softdevice:

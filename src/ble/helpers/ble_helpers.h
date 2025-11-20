@@ -18,6 +18,7 @@ typedef struct {
   uint8_t is_writable;
   uint8_t is_readable;
   uint8_t is_notifiable;
+  uint8_t is_indicatable;
   uint8_t authorize_read;
   uint8_t authorize_write;
   uint16_t max_length;

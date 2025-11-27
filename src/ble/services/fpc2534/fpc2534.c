@@ -17,9 +17,9 @@
 #define CUSTOM_FPC2534_BASE_CONFIGURATION_SERVICE {0xc5, 0x09, 0x41, 0x58, 0xf1, 0x14, 0x30, 0x78, 0x15, 0xd8, 0x47, 0x79, 0x30, 0x2a, 0x3f, 0x38}
 #define UUID_FPC2534 0x0000
 
-#define PIN_SCK  NRF_GPIO_PIN_MAP(1, 11)
-#define PIN_MISO NRF_GPIO_PIN_MAP(1, 13)
-#define PIN_MOSI NRF_GPIO_PIN_MAP(1, 15)
+#define PIN_SCK  NRF_GPIO_PIN_MAP(0, 9)
+#define PIN_MISO NRF_GPIO_PIN_MAP(0, 10)
+#define PIN_MOSI NRF_GPIO_PIN_MAP(1, 11)
 #define PIN_CS   NRF_GPIO_PIN_MAP(0, 2)
 #define PIN_RST  NRF_GPIO_PIN_MAP(0, 31)
 #define PIN_IRQ  NRF_GPIO_PIN_MAP(0, 29)
@@ -51,6 +51,7 @@ void irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 
     NRF_LOG_DEBUG("data available! Reading header...");
 
+    // NRF_SPIM0->ENABLE = 1;
     nrf_gpio_pin_clear(PIN_CS);
     nrf_delay_ms(1);
 
@@ -75,6 +76,8 @@ void spi_handler(nrfx_spim_evt_t const *p_event, void *p_context) {
 
             NRF_LOG_DEBUG("Received %d payload", p_event->xfer_desc.rx_length);
             // NRF_LOG_HEXDUMP_DEBUG(spi_buf, payload_length);
+
+            // NRF_SPIM0->ENABLE = 0;
             nrf_gpio_pin_set(PIN_CS);
 
             if(!send_reads) {
@@ -224,6 +227,7 @@ void fpc2534_init(){
 
 void fpc2534_on_write_send(const ble_gatts_evt_write_t *write_evt) {
     nrf_gpio_pin_clear(PIN_CS);
+    // NRF_SPIM0->ENABLE = 1;
     nrf_delay_us(500);
     nrfx_spim_xfer_desc_t xfer = NRFX_SPIM_XFER_TX(write_evt->data, write_evt->len);
     APP_ERROR_CHECK(nrfx_spim_xfer(&spi, &xfer, 0));
@@ -262,6 +266,10 @@ void fpc2534_on_ble_evt(const ble_evt_t *p_ble_evt)
     case BLE_GAP_EVT_DISCONNECTED:
         fpc2534_connection_handle = BLE_CONN_HANDLE_INVALID;
         send_reads = false;
+        while(!nrf_queue_is_empty(&transmission_queue)) {
+            uint8_t elem;
+            nrf_queue_pop(&transmission_queue, &elem);
+        }
         break;
 
     case BLE_GATTS_EVT_HVC:

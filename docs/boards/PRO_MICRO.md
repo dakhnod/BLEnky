@@ -32,4 +32,4 @@ Setting 0.13 to low reduces to around 30uA, but you should provide around 3V I b
 With a Lithium battery connected to B+/RAW you should leave the LDO on (0.13 at high), which will lead to around 200uA power consumption.
 With a 1000mA battery this gives you around 200 days of battery life.
 
-That may require a little fix as described [here](https://github.com/joric/nrfmicro/wiki/Alternatives/dd5782fb56855cc7e24e884f1e423d664da34db1) under "Workarounds", though.
+If you measure power consumption around 200uA, try [this](https://github.com/joric/nrfmicro/wiki/Alternatives/dd5782fb56855cc7e24e884f1e423d664da34db1) under "Workarounds".

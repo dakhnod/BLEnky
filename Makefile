@@ -1,6 +1,6 @@
 OUTPUT_DIRECTORY := _build
 
-BLE_ROOT ?= ..
+BLE_ROOT ?= ../..
 
 APPLICATION_HEX ?= $(OUTPUT_DIRECTORY)/$(TARGETS).hex
 KEY_FILE ?= $(BLE_ROOT)/private.pem
@@ -246,7 +246,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/gpiote \
   $(SDK_ROOT)/components/device \
 
-SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_12.3.0_d7731ad
+SDK_ROOT ?= $(BLE_ROOT)/SDK/12.3.0
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex
 
 CFLAGS += -DNRF51
@@ -450,7 +450,7 @@ LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 LDFLAGS += -mthumb -mabi=aapcs -L $(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
 
-SDK_ROOT ?= $(BLE_ROOT)/nRF5_SDK_15.3.0_59ac345
+SDK_ROOT ?= $(BLE_ROOT)/SDK/15.3.0
 endif
 
 # Libraries common to all targets

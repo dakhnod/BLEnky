@@ -5998,7 +5998,7 @@
  
  
  #ifndef WDT_CONFIG_RELOAD_VALUE
- #define WDT_CONFIG_RELOAD_VALUE 2000
+ #define WDT_CONFIG_RELOAD_VALUE 60000
  #endif
  
  // <o> WDT_CONFIG_IRQ_PRIORITY  - Interrupt priority

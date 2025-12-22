@@ -3,7 +3,6 @@
 #include "nrf.h"
 #include "app_error.h"
 #include "watchdog.h"
-#include "nrf_strerror.h"
 
 #ifdef NRF52
 #include "nrf_strerror.h"

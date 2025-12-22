@@ -14,7 +14,7 @@ To get back into the bootloader, a quick doble reset should suffice.
 
 In order to get the lowest power ingest (microamperes), supply around 3V to the pin marked in this picture:
 
-![Image](https://github.com/user-attachments/assets/85d85e85-a2dd-4b9f-a323-fdbf0cab0c24)
+![PXL_20251222_225933250](https://github.com/user-attachments/assets/f777dd82-d1de-4d68-a1eb-dd396289568c)
 
 Then, configure pin 0.13 as output and default low, to disable the LDO.
 I managed to get around 10uA of power consumption this way.

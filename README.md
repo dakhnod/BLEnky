@@ -26,7 +26,7 @@ To summarize, this is basically like Tasmota for the nRF51/52, that can be power
 |[Small beacon thing](https://de.aliexpress.com/item/32872483730.html?spm=a2g0o.productlist.main.41.1281Dxz4Dxz4uj&algo_pvid=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc&algo_exp_id=0cb69d44-82b4-4ea6-9012-2a53f58d2dcc-20&pdp_npi=4%40dis%21EUR%215.51%214.79%21%21%215.59%214.86%21%402103890917383147672042275e555a%2165507258407%21sea%21DE%211858291489%21X&curPageLogUid=NJ5twh8e5mzM&utparam-url=scene%3Asearch%7Cquery_from%3A)|✅|✅|✅|
 |WS51822-S4AT|✅||✅|
 |HolyIOT 17095|✅|||whole board is only 9x9mm!|
-|Feasycom FSC-BT630|✅|✅| |
+|[Feasycom FSC-BT630](https://www.feasycom.com/product/fsc-bt630/)|✅|✅| |
 |BLE400|✅|✅|✅|
 |[XIAO nRF52840](https://www.seeedstudio.com/Seeed-XIAO-BLE-nRF52840-p-5201.html)|✅|✅||
 |[nRF52840 dongle](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-Dongle/Download?lang=en#infotabs)|✅|✅||use `dfu usb-serial -pkg dongle.zip --port /dev/ttyACMX` to flash.

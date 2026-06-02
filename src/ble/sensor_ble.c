@@ -40,7 +40,7 @@
 #define STATUS_BATTERY_LEVEL_LOW      0b10
 #define STATUS_BATTERY_LEVEL_CRITICAL 0b11
 
-#define NRF_BLE_MAX_MTU_SIZE    64
+#define NRF_BLE_MAX_MTU_SIZE    247
 
 #define APP_BLE_OBSERVER_PRIO       3                                   /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 

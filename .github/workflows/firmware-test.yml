@@ -53,5 +53,5 @@ jobs:
         submodules: true
         path: testing-kit
     - name: run test script
-      run: python -u main.py -a "F2:B4:78:83:18:E1" -o 6 13 19 26 -i 12 16 20 21
+      run: python -u main.py -a "E9:D5:2D:41:9A:55" -o 6 13 19 26 -i 12 16 20 21
       working-directory: testing-kit

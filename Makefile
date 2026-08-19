@@ -322,10 +322,29 @@ SRC_FILES = \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_init.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_shared.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd_core.c \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/app_usbd_hid.c \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/generic/app_usbd_hid_generic.c \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/kbd/app_usbd_hid_kbd.c \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/mouse/app_usbd_hid_mouse.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd_string_desc.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_usbd.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_power.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_systick.c \
+  $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_power.c \
+  $(PROJ_DIR)/src/ble/services/hid/usb_hid.c \
 
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s140/headers \
-  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52
+  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52 \
+  $(SDK_ROOT)/components/libraries/usbd/ \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/ \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/generic/ \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/kbd/ \
+  $(SDK_ROOT)/components/libraries/usbd/class/hid/mouse/ \
+  $(SDK_ROOT)/external/utf_converter \
 
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_softdevice.hex
 
@@ -333,6 +352,7 @@ CFLAGS += -DS140
 CFLAGS += -DNRF52840_XXAA
 CFLAGS += -DHARDWARE_PIN_COUNT=64
 CFLAGS += -DNRF_CRYPTO_BACKEND_CC310_ENABLED=1
+CFLAGS += -DNRFX_SYSTICK_ENABLED=1
 
 ASMFLAGS += -DS140
 ASMFLAGS += -DNRF52840_XXAA
@@ -537,11 +557,13 @@ flash: $(APPLICATION_HEX)
 # Flash softdevice
 flash_softdevice:
 	@echo Flashing: $(SOFTDEVICE_HEX)
-	nrfjprog --program $(SOFTDEVICE_HEX) -f nrf$(FAMILY) --verify --sectorerase
-	nrfjprog --reset -f nrf$(FAMILY)
+	# nrfjprog --program $(SOFTDEVICE_HEX) -f nrf$(FAMILY) --verify --sectorerase
+	# nrfjprog --reset -f nrf$(FAMILY)
+	echo -e "program `realpath $(SOFTDEVICE_HEX)` verify \n exit" | nc localhost 4444
 
 erase:
-	nrfjprog --eraseall -f nrf$(FAMILY)
+	# nrfjprog --eraseall -f nrf$(FAMILY)
+	echo -e "halt; nrf5 mass_erase \n exit" | nc localhost 4444
 
 merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 	mergehex -m \
@@ -599,7 +621,8 @@ feature_config: src/config/feature_config.h
 	java -jar $(BLE_ROOT)/CMSIS_Configuration_Wizard.jar src/config/feature_config.template.h
 	
 reset:
-	nrfjprog --reset
+	# nrfjprog --reset
+	echo -e "reset \n exit" | nc localhost 4444
 
 rtt_viewer_start:
 	sed -i -r 's/(Frame[XY]) = .*/\1 = 0/' ~/.config/SEGGERJLinkRTTViewerSettings.ini

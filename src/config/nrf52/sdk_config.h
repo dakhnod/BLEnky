@@ -4594,7 +4594,7 @@
  // <e> NRFX_USBD_ENABLED - nrfx_usbd - USBD peripheral driver
  //==========================================================
  #ifndef NRFX_USBD_ENABLED
- #define NRFX_USBD_ENABLED 0
+ #define NRFX_USBD_ENABLED 1
  #endif
  // <o> NRFX_USBD_CONFIG_IRQ_PRIORITY  - Interrupt priority
   
@@ -4843,7 +4843,7 @@
  // <e> POWER_ENABLED - nrf_drv_power - POWER peripheral driver - legacy layer
  //==========================================================
  #ifndef POWER_ENABLED
- #define POWER_ENABLED 0
+ #define POWER_ENABLED 1
  #endif
  // <o> POWER_CONFIG_IRQ_PRIORITY  - Interrupt priority
   
@@ -6224,7 +6224,7 @@
  // <e> APP_USBD_ENABLED - app_usbd - USB Device library
  //==========================================================
  #ifndef APP_USBD_ENABLED
- #define APP_USBD_ENABLED 0
+ #define APP_USBD_ENABLED 1
  #endif
  // <o> APP_USBD_VID - Vendor ID.  <0x0000-0xFFFF> 
  
@@ -6284,7 +6284,7 @@
  // <i> Enable processing power events in USB event handler.
  
  #ifndef APP_USBD_CONFIG_POWER_EVENTS_PROCESS
- #define APP_USBD_CONFIG_POWER_EVENTS_PROCESS 1
+ #define APP_USBD_CONFIG_POWER_EVENTS_PROCESS 0
  #endif
  
  // <e> APP_USBD_CONFIG_EVENT_QUEUE_ENABLE - Enable event queue.
@@ -6489,7 +6489,7 @@
  // <e> APP_USBD_HID_ENABLED - app_usbd_hid - USB HID class
  //==========================================================
  #ifndef APP_USBD_HID_ENABLED
- #define APP_USBD_HID_ENABLED 0
+ #define APP_USBD_HID_ENABLED 1
  #endif
  // <o> APP_USBD_HID_DEFAULT_IDLE_RATE - Default idle rate for HID class.   <0-255> 
  
@@ -6515,21 +6515,21 @@
   
  
  #ifndef APP_USBD_HID_GENERIC_ENABLED
- #define APP_USBD_HID_GENERIC_ENABLED 0
+ #define APP_USBD_HID_GENERIC_ENABLED 1
  #endif
  
  // <q> APP_USBD_HID_KBD_ENABLED  - app_usbd_hid_kbd - USB HID keyboard
   
  
  #ifndef APP_USBD_HID_KBD_ENABLED
- #define APP_USBD_HID_KBD_ENABLED 0
+ #define APP_USBD_HID_KBD_ENABLED 1
  #endif
  
  // <q> APP_USBD_HID_MOUSE_ENABLED  - app_usbd_hid_mouse - USB HID mouse
   
  
  #ifndef APP_USBD_HID_MOUSE_ENABLED
- #define APP_USBD_HID_MOUSE_ENABLED 0
+ #define APP_USBD_HID_MOUSE_ENABLED 1
  #endif
  
  // <q> APP_USBD_MSC_ENABLED  - app_usbd_msc - USB MSC class
@@ -7629,7 +7629,7 @@
  // <e> NRF_LOG_ENABLED - nrf_log - Logger
  //==========================================================
  #ifndef NRF_LOG_ENABLED
- #define NRF_LOG_ENABLED 0
+ #define NRF_LOG_ENABLED 1
  #endif
  // <h> Log message pool - Configuration of log message pool
  

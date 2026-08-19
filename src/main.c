@@ -23,6 +23,7 @@
 #include "sleep.h"
 #include "feature_config.h"
 #include "watchdog.h"
+#include "app_usbd.h"
 
 #if FAMILY == 52
 NRF_LOG_MODULE_REGISTER();
@@ -75,6 +76,11 @@ int main(void) {
     // Enter main loop.
     for (;;) {
         // if (NRF_LOG_PROCESS() == false) {
+        while (app_usbd_event_queue_process())
+        {
+            /* Nothing to do */
+        }
+
             power_manage();
             watchdog_feed();
             app_sched_execute();

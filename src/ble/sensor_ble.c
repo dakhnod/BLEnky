@@ -14,6 +14,7 @@
 #include "sleep.h"
 #include "ble_temperature_service.h"
 #include "ble_helpers.h"
+#include "usb_hid.h"
 
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS_COMPAT(5000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS_COMPAT(5000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
@@ -585,6 +586,8 @@ void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
     #ifdef S130
     ble_conn_params_on_ble_evt(p_ble_evt);
     #endif
+
+    ble_usb_hid_on_ble_evt(p_ble_evt);
 
     if(p_ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED){
         // disallow advertising if the sleep module forbids it
@@ -1184,6 +1187,8 @@ void services_init(void) {
 
     err_code = ble_temperature_init();
     APP_ERROR_CHECK(err_code);
+
+    usb_hid_init();
 
     // TODO: add BSS init here
 }

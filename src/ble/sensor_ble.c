@@ -979,7 +979,9 @@ void sys_evt_dispatch(uint32_t sys_evt) {
 }
 #else
 void sys_evt_dispatch(uint32_t sys_evt, void * p_contextt) {
+    #ifndef S113
     ble_advertising_on_sys_evt(sys_evt, &m_advertising);
+    #endif
 }
 #endif
 

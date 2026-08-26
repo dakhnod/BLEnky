@@ -35,7 +35,7 @@ void on_bss_cccd_write(const ble_gatts_evt_write_t *p_evt_write) {
     }
 }
 
-void on_control_characteristic_write(ble_gatts_evt_write_t *write) {
+void on_control_characteristic_write(const ble_gatts_evt_write_t *write) {
     const uint16_t length = write->len;
     const uint8_t *data = write->data;
 

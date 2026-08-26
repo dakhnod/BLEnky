@@ -603,13 +603,14 @@ void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
         #endif
         
         if(can_advertise){
+            custom_advertisement_running = false;
             #ifdef S130
             ble_advertising_on_ble_evt(p_ble_evt);
             #else
             ble_advertising_on_ble_evt(p_ble_evt, &m_advertising);
             #endif
         }
-    }else if(p_ble_evt->header.evt_id == BLE_GAP_EVT_TIMEOUT){
+    }else if(p_ble_evt->header.evt_id == BLE_GAP_EVT_ADV_SET_TERMINATED){
         #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
             if(custom_advertisement_running){
                 NRF_LOG_DEBUG("returning to slow advertising\n");

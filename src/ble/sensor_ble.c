@@ -251,7 +251,7 @@ void fds_evt_handler(fds_evt_t const *const p_fds_evt)
     switch (p_fds_evt->id)
     {
     case FDS_EVT_INIT:
-        if (p_fds_evt->result == FDS_SUCCESS)
+        if (p_fds_evt->result == NRF_SUCCESS)
         {
             NRF_LOG_DEBUG("fds init success\n");
         }
@@ -261,7 +261,7 @@ void fds_evt_handler(fds_evt_t const *const p_fds_evt)
         }
         break;
     case FDS_EVT_WRITE:
-        if (p_fds_evt->result == FDS_SUCCESS)
+        if (p_fds_evt->result == NRF_SUCCESS)
         {
             NRF_LOG_DEBUG("fds write success\n");
         }
@@ -499,7 +499,7 @@ void on_ble_evt(const ble_evt_t *p_ble_evt) {
             APP_ERROR_CHECK(err_code);
             break; // BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST
             
-
+        /*
         case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {
             ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
             // Accepting parameters requested by peer.
@@ -508,6 +508,8 @@ void on_ble_evt(const ble_evt_t *p_ble_evt) {
             APP_ERROR_CHECK(err_code);
             break;
         }
+        */
+       
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST: {
             ble_gap_data_length_params_t dl_params;
 

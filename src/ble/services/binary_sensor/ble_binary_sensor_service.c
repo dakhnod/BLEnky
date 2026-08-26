@@ -18,31 +18,31 @@ bool send_updates = false;
 enum opening_closing_state_t current_state_ = OPEN;
 uint16_t event_count_ = 0;
 
-void ble_bss_on_connect(ble_evt_t *p_ble_evt) {
+void ble_bss_on_connect(const ble_evt_t *p_ble_evt) {
     ble_bss_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_bss_on_disconnect(ble_evt_t *p_ble_evt) {
+void ble_bss_on_disconnect(const ble_evt_t *p_ble_evt) {
     UNUSED_PARAMETER(p_ble_evt);
     ble_bss_connection_handle = BLE_CONN_HANDLE_INVALID;
     send_updates = false;
     send_responses = false;
 }
 
-void on_bss_cccd_write(ble_gatts_evt_write_t *p_evt_write) {
+void on_bss_cccd_write(const ble_gatts_evt_write_t *p_evt_write) {
     if (p_evt_write->len == 2) {
         send_responses = ble_srv_is_indication_enabled(p_evt_write->data);
     }
 }
 
 void on_control_characteristic_write(ble_gatts_evt_write_t *write) {
-    uint16_t length = write->len;
-    uint8_t *data = write->data;
+    const uint16_t length = write->len;
+    const uint8_t *data = write->data;
 
     parse_full_packet_with_split_header(data, length);
 }
 
-void parse_full_packet_with_split_header(uint8_t *data, uint16_t length) {
+void parse_full_packet_with_split_header(const uint8_t *data, const uint16_t length) {
     if (length < 1) {
         return;
     }
@@ -51,13 +51,13 @@ void parse_full_packet_with_split_header(uint8_t *data, uint16_t length) {
     parse_packet(data + 1, length - 1);
 }
 
-void parse_packet(uint8_t *data, uint16_t length) {
+void parse_packet(const uint8_t *data, const uint16_t length) {
     if (length < 4) {
         return;
     }
     message_header_t *message_header = (message_header_t *)data;
     message_parameter_t params[message_header->parameter_count];
-    uint8_t *payload_ptr = data + 4;
+    const uint8_t *payload_ptr = data + 4;
     for (uint8_t i = 0; i < message_header->parameter_count; i++) {
         message_parameter_without_data_t *parameter = (message_parameter_without_data_t *)payload_ptr;
 
@@ -237,8 +237,8 @@ void respond_get_sensor(enum message_id_t message_id, enum result_code_t result_
     send_message_with_header(message_id, parameters, 2);
 }
 
-void ble_bss_on_write(ble_evt_t *p_ble_evt) {
-    ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+void ble_bss_on_write(const ble_evt_t *p_ble_evt) {
+    const ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
     if (p_evt_write->handle == ble_bss_cccd_handle) {
         on_bss_cccd_write(p_evt_write);
@@ -266,7 +266,7 @@ void ble_bss_handle_input_change(uint32_t index, gpio_config_input_digital_t *co
     ble_bss_set_state(config->state, (uint16_t)config->trigger_count);
 }
 
-void ble_bss_on_ble_evt(ble_evt_t *p_ble_evt) {
+void ble_bss_on_ble_evt(const ble_evt_t *p_ble_evt) {
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED:
             ble_bss_on_connect(p_ble_evt);

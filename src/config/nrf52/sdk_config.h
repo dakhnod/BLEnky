@@ -6575,7 +6575,7 @@
  // <i> The total amount of flash memory that is used by FDS amounts to @ref FDS_VIRTUAL_PAGES * @ref FDS_VIRTUAL_PAGE_SIZE * 4 bytes.
  
  #ifndef FDS_VIRTUAL_PAGES
- #define FDS_VIRTUAL_PAGES 3
+ #define FDS_VIRTUAL_PAGES 2
  #endif
  
  // <o> FDS_VIRTUAL_PAGE_SIZE  - The size of a virtual flash page.
@@ -6597,7 +6597,7 @@
  // <i> As a result the reserved space can be used by other modules.
  
  #ifndef FDS_VIRTUAL_PAGES_RESERVED
- #define FDS_VIRTUAL_PAGES_RESERVED 0
+ #define FDS_VIRTUAL_PAGES_RESERVED 1
  #endif
  
  // </h> 

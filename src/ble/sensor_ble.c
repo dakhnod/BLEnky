@@ -51,8 +51,8 @@ uint16_t advertising_interval = APP_ADV_INTERVAL_SLOW;
 
 bool advertising_initialized = false;
 
-#ifndef S130                                        /**< GATT module instance. */
-BLE_ADVERTISING_DEF(m_advertising);
+#ifndef S130
+ble_advertising_t m_advertising;
 NRF_BLE_GATT_DEF(m_gatt);
 #endif
 
@@ -612,10 +612,18 @@ void ble_evt_dispatch(const ble_evt_t *p_ble_evt, void * p_context) {
             if(custom_advertisement_running){
                 NRF_LOG_DEBUG("returning to slow advertising\n");
                 custom_data_advertisement_stop();
+                #ifdef S130
                 ret_code_t err_code = ble_advertising_start(BLE_ADV_MODE_SLOW);
+                #else
+                ret_code_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_SLOW);
+                #endif
                 APP_ERROR_CHECK(err_code);
             }else{
+                #ifdef S130
                 ble_advertising_on_ble_evt(p_ble_evt);
+                #else
+                ble_advertising_on_ble_evt(p_ble_evt, &m_advertising);
+                #endif
             }
         #else
             #ifdef S130
@@ -713,6 +721,8 @@ void set_addr_from_data(uint8_t *key) {
 
 #if FEATURE_ENABLED(CUSTOM_ADVERTISEMENT_DATA)
 void custom_data_advertisement_start(){
+    ret_code_t err_code;
+    
     if(custom_advertisement_running){
         return;
     }
@@ -732,9 +742,17 @@ void custom_data_advertisement_start(){
 
     data[12] |= status_battery << STATUS_BATTERY_POSITION;
 
+    #ifdef S130
+    uint32_t ret_code = sd_ble_gap_adv_stop();
+    #else
+    uint32_t ret_code = sd_ble_gap_adv_stop(m_advertising.adv_handle);
+    #endif
+    UNUSED_PARAMETER(ret_code);
+
     set_addr_from_data(data);
 
-    ret_code_t err_code = sd_ble_gap_adv_data_set(
+    #ifdef S130
+    err_code = sd_ble_gap_adv_data_set(
         data + 6,
         sizeof(data) - 6,
         NULL,
@@ -758,6 +776,32 @@ void custom_data_advertisement_start(){
 
     err_code = sd_ble_gap_adv_start(&m_adv_params);
     APP_ERROR_CHECK(err_code);
+    #else
+    ble_gap_adv_data_t m_adv_data = {
+        .adv_data = {
+            .p_data = data + 6,
+            .len = sizeof(data) - 6
+        }
+    };
+
+    static ble_gap_adv_params_t m_adv_params = {
+        .properties = {
+            #if CUSTOM_ADVERTISEMENT_CONNECTABLE == 1
+            .type        = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED,
+            #else
+            .type        = BLE_GAP_ADV_TYPE_NONCONNECTABLE_SCANNABLE_UNDIRECTED,
+            #endif
+        },
+        .p_peer_addr = NULL,
+        .interval    = MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_CUSTOM_DATA, UNIT_0_625_MS),
+        .duration    = MSEC_TO_UNITS(ADVERTISEMENT_TIMEOUT_CUSTOM_DATA * 1000, UNIT_10_MS)
+    };
+    err_code = sd_ble_gap_adv_set_configure(&m_advertising.adv_handle, &m_adv_data, &m_adv_params);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = sd_ble_gap_adv_start(m_advertising.adv_handle, m_advertising.conn_cfg_tag);
+    APP_ERROR_CHECK(err_code);
+    #endif
 
     custom_advertisement_running = true;
     is_advertising = true;
@@ -769,8 +813,12 @@ void custom_data_advertisement_stop(){
     if(!custom_advertisement_running){
         return;
     }
-
-    ret_code_t err_code = sd_ble_gap_adv_stop();
+    #ifdef S130
+    uint32_t ret_code = sd_ble_gap_adv_stop();
+    #else
+    uint32_t ret_code = sd_ble_gap_adv_stop(m_advertising.adv_handle);
+    #endif
+    UNUSED_PARAMETER(ret_code);
     // advertisement should not be running anyways, so we expect a INVALID_STATE error
     // APP_ERROR_CHECK(err_code);
 
@@ -780,7 +828,6 @@ void custom_data_advertisement_stop(){
     #else
     APP_ERROR_CHECK(sd_ble_gap_addr_set(&ble_address));
     #endif
-    APP_ERROR_CHECK(err_code);
 
     // calling this to restore old advertisement data
     advertising_init();
@@ -875,23 +922,24 @@ void advertising_init() {
         NULL
     );
     #else
-    ble_advertising_init_t init;
+    ble_advertising_init_t init = {
+        .advdata = {
+            .name_type                = BLE_ADVDATA_FULL_NAME,
+            .include_appearance       = true,
+            .flags                    = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE,
+            .uuids_complete.uuid_cnt  = uuid_len,
+            .uuids_complete.p_uuids   = uuids,
+        },
+        .config = {
+            .ble_adv_fast_enabled      = true,
+            .ble_adv_fast_interval     = APP_ADV_INTERVAL_FAST,
+            .ble_adv_fast_timeout      = MSEC_TO_UNITS(ADVERTISEMENT_TIMEOUT_FAST * 1000, UNIT_10_MS),
 
-    memset(&init, 0, sizeof(init));
-
-    init.advdata.name_type                = BLE_ADVDATA_FULL_NAME;
-    init.advdata.include_appearance       = true;
-    init.advdata.flags                    = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED | BLE_GAP_ADV_FLAG_LE_GENERAL_DISC_MODE;
-    init.advdata.uuids_complete.uuid_cnt  = uuid_len;
-    init.advdata.uuids_complete.p_uuids   = uuids;
-
-    init.config.ble_adv_fast_enabled      = true;
-    init.config.ble_adv_fast_interval     = APP_ADV_INTERVAL_FAST;
-    init.config.ble_adv_fast_timeout      = ADVERTISEMENT_TIMEOUT_FAST;
-
-    init.config.ble_adv_slow_enabled      = true;
-    init.config.ble_adv_slow_interval      = advertising_interval;
-    init.config.ble_adv_slow_timeout      = ADVERTISEMENT_TIMEOUT_SLOW;
+            .ble_adv_slow_enabled      = true,
+            .ble_adv_slow_interval     = advertising_interval,
+            .ble_adv_slow_timeout      = MSEC_TO_UNITS(ADVERTISEMENT_TIMEOUT_SLOW * 1000, UNIT_10_MS)
+        }
+    };
 
     init.evt_handler   = advertising_event_handler;
 

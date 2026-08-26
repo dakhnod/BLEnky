@@ -537,11 +537,13 @@ flash: $(APPLICATION_HEX)
 # Flash softdevice
 flash_softdevice:
 	@echo Flashing: $(SOFTDEVICE_HEX)
-	nrfjprog --program $(SOFTDEVICE_HEX) -f nrf$(FAMILY) --verify --sectorerase
-	nrfjprog --reset -f nrf$(FAMILY)
+	# nrfjprog --program $(SOFTDEVICE_HEX) -f nrf$(FAMILY) --verify --sectorerase
+	# nrfjprog --reset -f nrf$(FAMILY)
+	echo -e "program `realpath $(SOFTDEVICE_HEX)` verify \n exit" | nc localhost 4444
 
 erase:
-	nrfjprog --eraseall -f nrf$(FAMILY)
+	# nrfjprog --eraseall -f nrf$(FAMILY)
+	echo -e "halt \n nrf5 mass_erase \n exit" | nc localhost 4444
 
 merge_softdevice: $(APPLICATION_HEX) $(SOFTDEVICE_HEX)
 	mergehex -m \
@@ -599,7 +601,8 @@ feature_config: src/config/feature_config.h
 	java -jar $(BLE_ROOT)/CMSIS_Configuration_Wizard.jar src/config/feature_config.template.h
 	
 reset:
-	nrfjprog --reset
+	# nrfjprog --reset
+	echo -e "reset \n exit" | nc localhost 4444
 
 rtt_viewer_start:
 	sed -i -r 's/(Frame[XY]) = .*/\1 = 0/' ~/.config/SEGGERJLinkRTTViewerSettings.ini

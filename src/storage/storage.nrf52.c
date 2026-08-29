@@ -15,6 +15,9 @@ NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
     #ifdef NRF52840_XXAA
     .start_addr     = 0xA1000,
     .end_addr       = 0xA2000
+    #elif defined NRF52805_XXAA
+    .start_addr     = 0x2f000,
+    .end_addr       = 0x30000
     #else
     .start_addr = 0x61000,
     .end_addr = 0x62000

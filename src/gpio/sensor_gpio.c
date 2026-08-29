@@ -2,7 +2,7 @@
 #include "pin_configuration.h"
 #include "app_timer.h"
 #include "sensor_timer.h"
-#include "app_pwm.h"
+// #include "app_pwm.h"
 #include "feature_config.h"
 
 #define TOTAL_PIN_COUNT_MAX (GPIO_INPUT_COUNT_MAX + GPIO_OUTPUT_COUNT_MAX)
@@ -32,8 +32,8 @@ gpio_config_t gpio_configs[TOTAL_PIN_COUNT_MAX];
 
 gpio_input_change_handler_t gpio_input_change_handler = NULL;
 
-app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, APP_PWM_NOPIN, APP_PWM_NOPIN);
-APP_PWM_INSTANCE(pwm0, 1);
+// app_pwm_config_t gpio_output_analog_config = APP_PWM_DEFAULT_CONFIG_2CH(20000L, APP_PWM_NOPIN, APP_PWM_NOPIN);
+// APP_PWM_INSTANCE(pwm0, 1);
 // don't forget to update analog_output_values
 
 gpio_config_t *find_gpio_config_by_index(uint32_t index, direction_t direction){
@@ -172,6 +172,8 @@ void gpio_configure_aio_outputs_digital() {
 
 void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value){
   // value unchanged
+  /*
+
   if(analog_output_values[index] == value){
     return;
   }
@@ -191,6 +193,7 @@ void gpio_write_output_analog_pin_ticks(uint32_t index, uint16_t value){
 
   app_pwm_enable(&pwm0);
   while (app_pwm_channel_duty_ticks_set(&pwm0, index, value) == NRF_ERROR_BUSY);
+  */
 }
 
 void gpio_write_output_analog_pin_us(uint32_t index, uint16_t us){
@@ -198,9 +201,11 @@ void gpio_write_output_analog_pin_us(uint32_t index, uint16_t us){
 }
 
 void gpio_configure_aio_outputs_analog(){
+  /*
   ret_code_t err_code;
   err_code = app_pwm_init(&pwm0, &gpio_output_analog_config, NULL);
   APP_ERROR_CHECK(err_code);
+  */
 
   // did enable here, but moved to conditional enable in gpio_write_output_analog_pin_ticks()
 }
@@ -322,6 +327,7 @@ void gpio_handle_parse_output_digital(uint32_t index, uint32_t pin, uint8_t defa
 }
 
 void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t invert) {
+  /*
   static uint32_t analog_pin_index = 0;
   if(index >= GPIO_OUTPUT_ANALOG_PIN_LIMIT){
     return;
@@ -329,6 +335,7 @@ void gpio_handle_parse_output_analog(uint32_t index, uint32_t pin, uint8_t inver
   gpio_output_analog_config.pins[index] = pin;
   gpio_output_analog_config.pin_polarity[index] = invert ? APP_PWM_POLARITY_ACTIVE_LOW : APP_PWM_POLARITY_ACTIVE_HIGH;
   analog_pin_index++;
+  */
 }
 
 void gpio_handle_parse_input_digital(uint32_t index, uint32_t pin, uint8_t pull, uint8_t invert) {

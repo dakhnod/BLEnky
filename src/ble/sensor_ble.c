@@ -729,7 +729,7 @@ void custom_data_advertisement_start(){
     if(custom_advertisement_running){
         return;
     }
-    uint8_t data[] = { ADVERTISEMENT_CUSTOM_DATA };
+    static uint8_t data[] = { ADVERTISEMENT_CUSTOM_DATA };
 
     uint8_t battery_level = battery_level_get();
 
@@ -780,7 +780,7 @@ void custom_data_advertisement_start(){
     err_code = sd_ble_gap_adv_start(&m_adv_params);
     APP_ERROR_CHECK(err_code);
     #else
-    ble_gap_adv_data_t m_adv_data = {
+    static ble_gap_adv_data_t m_adv_data = {
         .adv_data = {
             .p_data = data + 6,
             .len = sizeof(data) - 6
@@ -799,6 +799,7 @@ void custom_data_advertisement_start(){
         .interval    = MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_CUSTOM_DATA, UNIT_0_625_MS),
         .duration    = MSEC_TO_UNITS(ADVERTISEMENT_TIMEOUT_CUSTOM_DATA * 1000, UNIT_10_MS)
     };
+
     err_code = sd_ble_gap_adv_set_configure(&m_advertising.adv_handle, &m_adv_data, &m_adv_params);
     APP_ERROR_CHECK(err_code);
 
@@ -979,7 +980,9 @@ void sys_evt_dispatch(uint32_t sys_evt) {
 }
 #else
 void sys_evt_dispatch(uint32_t sys_evt, void * p_contextt) {
+    #ifndef S113
     ble_advertising_on_sys_evt(sys_evt, &m_advertising);
+    #endif
 }
 #endif
 

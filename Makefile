@@ -65,6 +65,7 @@ SRC_FILES_COMMON += \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/fds/fds.c \
+  $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/ble/ble_services/ble_dis/ble_dis.c \
   $(CUSTOM_INCLUDES_DIR)/services/battery_service/battery.c \
   $(PROJ_DIR)/src/ble/services/binary_sensor/ble_binary_sensor_service.c \

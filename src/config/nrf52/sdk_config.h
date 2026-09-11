@@ -4892,7 +4892,7 @@
  // <e> PWM_ENABLED - nrf_drv_pwm - PWM peripheral driver - legacy layer
  //==========================================================
  #ifndef PWM_ENABLED
- #define PWM_ENABLED 0
+ #define PWM_ENABLED 1
  #endif
  // <o> PWM_DEFAULT_CONFIG_OUT0_PIN - Out0 pin  <0-31> 
  
@@ -6597,7 +6597,7 @@
  // <i> As a result the reserved space can be used by other modules.
  
  #ifndef FDS_VIRTUAL_PAGES_RESERVED
- #define FDS_VIRTUAL_PAGES_RESERVED 1
+ #define FDS_VIRTUAL_PAGES_RESERVED 0
  #endif
  
  // </h> 

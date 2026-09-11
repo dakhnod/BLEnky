@@ -248,11 +248,7 @@ void ble_init() {
     uint8_t device_name_length = LENGTH_DEVICE_NAME;
     bool device_name_present = false;
 
-    NRF_LOG_DEBUG("reading device name");
-
     storage_read_device_name(device_name, &device_name_length, &device_name_present);
-
-    NRF_LOG_DEBUG("device name present: %d", device_name_present);
 
     if(!device_name_present){
         // set default device name
@@ -283,9 +279,7 @@ void ble_init() {
 
     #if FEATURE_ENABLED(BLE_BONDING)
     // filesystem_init();
-    NRF_LOG_DEBUG("pm before");
     peer_manager_init();
-    NRF_LOG_DEBUG("pm after");
     #endif
 
     #ifdef S130

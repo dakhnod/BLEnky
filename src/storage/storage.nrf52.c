@@ -25,9 +25,15 @@ static void fds_evt_handler(fds_evt_t const * p_fds_evt)
       case FDS_EVT_UPDATE:
       case FDS_EVT_WRITE: {
         NRF_LOG_DEBUG("fds write result: %d", p_fds_evt->result);
+        fds_gc();
+        break;
+      }
+      case FDS_EVT_GC: {
+        NRF_LOG_DEBUG("fds GC result: %d", p_fds_evt->result);
         if ((p_fds_evt->result == NRF_SUCCESS) && reboot_requested) {
           NVIC_SystemReset();
         }
+        break;
       }
       default:
         break;
@@ -39,7 +45,7 @@ void storage_read(uint8_t record_id, uint8_t *buffer, uint8_t *length, bool *fil
   ret_code_t err_code;
 
   fds_record_desc_t record_desc;
-  fds_find_token_t find_token;
+  fds_find_token_t find_token = {0};
 
   NRF_LOG_DEBUG("looking for record %d", record_id);
 
@@ -100,21 +106,23 @@ void storage_read_device_name(uint8_t *buffer, uint8_t *length, bool *configurat
   storage_read(RECORD_ID_DEVICE_NAME, buffer, length, configuration_present);
 }
 
-void storage_store(uint8_t record_key, const uint8_t *data, uint32_t length, const uint8_t reboot) {
+void storage_store(uint8_t record_key, const uint8_t *data, uint8_t length, const uint8_t reboot) {
   ret_code_t err_code;
   reboot_requested = reboot;
 
   static uint8_t internal_buffer[256];
 
   internal_buffer[0] = length;
-  memcpy(internal_buffer + 4, data, length);
+  memcpy(internal_buffer + 1, data, length);
+
+  length += 1; // account for length byte
 
   if ((length % 4) != 0) {
     length += 4 - (length % 4);
   }
 
   fds_record_desc_t desc;
-  fds_find_token_t find_token;
+  fds_find_token_t find_token = { 0 };
   
   const fds_record_t record = {
     .data = {

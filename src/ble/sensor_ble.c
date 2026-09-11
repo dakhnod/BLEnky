@@ -250,7 +250,7 @@ void ble_init() {
 
     NRF_LOG_DEBUG("reading device name");
 
-    // storage_read_device_name(device_name, &device_name_length, &device_name_present);
+    storage_read_device_name(device_name, &device_name_length, &device_name_present);
 
     NRF_LOG_DEBUG("device name present: %d", device_name_present);
 

@@ -243,54 +243,18 @@ void peer_manager_init()
     APP_ERROR_CHECK(err_code);
 }
 
-
-
-// Simple event handler to handle errors during initialization.
-void fds_evt_handler(fds_evt_t const *const p_fds_evt)
-{
-    switch (p_fds_evt->id)
-    {
-    case FDS_EVT_INIT:
-        if (p_fds_evt->result == NRF_SUCCESS)
-        {
-            NRF_LOG_DEBUG("fds init success\n");
-        }
-        else
-        {
-            NRF_LOG_ERROR("fds init error: %d\n", p_fds_evt->result);
-        }
-        break;
-    case FDS_EVT_WRITE:
-        if (p_fds_evt->result == NRF_SUCCESS)
-        {
-            NRF_LOG_DEBUG("fds write success\n");
-        }
-        else
-        {
-            NRF_LOG_ERROR("fds write error: %d\n", p_fds_evt->result);
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void filesystem_init()
-{
-    ret_code_t err_code = fds_register(fds_evt_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = fds_init();
-    APP_ERROR_CHECK(err_code);
-}
-
 void ble_init() {
     uint8_t device_name[LENGTH_DEVICE_NAME];
-    uint32_t device_name_length;
+    uint8_t device_name_length = LENGTH_DEVICE_NAME;
+    bool device_name_present = false;
 
-    storage_read_device_name(device_name, &device_name_length);
+    NRF_LOG_DEBUG("reading device name");
 
-    if(device_name_length == 0){
+    // storage_read_device_name(device_name, &device_name_length, &device_name_present);
+
+    NRF_LOG_DEBUG("device name present: %d", device_name_present);
+
+    if(!device_name_present){
         // set default device name
         ble_gap_addr_t addr;
 
@@ -318,8 +282,10 @@ void ble_init() {
     advertising_init();
 
     #if FEATURE_ENABLED(BLE_BONDING)
-    filesystem_init();
+    // filesystem_init();
+    NRF_LOG_DEBUG("pm before");
     peer_manager_init();
+    NRF_LOG_DEBUG("pm after");
     #endif
 
     #ifdef S130
@@ -1067,9 +1033,10 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     ble_gap_conn_params_t gap_conn_params;
 
     uint8_t params_data[10];
-    storage_read_connection_params_configuration(params_data);
+    bool params_present = false;
+    storage_read_connection_params_configuration(params_data, &params_present);
 
-    if (params_data[0] != 0xff) {
+    if (params_present) {
         ble_configuration_connection_params_packet_t *params =
             (ble_configuration_connection_params_packet_t *)params_data;
 

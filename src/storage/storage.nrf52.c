@@ -6,225 +6,157 @@
 #include "nrf_fstorage_sd.h"
 #include "nrf_fstorage_nvmc.h"
 #include "preconfiguration.h"
+#include "fds.h"
 
-NRF_FSTORAGE_DEF(nrf_fstorage_t m_storage) =
+#define FILE_ID_BLENKY 0x0000
+#define RECORD_ID_PIN_SETTINGS 0x0001
+#define RECORD_ID_CONNECTION_PARAMETERS 0x0002
+#define RECORD_ID_DEVICE_NAME 0x0003
+
+bool reboot_requested = false;
+
+static void fds_evt_handler(fds_evt_t const * p_fds_evt)
 {
-    .evt_handler    = fs_evt_handler,
-    // addresses taken from linker script
-    // which in turn takes those from the bootloader start
-    #ifdef NRF52840_XXAA
-    .start_addr     = 0xA1000,
-    .end_addr       = 0xA2000
-    #else
-    .start_addr = 0x61000,
-    .end_addr = 0x62000
-    #endif
-};
-
-bool is_erased = true;
-
-void fs_evt_handler(nrf_fstorage_evt_t * p_evt) {
-
-
-  NRF_LOG_DEBUG("fstorage callback: event %d,  result %d\n", p_evt->id, p_evt->result);
-
-  if (p_evt->result == NRF_SUCCESS)
+    switch (p_fds_evt->id)
     {
-        NRF_LOG_DEBUG("Flash %s success: addr=%p",
-                      (p_evt->id == NRF_FSTORAGE_EVT_WRITE_RESULT) ? "write" : "erase",
-                      p_evt->addr);
-    }
-    else
-    {
-        NRF_LOG_DEBUG("Flash %s failed (0x%x): addr=%p, len=0x%x bytes",
-                      (p_evt->id == NRF_FSTORAGE_EVT_WRITE_RESULT) ? "write" : "erase",
-                      p_evt->result, p_evt->addr, p_evt->len);
-    }
-
-    if ((*(uint8_t *)(p_evt->p_param)) == 0x01) {
-      // reboot requested
-      NVIC_SystemReset();
-      return;
-    }
-}
-
-void storage_erase(){
-  ret_code_t ret_code = nrf_fstorage_erase(
-    &m_storage,
-    m_storage.start_addr,
-    1,
-    NULL
-  );
-
-  if (ret_code != NRF_SUCCESS) {
-    NRF_LOG_DEBUG("fstorage erase failure: %d\n", ret_code);
-    return;
+      case FDS_EVT_INIT:
+        NRF_LOG_DEBUG("fds init result: %d", p_fds_evt->result);
+        break;
+      case FDS_EVT_UPDATE:
+      case FDS_EVT_WRITE: {
+        NRF_LOG_DEBUG("fds write result: %d", p_fds_evt->result);
+        fds_gc();
+        break;
+      }
+      case FDS_EVT_GC: {
+        NRF_LOG_DEBUG("fds GC result: %d", p_fds_evt->result);
+        if ((p_fds_evt->result == NRF_SUCCESS) && reboot_requested) {
+          NVIC_SystemReset();
+        }
+        break;
+      }
+      default:
+        break;
   }
 }
 
-uint32_t checksum_compute(uint8_t *data, uint32_t length){
-  return crc32_compute(data, length, NULL);
-};
-
-void storage_read(uint32_t offset, uint8_t *buffer, uint32_t length) {
+void storage_read(uint8_t record_id, uint8_t *buffer, uint8_t *length, bool *file_found) {
   // casting p_start_addr, so that offset calculation does not add offset * sizeof(uint32_t)
-  memcpy(buffer, ((uint8_t *)m_storage.start_addr) + offset, length);
-}
+  ret_code_t err_code;
 
-void storage_checksum_check(){
-  uint32_t length = OFFSET_CHECKSUM;
-  // add 4 bytes for checksum
-  uint8_t data[length + 4];
+  fds_record_desc_t record_desc;
+  fds_find_token_t find_token = {0};
 
-  // read 4 more to capcure checksum
-  storage_read(0x00, data, length + 4);
+  NRF_LOG_DEBUG("looking for record %d", record_id);
 
-  for(uint32_t i = 0; i < 4; i++){
-    if(data[OFFSET_CHECKSUM + i] != 0xFF){
-      is_erased = false;
-      break;
-    }
-  }
-
-  if(is_erased){
-    NRF_LOG_DEBUG("flash erased, not checking checksum\n");
+  err_code = fds_record_find(FILE_ID_BLENKY, record_id, &record_desc, &find_token);
+  if (err_code == FDS_ERR_NOT_FOUND) {
+    NRF_LOG_DEBUG("BLEnky file not found", err_code);
+    *file_found = false;
     return;
   }
-
-  uint32_t checksum_calculated = checksum_compute(data, length);
-  uint32_t checksum_stored = 0;
-  // need to do it this way since checksum may not be memory-aligned
-  for(int i = 0; i < 4; i++){
-    checksum_stored |= (data[OFFSET_CHECKSUM + i]) << (i * 8);
-  }
-
-  NRF_LOG_DEBUG("calculated checksum: %x, stored: %x\n", checksum_calculated, checksum_stored);
-
-  if(checksum_calculated == checksum_stored){
-    // checksum valid
-    return;
-  }
-
-  NRF_LOG_ERROR("checksum invalid, erasing settings page\n");
-
-  // erase flash if checksum invalid
-  storage_erase();
-
-  // giving flash some time to erase flash page
-  nrf_delay_ms(3);
-
-  return;
-};
-
-void storage_init() {
-  nrf_fstorage_api_t * p_api_impl;
-  bool sd_irq_initialized = true;
-
-  NRF_LOG_DEBUG("Calling nrf_dfu_flash_init(sd_irq_initialized=%s)...",
-                sd_irq_initialized ? "true" : "false");
-
-  /* Setup the desired API implementation. */
-#ifdef BLE_STACK_SUPPORT_REQD
-  if (sd_irq_initialized)
-  {
-      NRF_LOG_DEBUG("Initializing nrf_fstorage_sd backend.");
-      p_api_impl = &nrf_fstorage_sd;
-  }
-  else
-#endif
-  {
-      NRF_LOG_DEBUG("Initializing nrf_fstorage_nvmc backend.");
-      p_api_impl = &nrf_fstorage_nvmc;
-  }
-
-  ret_code_t err_code = nrf_fstorage_init(&m_storage, p_api_impl, NULL);
   APP_ERROR_CHECK(err_code);
 
-  storage_checksum_check();
+  fds_flash_record_t flash_record;
+  err_code = fds_record_open(&record_desc, &flash_record);
+  APP_ERROR_CHECK(err_code);
+
+  uint8_t data_length = ((uint8_t*)flash_record.p_data)[0];
+  uint8_t read_length = MIN(*length, data_length);
+
+  memcpy(buffer, flash_record.p_data + 1, read_length);
+
+  err_code = fds_record_close(&record_desc);
+
+  *length = read_length;
+  *file_found = true;
+}
+
+void storage_init() {
+  ret_code_t err_code;
+  NRF_LOG_DEBUG("initializing fds...");
+
+  err_code = fds_register(fds_evt_handler);
+  APP_ERROR_CHECK(err_code);
+
+  err_code = fds_init();
+  NRF_LOG_DEBUG("fds init return: %d", err_code);
+  APP_ERROR_CHECK(err_code);
+
+  nrf_delay_us(10000);
 }
 
 void storage_read_pin_configuration(uint8_t *buffer) {
-  storage_read(OFFSET_PIN_CONFIGURATION, buffer, PIN_CONFIGURATION_LENGTH);
+  uint8_t length = PIN_CONFIGURATION_LENGTH;
+  bool configuration_present;
+  storage_read(RECORD_ID_PIN_SETTINGS, buffer, &length, &configuration_present);
 
-  if(is_erased) {
-    NRF_LOG_DEBUG("loading preconfigured pin values");
+  if (!configuration_present) {
+    memset(buffer, 0xFF, PIN_CONFIGURATION_LENGTH);
     preconfiguration_load(buffer);
   }
 }
 
-void storage_read_connection_params_configuration(uint8_t *buffer) {
-  storage_read(OFFSET_CONNECTION_PARAMS_CONFIGURATION, buffer, 10);
+void storage_read_connection_params_configuration(uint8_t *buffer, bool *configuration_present) {
+  uint8_t length = 10;
+  storage_read(RECORD_ID_CONNECTION_PARAMETERS, buffer, &length, configuration_present);
 }
 
-void storage_read_device_name(uint8_t *buffer, uint32_t *length_) {
-  storage_read(OFFSET_DEVICE_NAME, buffer, LENGTH_DEVICE_NAME);
-
-  uint32_t length;
-
-  for(length = 0; ; length++){
-    if(length >= LENGTH_DEVICE_NAME){
-      break;
-    }
-    if(buffer[length] == 0){
-      break;
-    }
-    if(buffer[length] == 0xFF){
-      break;
-    }
-  }
-
-  *length_ = length;
+void storage_read_device_name(uint8_t *buffer, uint8_t *length, bool *configuration_present) {
+  storage_read(RECORD_ID_DEVICE_NAME, buffer, length, configuration_present);
 }
 
-void storage_store(uint32_t offset, const uint8_t *data, uint32_t length, const uint8_t reboot) {
-  // PIN_CONFIGURATION_LENGTH bytes for pin configuration + 10 bytes for connection param configuration + 20 bytes for device name
-  const uint32_t size = OFFSET_CHECKSUM;
+void storage_store(uint8_t record_key, const uint8_t *data, uint8_t length, const uint8_t reboot) {
+  ret_code_t err_code;
+  reboot_requested = reboot;
 
-  static uint8_t storage_data[CONFIGURATION_SIZE]; 
-  storage_read(0, storage_data, size); // read whole storage
+  static uint8_t internal_buffer[256];
 
-  if(is_erased) {
-    NRF_LOG_DEBUG("loading preconfigured pin values");
-    preconfiguration_load(storage_data + OFFSET_PIN_CONFIGURATION);
+  internal_buffer[0] = length;
+  memcpy(internal_buffer + 1, data, length);
+
+  length += 1; // account for length byte
+
+  if ((length % 4) != 0) {
+    length += 4 - (length % 4);
   }
 
-  memcpy(storage_data + offset, data, length);
+  fds_record_desc_t desc;
+  fds_find_token_t find_token = { 0 };
+  
+  const fds_record_t record = {
+    .data = {
+      .p_data = internal_buffer,
+      .length_words = length / 4
+    },
+    .file_id = FILE_ID_BLENKY,
+    .key = record_key
+  };
 
-  uint32_t checksum = checksum_compute(storage_data, OFFSET_CHECKSUM);
+  err_code = fds_record_find(FILE_ID_BLENKY, record_key, &desc, &find_token);
 
-  // apend checksum to buffer
-  memcpy(storage_data + OFFSET_CHECKSUM, (uint8_t*)(&checksum), 4);
+  if (err_code == FDS_ERR_NOT_FOUND) {
+    err_code = fds_record_write(&desc, &record);
+    APP_ERROR_CHECK(err_code);
+    NRF_LOG_DEBUG("record created at 0x%x", desc.p_record);
+    return;
+  }
+  APP_ERROR_CHECK(err_code);
 
-  storage_erase();
-
-  static uint8_t context;
-  context = reboot ? 1 : 0;
-
-  uint32_t ret_code = nrf_fstorage_write(
-    &m_storage,
-    m_storage.start_addr,
-    (uint32_t *)storage_data,
-    CONFIGURATION_SIZE,
-    &context
-  );
-
-  APP_ERROR_CHECK(ret_code);
+  err_code = fds_record_update(&desc, &record);
+  APP_ERROR_CHECK(err_code);
+  NRF_LOG_DEBUG("record updated at 0x%x", desc.p_record);
 }
 
 void storage_store_pin_configuration(uint8_t *data) {
-  storage_store(OFFSET_PIN_CONFIGURATION, data, PIN_CONFIGURATION_LENGTH, true);
+  uint8_t length = PIN_CONFIGURATION_LENGTH;
+  storage_store(RECORD_ID_PIN_SETTINGS, data, length, true);
 }
 
 void storage_store_connection_params_configuration(const uint8_t *data) {
-  storage_store(OFFSET_CONNECTION_PARAMS_CONFIGURATION, data, 10, true);
+  storage_store(RECORD_ID_CONNECTION_PARAMETERS, data, 10, true);
 }
 
-void storage_store_device_name(const uint8_t *name, int length) {
-  uint8_t name_buffer[LENGTH_DEVICE_NAME];
-  memcpy(name_buffer, name, MIN(length, LENGTH_DEVICE_NAME));
-  if(length < LENGTH_DEVICE_NAME){
-    name_buffer[length] = 0;
-  }
-
-  storage_store(OFFSET_DEVICE_NAME, name_buffer, LENGTH_DEVICE_NAME, true);
+void storage_store_device_name(const uint8_t *name, uint8_t length) {
+  storage_store(RECORD_ID_DEVICE_NAME, name, MIN(length, LENGTH_DEVICE_NAME), true);
 }

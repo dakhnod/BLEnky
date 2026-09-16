@@ -93,12 +93,12 @@ void ble_csc_timer_init(){
     APP_ERROR_CHECK(err_code);
 }
 
-void ble_csc_on_connect(ble_evt_t *p_ble_evt)
+void ble_csc_on_connect(const ble_evt_t *p_ble_evt)
 {
     ble_csc_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
-void ble_csc_on_disconnect(ble_evt_t *p_ble_evt)
+void ble_csc_on_disconnect(const ble_evt_t *p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_csc_connection_handle = BLE_CONN_HANDLE_INVALID;
@@ -122,7 +122,7 @@ void handle_speed_measurement_notification_enabled(uint8_t enabled){
     APP_ERROR_CHECK(err_code);
 }
 
-void handle_csc_measurement_cccd_write(ble_gatts_evt_write_t *write_evt)
+void handle_csc_measurement_cccd_write(const ble_gatts_evt_write_t *write_evt)
 {
     if (write_evt->len == 2)
     {
@@ -149,9 +149,9 @@ ret_code_t ble_csc_characteristic_measurement_add()
 
 
 
-void ble_csc_on_write(ble_evt_t *p_ble_evt)
+void ble_csc_on_write(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_write_t *write_evt = &p_ble_evt
+    const ble_gatts_evt_write_t *write_evt = &p_ble_evt
                                             ->evt
                                             .gatts_evt
                                             .params
@@ -189,9 +189,9 @@ void ble_csc_on_authroize_measurement()
     );
 }
 
-void ble_csc_on_authorize(ble_evt_t *p_ble_evt)
+void ble_csc_on_authorize(const ble_evt_t *p_ble_evt)
 {
-    ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
+    const ble_gatts_evt_rw_authorize_request_t *req = &(p_ble_evt
                                                       ->evt.gatts_evt
                                                       .params
                                                       .authorize_request);
@@ -212,7 +212,7 @@ void ble_csc_on_authorize(ble_evt_t *p_ble_evt)
     }
 }
 
-void ble_csc_on_ble_evt(ble_evt_t *p_ble_evt)
+void ble_csc_on_ble_evt(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {

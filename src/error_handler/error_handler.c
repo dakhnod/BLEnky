@@ -4,7 +4,7 @@
 #include "app_error.h"
 #include "watchdog.h"
 
-#ifdef NRF52
+#if FAMILY == 52
 #include "nrf_strerror.h"
 #endif
 

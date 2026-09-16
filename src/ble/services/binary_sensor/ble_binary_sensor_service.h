@@ -63,7 +63,7 @@ typedef struct {
     uint8_t parameter_id;
     uint8_t parameter_length;
     uint16_t reserved;
-    uint8_t *data;
+    const uint8_t *data;
 } message_parameter_t;
 
 typedef struct {
@@ -80,9 +80,9 @@ typedef struct {
 
 
 
-void parse_full_packet_with_split_header(uint8_t *data, uint16_t length);
+void parse_full_packet_with_split_header(const uint8_t *data, const uint16_t length);
 void parse_packet_decoded(enum message_id_t message_id, message_parameter_t *parameters, uint8_t parameter_count);
-void parse_packet(uint8_t *data, uint16_t length);
+void parse_packet(const uint8_t *data, const uint16_t length);
 void parse_set_sensor_command(message_parameter_t *parameters, uint8_t parameter_count);
 void handle_set_sensor_command(enum sensor_type_t sensor_type, enum report_state_t report_state);
 void parse_get_sensor_command(message_parameter_t *parameters, uint8_t parameter_count);
@@ -124,7 +124,7 @@ uint32_t ble_bss_init();
  * @param[in]   p_hrs      Heart Rate Service structure.
  * @param[in]   p_ble_evt  Event received from the BLE stack.
  */
-void ble_bss_on_ble_evt(ble_evt_t * p_ble_evt);
+void ble_bss_on_ble_evt(const ble_evt_t * p_ble_evt);
 
 /**@brief Function for sending heart rate measurement if notification has been enabled.
  *

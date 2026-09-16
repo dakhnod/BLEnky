@@ -25,9 +25,9 @@ void fs_evt_handler(nrf_fstorage_evt_t * p_evt);
 #endif
 void storage_on_sys_evt(uint32_t sys_evt);
 void storage_store_pin_configuration(uint8_t *buffer);
-void storage_store_device_name(const uint8_t *name, int length);
+void storage_store_device_name(const uint8_t *name, uint8_t length);
 void storage_store_connection_params_configuration(const uint8_t *buffer);
 
-void storage_read_connection_params_configuration(uint8_t *buffer);
-void storage_read_device_name(uint8_t *buffer, uint32_t *length);
+void storage_read_connection_params_configuration(uint8_t *buffer, bool *configuration_present);
+void storage_read_device_name(uint8_t *buffer, uint8_t *length, bool *configuration_present);
 void storage_read_pin_configuration(uint8_t *buffer);

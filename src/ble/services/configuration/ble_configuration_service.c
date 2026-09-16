@@ -98,12 +98,16 @@ ret_code_t ble_configuration_connection_params_configuraion_data_set(uint8_t dat
 void ble_configuration_restore_values() {
   ret_code_t err_code;
 
-  uint8_t storage_data[PIN_CONFIGURATION_LENGTH]; // size 16 to cover both endpoints
+  uint8_t storage_data[PIN_CONFIGURATION_LENGTH];
   storage_read_pin_configuration(storage_data);
   err_code = ble_configuration_pin_configuraion_data_set(storage_data);
   APP_ERROR_CHECK(err_code);
 
-  storage_read_connection_params_configuration(storage_data);
+  bool connection_params_present;
+  storage_read_connection_params_configuration(storage_data, &connection_params_present);
+  if (!connection_params_present) {
+    memset(storage_data, 0xFF, 10);
+  };
   err_code = ble_configuration_connection_params_configuraion_data_set(storage_data);
   APP_ERROR_CHECK(err_code);
 }

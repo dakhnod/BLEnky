@@ -243,54 +243,14 @@ void peer_manager_init()
     APP_ERROR_CHECK(err_code);
 }
 
-
-
-// Simple event handler to handle errors during initialization.
-void fds_evt_handler(fds_evt_t const *const p_fds_evt)
-{
-    switch (p_fds_evt->id)
-    {
-    case FDS_EVT_INIT:
-        if (p_fds_evt->result == NRF_SUCCESS)
-        {
-            NRF_LOG_DEBUG("fds init success\n");
-        }
-        else
-        {
-            NRF_LOG_ERROR("fds init error: %d\n", p_fds_evt->result);
-        }
-        break;
-    case FDS_EVT_WRITE:
-        if (p_fds_evt->result == NRF_SUCCESS)
-        {
-            NRF_LOG_DEBUG("fds write success\n");
-        }
-        else
-        {
-            NRF_LOG_ERROR("fds write error: %d\n", p_fds_evt->result);
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void filesystem_init()
-{
-    ret_code_t err_code = fds_register(fds_evt_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = fds_init();
-    APP_ERROR_CHECK(err_code);
-}
-
 void ble_init() {
     uint8_t device_name[LENGTH_DEVICE_NAME];
-    uint32_t device_name_length;
+    uint8_t device_name_length = LENGTH_DEVICE_NAME;
+    bool device_name_present = false;
 
-    storage_read_device_name(device_name, &device_name_length);
+    storage_read_device_name(device_name, &device_name_length, &device_name_present);
 
-    if(device_name_length == 0){
+    if(!device_name_present){
         // set default device name
         ble_gap_addr_t addr;
 
@@ -318,7 +278,7 @@ void ble_init() {
     advertising_init();
 
     #if FEATURE_ENABLED(BLE_BONDING)
-    filesystem_init();
+    // filesystem_init();
     peer_manager_init();
     #endif
 
@@ -729,7 +689,7 @@ void custom_data_advertisement_start(){
     if(custom_advertisement_running){
         return;
     }
-    uint8_t data[] = { ADVERTISEMENT_CUSTOM_DATA };
+    static uint8_t data[] = { ADVERTISEMENT_CUSTOM_DATA };
 
     uint8_t battery_level = battery_level_get();
 
@@ -780,7 +740,7 @@ void custom_data_advertisement_start(){
     err_code = sd_ble_gap_adv_start(&m_adv_params);
     APP_ERROR_CHECK(err_code);
     #else
-    ble_gap_adv_data_t m_adv_data = {
+    static ble_gap_adv_data_t m_adv_data = {
         .adv_data = {
             .p_data = data + 6,
             .len = sizeof(data) - 6
@@ -799,6 +759,7 @@ void custom_data_advertisement_start(){
         .interval    = MSEC_TO_UNITS(ADVERTISEMENT_INTERVAL_CUSTOM_DATA, UNIT_0_625_MS),
         .duration    = MSEC_TO_UNITS(ADVERTISEMENT_TIMEOUT_CUSTOM_DATA * 1000, UNIT_10_MS)
     };
+
     err_code = sd_ble_gap_adv_set_configure(&m_advertising.adv_handle, &m_adv_data, &m_adv_params);
     APP_ERROR_CHECK(err_code);
 
@@ -979,7 +940,9 @@ void sys_evt_dispatch(uint32_t sys_evt) {
 }
 #else
 void sys_evt_dispatch(uint32_t sys_evt, void * p_contextt) {
+    #ifndef S113
     ble_advertising_on_sys_evt(sys_evt, &m_advertising);
+    #endif
 }
 #endif
 
@@ -1064,9 +1027,10 @@ void gap_params_init(uint8_t *device_name, uint32_t device_name_length) {
     ble_gap_conn_params_t gap_conn_params;
 
     uint8_t params_data[10];
-    storage_read_connection_params_configuration(params_data);
+    bool params_present = false;
+    storage_read_connection_params_configuration(params_data, &params_present);
 
-    if (params_data[0] != 0xff) {
+    if (params_present) {
         ble_configuration_connection_params_packet_t *params =
             (ble_configuration_connection_params_packet_t *)params_data;
 

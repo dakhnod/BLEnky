@@ -268,10 +268,53 @@ ASMFLAGS += -x assembler-with-cpp
 
 LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
+else ifeq ($(CHIP), NRF52805)
+FAMILY = 52
+TARGETS = nrf52805_xxaa
+ABI = soft
+SDK_VERSION = 17.1.0
 
+SOFTDEVICE_VERSION = S113_7.2.0
+SOFTDEVICE_ID = 0x0102
+UF2_FAMILY = 0x72721d4e
+
+$(OUTPUT_DIRECTORY)/$(TARGETS).out: \
+  LINKER_SCRIPT  := src/linker/nrf52805_qfaa.ld
+
+SRC_FILES = \
+  $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52805.S \
+  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52805.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
+  $(SDK_ROOT)/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.c \
+  $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
+
+
+INC_FOLDERS += \
+  $(SDK_ROOT)/components/softdevice/s113/headers \
+  $(SDK_ROOT)/components/softdevice/s113/headers/nrf52 \
+
+LIB_FILES += \
+  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.13.a \
+  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_3.0.8.a \
+
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s113/hex/s113_nrf52_7.2.0_softdevice.hex
+
+CFLAGS += -DS113
+CFLAGS += -DNRF52
+CFLAGS += -DNRF52805_XXAA
+CFLAGS += -DHARDWARE_PIN_COUNT=32
+CFLAGS += -DNRF_CRYPTO_ALLOCATOR=3
+CFLAGS += -DNRF_CRYPTO_BACKEND_OBERON_ENABLED=1
+CFLAGS += -DNRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED=1
+
+ASMFLAGS += -DS113
+ASMFLAGS += -DNRF52
+ASMFLAGS += -DNRF52805_XXAA
 else ifeq ($(CHIP), NRF52832)
 FAMILY = 52
 TARGETS = nrf52832_xxac
+ABI = hard
+SDK_VERSION = 15.3.0
 
 SOFTDEVICE_VERSION = S132_6.1.1
 SOFTDEVICE_ID = 0xB7
@@ -292,10 +335,15 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s132/headers \
   $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
 
+LIB_FILES += \
+  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.12.a \
+  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_2.0.7.a \
+
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex
 
 CFLAGS += -DS132
 CFLAGS += -DNRF52
+CFLAGS += -DNRF52832_XXAA
 CFLAGS += -DHARDWARE_PIN_COUNT=32
 CFLAGS += -DNRF_CRYPTO_ALLOCATOR=3
 CFLAGS += -DNRF_CRYPTO_BACKEND_OBERON_ENABLED=1
@@ -303,12 +351,15 @@ CFLAGS += -DNRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED=1
 
 ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
+ASMFLAGS += -DNRF52832_XXAA
 else ifeq ($(CHIP), NRF52840)
 FAMILY = 52
 TARGETS = nrf52840_xxaa
+ABI = hard
+SDK_VERSION = 15.3.0
 
 SOFTDEVICE_VERSION = S140_6.1.1
-SOFTDEVICE_ID = 0xAE
+SOFTDEVICE_ID = 0xB6
 UF2_FAMILY = 0xada52840
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
@@ -327,6 +378,10 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s140/headers \
   $(SDK_ROOT)/components/softdevice/s140/headers/nrf52
 
+LIB_FILES += \
+  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.12.a \
+  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_2.0.7.a \
+
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_softdevice.hex
 
 CFLAGS += -DS140
@@ -337,7 +392,7 @@ CFLAGS += -DNRF_CRYPTO_BACKEND_CC310_ENABLED=1
 ASMFLAGS += -DS140
 ASMFLAGS += -DNRF52840_XXAA
 else
-$(error please specify CHIP=NRF51822 / NRF52832 / NRF52840)
+$(error please specify CHIP=NRF51822 / NRF52805 / NRF52832 / NRF52840)
 endif
 
 ifeq ($(FAMILY), 52)
@@ -430,11 +485,9 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/mbedtls/include \
 
 LIB_FILES += \
-  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a \
-  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/hard-float/liboberon_2.0.7.a \
   $(SDK_ROOT)/components/nfc/t2t_lib/nfc_t2t_lib_gcc.a \
 
-CFLAGS += -DNRF_SD_BLE_API_VERSION=6
+CFLAGS += -DNRF_SD_BLE_API_VERSION=7
 CFLAGS += -DAPP_TIMER_TICKS_COMPAT\(time,prescaler\)=APP_TIMER_TICKS\(time\)
 CFLAGS += -DNRF_DFU_SETTINGS_COMPATIBILITY_MODE=1
 CFLAGS += -DCONFIG_NFCT_PINS_AS_GPIOS=1
@@ -442,15 +495,23 @@ CFLAGS += -DMBEDTLS_MEMORY_BUFFER_ALLOC_C
 CFLAGS += -DMBEDTLS_PLATFORM_MEMORY
 CFLAGS += -DFAMILY=52
 CFLAGS += -mcpu=cortex-m4
-CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS += -mfloat-abi=$(ABI)
 
-ASMFLAGS += -DNRF_SD_BLE_API_VERSION=6
+ASMFLAGS += -DNRF_SD_BLE_API_VERSION=7
 
 LDFLAGS += -mcpu=cortex-m4
-LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LDFLAGS += -mfloat-abi=$(ABI)
 LDFLAGS += -mthumb -mabi=aapcs -L $(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
 
-SDK_ROOT ?= $(BLE_ROOT)/SDK/15.3.0
+ifeq ($(ABI), hard)
+CFLAGS += -mfpu=fpv4-sp-d16 -DFLOAT_ABI_HARD
+LDFLAGS += -mfpu=fpv4-sp-d16
+else
+CFLAGS += -DFLOAT_ABI_SOFT
+LDFLAGS += -DFLOAT_ABI_SOFT
+endif
+
+SDK_ROOT ?= $(BLE_ROOT)/SDK/$(SDK_VERSION)
 endif
 
 # Libraries common to all targets
@@ -461,7 +522,7 @@ CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DSWI_DISABLE0
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS += -Wall -Werror -O3 -g3
+CFLAGS += -Wall -Werror -O2 -g3
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums 
@@ -612,3 +673,6 @@ rtt_viewer_start:
 rtt_viewer_stop:
 	killall JLinkRTTViewer || true
 	sleep 0.5
+
+vars:
+	echo "$(CFLAGS)"

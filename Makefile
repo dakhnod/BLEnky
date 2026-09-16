@@ -272,7 +272,10 @@ else ifeq ($(CHIP), NRF52805)
 FAMILY = 52
 TARGETS = nrf52805_xxaa
 ABI = soft
+SDK_VERSION = 17.1.0
 
+SOFTDEVICE_VERSION = S113_7.2.0
+SOFTDEVICE_ID = 0x0102
 UF2_FAMILY = 0x72721d4e
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
@@ -289,6 +292,10 @@ SRC_FILES = \
 INC_FOLDERS += \
   $(SDK_ROOT)/components/softdevice/s113/headers \
   $(SDK_ROOT)/components/softdevice/s113/headers/nrf52 \
+
+LIB_FILES += \
+  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.13.a \
+  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_3.0.8.a \
 
 SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s113/hex/s113_nrf52_7.2.0_softdevice.hex
 
@@ -307,7 +314,9 @@ else ifeq ($(CHIP), NRF52832)
 FAMILY = 52
 TARGETS = nrf52832_xxac
 ABI = hard
+SDK_VERSION = 15.3.0
 
+SOFTDEVICE_VERSION = S132_6.1.1
 SOFTDEVICE_ID = 0xB7
 UF2_FAMILY = 0x72721d4e
 
@@ -320,16 +329,19 @@ SRC_FILES = \
   $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
-  $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
 
 
 INC_FOLDERS += \
-  $(SDK_ROOT)/components/softdevice/s113/headers \
-  $(SDK_ROOT)/components/softdevice/s113/headers/nrf52 \
+  $(SDK_ROOT)/components/softdevice/s132/headers \
+  $(SDK_ROOT)/components/softdevice/s132/headers/nrf52 \
 
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s113/hex/s113_nrf52_7.2.0_softdevice.hex
+LIB_FILES += \
+  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.12.a \
+  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_2.0.7.a \
 
-CFLAGS += -DS113
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex
+
+CFLAGS += -DS132
 CFLAGS += -DNRF52
 CFLAGS += -DNRF52832_XXAA
 CFLAGS += -DHARDWARE_PIN_COUNT=32
@@ -337,15 +349,17 @@ CFLAGS += -DNRF_CRYPTO_ALLOCATOR=3
 CFLAGS += -DNRF_CRYPTO_BACKEND_OBERON_ENABLED=1
 CFLAGS += -DNRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED=1
 
-ASMFLAGS += -DS113
+ASMFLAGS += -DS132
 ASMFLAGS += -DNRF52
 ASMFLAGS += -DNRF52832_XXAA
 else ifeq ($(CHIP), NRF52840)
 FAMILY = 52
 TARGETS = nrf52840_xxaa
 ABI = hard
+SDK_VERSION = 15.3.0
 
-SOFTDEVICE_ID = 0xAE
+SOFTDEVICE_VERSION = S140_6.1.1
+SOFTDEVICE_ID = 0xB6
 UF2_FAMILY = 0xada52840
 
 $(OUTPUT_DIRECTORY)/$(TARGETS).out: \
@@ -359,29 +373,29 @@ SRC_FILES = \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_init.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/cc310/cc310_backend_shared.c \
-  $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
 
 INC_FOLDERS += \
-  $(SDK_ROOT)/components/softdevice/s113/headers \
-  $(SDK_ROOT)/components/softdevice/s113/headers/nrf52
+  $(SDK_ROOT)/components/softdevice/s140/headers \
+  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52
 
-SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s113/hex/s113_nrf52_7.2.0_softdevice.hex
+LIB_FILES += \
+  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.12.a \
+  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_2.0.7.a \
 
-CFLAGS += -DS113
+SOFTDEVICE_HEX = $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_softdevice.hex
+
+CFLAGS += -DS140
 CFLAGS += -DNRF52840_XXAA
 CFLAGS += -DHARDWARE_PIN_COUNT=64
 CFLAGS += -DNRF_CRYPTO_BACKEND_CC310_ENABLED=1
 
-ASMFLAGS += -DS113
+ASMFLAGS += -DS140
 ASMFLAGS += -DNRF52840_XXAA
 else
 $(error please specify CHIP=NRF51822 / NRF52805 / NRF52832 / NRF52840)
 endif
 
 ifeq ($(FAMILY), 52)
-SOFTDEVICE_VERSION = S113_7.2.0
-SOFTDEVICE_ID = 0x0102 # fixme
-
 SRC_FILES += \
   $(SRC_FILES_COMMON) \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
@@ -471,8 +485,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/mbedtls/include \
 
 LIB_FILES += \
-  $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/$(ABI)-float/libnrf_cc310_0.9.13.a \
-  $(SDK_ROOT)/external/nrf_oberon/lib/cortex-m4/$(ABI)-float/liboberon_3.0.8.a \
   $(SDK_ROOT)/components/nfc/t2t_lib/nfc_t2t_lib_gcc.a \
 
 CFLAGS += -DNRF_SD_BLE_API_VERSION=7
@@ -499,7 +511,7 @@ CFLAGS += -DFLOAT_ABI_SOFT
 LDFLAGS += -DFLOAT_ABI_SOFT
 endif
 
-SDK_ROOT ?= $(BLE_ROOT)/SDK/17.1.0
+SDK_ROOT ?= $(BLE_ROOT)/SDK/$(SDK_VERSION)
 endif
 
 # Libraries common to all targets

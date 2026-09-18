@@ -14,8 +14,41 @@
 
 static void hid_user_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event);
 
-APP_USBD_HID_GENERIC_SUBCLASS_REPORT_DESC(mouse_desc,    APP_USBD_HID_MOUSE_REPORT_DSC_BUTTON(2));
 APP_USBD_HID_GENERIC_SUBCLASS_REPORT_DESC(keyboard_desc, APP_USBD_HID_KBD_REPORT_DSC());
+APP_USBD_HID_GENERIC_SUBCLASS_REPORT_DESC(mouse_desc,    {
+    0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+    0x09, 0x02,        // Usage (Mouse)
+    0xA1, 0x01,        // Collection (Application)
+    0x09, 0x01,        //   Usage (Pointer)
+    0xA1, 0x00,        //   Collection (Physical)
+    
+    // --- 3 Buttons (Bits 0-2) + 5 Bits Padding ---
+    0x05, 0x09,        //     Usage Page (Button)
+    0x19, 0x01,        //     Usage Minimum (0x01 - Button 1 / Left)
+    0x29, 0x03,        //     Usage Maximum (0x03 - Button 3 / Middle)
+    0x15, 0x00,        //     Logical Minimum (0)
+    0x25, 0x01,        //     Logical Maximum (1)
+    0x95, 0x03,        //     Report Count (3)
+    0x75, 0x01,        //     Report Size (1 bit)
+    0x81, 0x02,        //     Input (Data, Var, Abs)
+    
+    0x95, 0x01,        //     Report Count (1)
+    0x75, 0x05,        //     Report Size (5 bits)
+    0x81, 0x03,        //     Input (Const, Var, Abs) - Padding bits
+    
+    // --- Absolute X and Y (16-bit unsigned each: 0 to 32767) ---
+    0x05, 0x01,        //     Usage Page (Generic Desktop Ctrls)
+    0x09, 0x30,        //     Usage (X)
+    0x09, 0x31,        //     Usage (Y)
+    0x15, 0x00,        //     Logical Minimum (0)
+    0x26, 0xFF, 0x7F,  //     Logical Maximum (32767)
+    0x75, 0x10,        //     Report Size (16 bits)
+    0x95, 0x02,        //     Report Count (2)
+    0x81, 0x02,        //     Input (Data, Var, Abs) - Absolute coordinates
+    
+    0xC0,              //   End Collection (Physical)
+    0xC0               // End Collection (Application)
+});
 
 static const app_usbd_hid_subclass_desc_t * reps_mouse[] = {&mouse_desc};
 static const app_usbd_hid_subclass_desc_t * reps_keyboard[] = {&keyboard_desc};
@@ -229,7 +262,7 @@ void hid_injector_ble_init() {
         .uuid_type = ble_hid_injector_custom_uuid_type,
         .description_str = "HID report data for mouse",
         .is_writable = true,
-        .max_length = 4,
+        .max_length = 5,
         .value_handle = &ble_hid_injector_characteristic_mouse_value_handle
     };
     err_code = ble_helper_characteristic_add(&ble_injector_mouse_characteristic);

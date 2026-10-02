@@ -26,6 +26,7 @@ ret_code_t ble_helper_characteristic_add(ble_helper_characteristic_init_t *init)
   ble_gatts_char_md_t char_md = {
       .char_props.read = init->is_readable,
       .char_props.write = init->is_writable,
+      .char_props.write_wo_resp = init->is_writable,
       .char_props.notify = init->is_notifiable,
       .char_props.indicate = 0,
       .p_cccd_md = &cccd_md

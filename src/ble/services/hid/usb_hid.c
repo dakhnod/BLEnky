@@ -13,7 +13,8 @@
 #include "ble_srv_common.h"
 #include "nrf_gpio.h"
 
-static void hid_user_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event);
+static void hid_user_mouse_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event);
+static void hid_user_keyboard_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event);
 
 APP_USBD_HID_GENERIC_SUBCLASS_REPORT_DESC(keyboard_desc, APP_USBD_HID_KBD_REPORT_DSC());
 APP_USBD_HID_GENERIC_SUBCLASS_REPORT_DESC(mouse_desc,    {
@@ -56,28 +57,28 @@ static const app_usbd_hid_subclass_desc_t * reps_keyboard[] = {&keyboard_desc};
 
 #define REPORT_OUT_MAXSIZE_MOUSE  0
 #define REPORT_IN_QUEUE_SIZE_MOUSE    4
-#define HID_GENERIC_INTERFACE_MOUSE  1
+#define HID_GENERIC_INTERFACE_MOUSE  0
 
 APP_USBD_HID_GENERIC_GLOBAL_DEF(m_app_hid_generic_mouse,
                                 HID_GENERIC_INTERFACE_MOUSE,
-                                hid_user_ev_handler,
-                                (NRF_DRV_USBD_EPIN2),
+                                hid_user_mouse_ev_handler,
+                                (NRF_DRV_USBD_EPIN1),
                                 reps_mouse,
                                 REPORT_IN_QUEUE_SIZE_MOUSE,
                                 REPORT_OUT_MAXSIZE_MOUSE,
-                                APP_USBD_HID_SUBCLASS_BOOT,
-                                APP_USBD_HID_PROTO_MOUSE);
+                                APP_USBD_HID_SUBCLASS_NONE,
+                                APP_USBD_HID_PROTO_GENERIC);
 
 
 
 #define REPORT_OUT_MAXSIZE_KEYBOARD  1
-#define REPORT_IN_QUEUE_SIZE_KEYBOARD    1
-#define HID_GENERIC_INTERFACE_KEYBOARD  0
+#define REPORT_IN_QUEUE_SIZE_KEYBOARD    2
+#define HID_GENERIC_INTERFACE_KEYBOARD  1
 
 APP_USBD_HID_GENERIC_GLOBAL_DEF(m_app_hid_generic_keyboard,
                                 HID_GENERIC_INTERFACE_KEYBOARD,
-                                hid_user_ev_handler,
-                                (NRF_DRV_USBD_EPIN1, NRF_DRV_USBD_EPOUT1),
+                                hid_user_keyboard_ev_handler,
+                                (NRF_DRV_USBD_EPIN2/*, NRF_DRV_USBD_EPOUT1*/),
                                 reps_keyboard,
                                 REPORT_IN_QUEUE_SIZE_KEYBOARD,
                                 REPORT_OUT_MAXSIZE_KEYBOARD,
@@ -97,13 +98,47 @@ uint16_t ble_usb_hid_connection_handle;
 uint8_t mouse_data[5];
 uint8_t keyboard_data[8] = { 0 };
 
-static void hid_user_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event){
+static void hid_user_mouse_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event){
     switch (event)
     {
         case APP_USBD_HID_USER_EVT_OUT_REPORT_READY:
         {
             /* No output report defined for this example.*/
-            NRF_LOG_DEBUG("IN report ready");
+            NRF_LOG_DEBUG("mouse IN report ready");
+            size_t report_size;
+            (void)app_usbd_hid_generic_out_report_get(&m_app_hid_generic_mouse, &report_size);
+            // ASSERT(0);
+            break;
+        }
+        case APP_USBD_HID_USER_EVT_IN_REPORT_DONE:
+        {
+            break;
+        }
+        case APP_USBD_HID_USER_EVT_SET_BOOT_PROTO:
+        {
+            UNUSED_RETURN_VALUE(hid_generic_clear_buffer(p_inst));
+            NRF_LOG_INFO("mouse SET_BOOT_PROTO");
+            break;
+        }
+        case APP_USBD_HID_USER_EVT_SET_REPORT_PROTO:
+        {
+            UNUSED_RETURN_VALUE(hid_generic_clear_buffer(p_inst));
+            NRF_LOG_INFO("mouse SET_REPORT_PROTO");
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+
+static void hid_user_keyboard_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_hid_user_event_t event){
+    switch (event)
+    {
+        case APP_USBD_HID_USER_EVT_OUT_REPORT_READY:
+        {
+            /* No output report defined for this example.*/
+            NRF_LOG_DEBUG("keyboard IN report ready");
             size_t report_size;
             (void)app_usbd_hid_generic_out_report_get(&m_app_hid_generic_keyboard, &report_size);
             // ASSERT(0);
@@ -116,13 +151,13 @@ static void hid_user_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_h
         case APP_USBD_HID_USER_EVT_SET_BOOT_PROTO:
         {
             UNUSED_RETURN_VALUE(hid_generic_clear_buffer(p_inst));
-            NRF_LOG_INFO("SET_BOOT_PROTO");
+            NRF_LOG_INFO("keyboard SET_BOOT_PROTO");
             break;
         }
         case APP_USBD_HID_USER_EVT_SET_REPORT_PROTO:
         {
             UNUSED_RETURN_VALUE(hid_generic_clear_buffer(p_inst));
-            NRF_LOG_INFO("SET_REPORT_PROTO");
+            NRF_LOG_INFO("keyboard SET_REPORT_PROTO");
             break;
         }
         default:
@@ -309,7 +344,7 @@ void ble_usb_hid_on_write(const ble_evt_t *p_ble_evt)
     if (handle == ble_hid_injector_characteristic_mouse_value_handle)
     {
         if (write_evt->len != 5) {
-            // return;
+            return;
         }
         // static uint8_t report[4] = {0, 10, 10, 0};
         ret_code_t err_code = app_usbd_hid_generic_in_report_set(
@@ -317,14 +352,14 @@ void ble_usb_hid_on_write(const ble_evt_t *p_ble_evt)
             write_evt->data,
             write_evt->len
         );
-        NRF_LOG_DEBUG("ret: %i %i", write_evt->len, err_code);
+        NRF_LOG_DEBUG("mouse ret: %i %i", write_evt->len, err_code);
 
         if (write_evt->data[0] != 0x00) {
-            memcpy(keyboard_data, write_evt->data, write_evt->len);
-            keyboard_data[0] = 0x00;
+            memcpy(mouse_data, write_evt->data, write_evt->len);
+            mouse_data[0] = 0x00;
             ret_code_t err_code = app_usbd_hid_generic_in_report_set(
                 &m_app_hid_generic_mouse,
-                keyboard_data,
+                mouse_data,
                 write_evt->len
             );
             UNUSED_VARIABLE(err_code);
@@ -334,7 +369,7 @@ void ble_usb_hid_on_write(const ble_evt_t *p_ble_evt)
 
     if (handle == ble_hid_injector_characteristic_keyboard_value_handle) {
         if (write_evt->len != 8) {
-            // return;
+            return;
         }
 
         // static uint8_t press_report[8]   = { 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -345,10 +380,15 @@ void ble_usb_hid_on_write(const ble_evt_t *p_ble_evt)
             write_evt->data,
             write_evt->len
         );
-        if (err_code == 0) {
-            nrf_gpio_pin_clear(8);
-        }
+        NRF_LOG_DEBUG("keyboard ret: %i %i", write_evt->len, err_code);
         UNUSED_PARAMETER(err_code);
+
+        err_code = app_usbd_hid_generic_in_report_set(
+            &m_app_hid_generic_keyboard,
+            keyboard_data,
+            8
+        );
+        NRF_LOG_DEBUG("keyboard ret: %i %i", write_evt->len, err_code);
 
         // release_keyboard = true;
     }
